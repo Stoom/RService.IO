@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B748CB97-7861-4FC7-828D-11C44E540630}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{64F366F9-AA78-455D-B3C7-94B9F14814AA}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Tests", "test\RService.IO.Tests\RService.IO.Tests.xproj", "{29E250BF-7D21-4B2D-81DD-F527C0CC3286}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO", "src\RService.IO\RService.IO.xproj", "{80003DA0-A02B-487A-8E22-973B5A4BF0CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{29E250BF-7D21-4B2D-81DD-F527C0CC3286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29E250BF-7D21-4B2D-81DD-F527C0CC3286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29E250BF-7D21-4B2D-81DD-F527C0CC3286}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29E250BF-7D21-4B2D-81DD-F527C0CC3286}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80003DA0-A02B-487A-8E22-973B5A4BF0CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80003DA0-A02B-487A-8E22-973B5A4BF0CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80003DA0-A02B-487A-8E22-973B5A4BF0CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80003DA0-A02B-487A-8E22-973B5A4BF0CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29E250BF-7D21-4B2D-81DD-F527C0CC3286} = {1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}
+		{80003DA0-A02B-487A-8E22-973B5A4BF0CD} = {B748CB97-7861-4FC7-828D-11C44E540630}
+	EndGlobalSection
+EndGlobal
