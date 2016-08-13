@@ -1,0 +1,40 @@
+version: '1.0.0-{build}'
+configuration:
+- Debug
+- Release
+platform: Any CPU
+environment:
+  # Don't report back to the mothership
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+#  COVERALLS_REPO_TOKEN: 
+#    secure: qjAE6yLU/MiYj8qF8DiOpvde5f9gElb3f57sCi5FDBWLi5OlOhuOu0H7gou7QXyl
+pull_requests:
+  do_not_increment_build_number: true
+#assembly_info:
+#  patch: true
+#  file: '**\VersionInfo.*'
+#  assembly_version: '{version}'
+#  assembly_file_version: '{version}'
+#  assembly_informational_version: '{version}-PreRelease'
+init:
+- ps: $Env:LABEL = $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+before_build:
+- appveyor-retry dotnet restore -v Minimal
+build_script:
+- dotnet build "src\RService.IO" -c %CONFIGURATION% --version-suffix %LABEL%
+#after_build:
+#- dotnet pack "src\LibNETStandard10" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
+#- dotnet publish "src\ConsoleApplication" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts\ConsoleApplication
+#  - ps: >-
+#      $ProgramFiles = (${env:ProgramFiles(x86)}, ${env:ProgramFiles} -ne $null)[0]
+#
+#      .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"$ProgramFiles\Microsoft Visual Studio 12.0\Common7\IDE\MSTest.exe" -targetargs:"/testcontainer:$env:APPVEYOR_PROJECT_NAME.Tests/bin/$env:CONFIGURATION/$env:APPVEYOR_PROJECT_NAME.Tests.dll" -output:coverage.xml
+#
+#      .\packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
+test_script:
+- dotnet test "test\RService.IO.Tests" -c %CONFIGURATION%
+artifacts:
+  - path: '**/ServiceR.*.nupkg'
+    name: NuGet Package
+cache:
+- '%USERPROFILE%\.nuget\packages'
