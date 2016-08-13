@@ -10,7 +10,8 @@
     "Microsoft.AspNetCore.Http": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
-    "moq.netcore": "4.4.0-beta8"
+    "moq.netcore": "4.4.0-beta8",
+    "FluentAssertions": "4.13.0-*"
   },
 
   "frameworks": {
