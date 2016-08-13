@@ -36,5 +36,5 @@ test_script:
 artifacts:
   - path: '**/ServiceR.*.nupkg'
     name: NuGet Package
-cache:
-- '%USERPROFILE%\.nuget\packages'
+#cache:
+#- '%USERPROFILE%\.nuget\packages'
