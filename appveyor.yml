@@ -6,8 +6,8 @@ platform: Any CPU
 environment:
   # Don't report back to the mothership
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
-#  COVERALLS_REPO_TOKEN: 
-#    secure: qjAE6yLU/MiYj8qF8DiOpvde5f9gElb3f57sCi5FDBWLi5OlOhuOu0H7gou7QXyl
+  COVERALLS_REPO_TOKEN: 
+    secure:ZOotByGmB2CHvWqjjKkuBJd9g2akvEajO87x4kW1cTVjUYHPQv9KmHa9+YRCnIHU
 pull_requests:
   do_not_increment_build_number: true
 #assembly_info:
