@@ -21,7 +21,7 @@ init:
 before_build:
 - appveyor-retry dotnet restore -v Minimal
 build_script:
-- dotnet build "src\RService.IO" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+- dotnet build "src\RService.IO" -c %CONFIGURATION% --version-suffix %LABEL%
 #after_build:
 #- dotnet pack "src\LibNETStandard10" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 #- dotnet publish "src\ConsoleApplication" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts\ConsoleApplication
