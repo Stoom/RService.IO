@@ -7,7 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B748CB97-786
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{64F366F9-AA78-455D-B3C7-94B9F14814AA}"
 	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
 		global.json = global.json
+		LICENSE = LICENSE
+		NuGet.config = NuGet.config
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}"
