@@ -20,7 +20,7 @@ namespace RService.IO
         /// <summary>
         /// The <see cref="RouteHandler"/> to process request routing.
         /// </summary>
-        public Func<HttpContext, Task> RouteHanlder { get; set; } = InternalRouteHandler;
+        public RequestDelegate RouteHanlder { get; set; } = InternalRouteHandler;
         public Dictionary<string, RouteAttribute> Routes { get; }
 
         /// <summary>
@@ -67,14 +67,12 @@ namespace RService.IO
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            var trackPackageRouteHandler = new RouteHandler(context =>
-            {
-                var routeValues = context.GetRouteData().Values;
-                return context.Response.WriteAsync(
-                    $"Hello! Route values: {string.Join(", ", routeValues)}");
-            });
+            var routeBuilder = new RouteBuilder(app, new RouteHandler(RouteHanlder));
 
-            var routeBuilder = new RouteBuilder(app, trackPackageRouteHandler);
+            foreach (var route in Routes)
+            {
+                MapRoute(routeBuilder, route.Value);
+            }
 
             routeBuilder.MapRoute(
                 "Track Package Route",
@@ -91,6 +89,22 @@ namespace RService.IO
 
             var routes = routeBuilder.Build();
             app.UseRouter(routes);
+        }
+
+        protected void MapRoute(RouteBuilder builder, RouteAttribute route)
+        {
+            var path = route.Path.Substring(1);
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (route.Verbs)
+            {
+                case RestVerbs.Any:
+                    builder.MapRoute(path, RouteHanlder);
+                    break;
+                default:
+                    var verbs = route.Verbs.ToString().ToUpper().Split(',').ToList();
+                    verbs.ForEach(verb => builder.MapVerb(verb, path, RouteHanlder));
+                    break;
+            }
         }
 
         protected static string GetNameForMethodRoute(MethodInfo info, RouteAttribute attribute)

@@ -20,7 +20,7 @@
 
     public class SvcWithParamRoute : IService
     {
-        public const string RoutePath = "/Llama";
+        public const string RoutePath = "/Llamas";
 
         public void Any(DtoForParamRoute dto) { }
     }
