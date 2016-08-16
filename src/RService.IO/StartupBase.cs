@@ -21,6 +21,9 @@ namespace RService.IO
         /// The <see cref="RouteHandler"/> to process request routing.
         /// </summary>
         public RequestDelegate RouteHanlder { get; set; } = InternalRouteHandler;
+        /// <summary>
+        /// All discovered routes from services and their DTOs.
+        /// </summary>
         public Dictionary<string, RouteAttribute> Routes { get; }
 
         /// <summary>
