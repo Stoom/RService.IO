@@ -9,9 +9,7 @@
     "RService.IO": "1.0.0-*",
     "Microsoft.AspNetCore.Http": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
-    "Microsoft.Extensions.Logging": "1.0.0-*",
-    "moq.netcore": "4.4.0-beta8",
-    "FluentAssertions": "4.13.0"
+    "Microsoft.Extensions.Logging": "1.0.0-*"
   },
 
   "frameworks": {
@@ -25,7 +23,10 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        }
+        },
+        "moq.netcore": "4.4.0-*",
+        "System.Diagnostics.TraceSource": "4.0.0-*",
+        "FluentAssertions": "4.13.0"
       }
     }
   }

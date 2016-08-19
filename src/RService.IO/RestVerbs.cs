@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace RService.IO
 {
@@ -12,5 +14,20 @@ namespace RService.IO
         Delete = 16,
         Options = 32,
         Any = Get | Post | Put | Patch | Delete | Options
+    }
+
+    public static class RestVerbsExtensions
+    {
+        public static IEnumerable<string> ToEnumerable(this RestVerbs verbs)
+        {
+            if (verbs == RestVerbs.Any)
+                return new[] { verbs.ToString().ToUpper() };
+
+            return verbs
+                .ToString()
+                .ToUpper()
+                .Split(',')
+                .Select(x => x.Trim());
+        }
     }
 }

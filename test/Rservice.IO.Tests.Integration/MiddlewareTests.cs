@@ -2,24 +2,25 @@
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RService.IO;
 using RService.IO.Tests;
 using Xunit;
-using StartupBase = RService.IO.StartupBase;
 
 namespace Rservice.IO.Tests.Integration
 {
-    public class SetupBaseTests
+    public class MiddlewareTests
     {
         // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
         private readonly TestServer _server;
         private readonly HttpClient _client;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
 
-        public SetupBaseTests()
+        public MiddlewareTests()
         {
             _server = new TestServer(new WebHostBuilder()
                 .UseStartup<Startup>());
@@ -46,23 +47,24 @@ namespace Rservice.IO.Tests.Integration
 
         #region Classes for testing
         // ReSharper disable once ClassNeverInstantiated.Local
-        private class Startup : StartupBase
+        private class Startup
         {
-            public Startup() : base(GetAsmFromType(typeof(SvcWithMethodRoute)))
+            public void ConfigureServices(IServiceCollection services)
             {
-                RouteHanlder = context =>
-                {
-                    var route = context.GetRouteData().Routers[1] as RouteBase;
-                    var body = route?.ParsedTemplate.TemplateText ?? "";
-                    return context.Response.WriteAsync(body);
-                };
+                services.AddRServiceIo(GetAsmFromType(typeof(SvcWithMultMethodRoutes)));
+            }
+
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+            {
+                app.UseRServiceIo(builder => { });
+            }
+
+            private static Assembly GetAsmFromType(Type type)
+            {
+                return type.GetTypeInfo().Assembly;
             }
         }
 
-        private static Assembly GetAsmFromType(Type type)
-        {
-            return type.GetTypeInfo().Assembly;
-        }
         #endregion
     }
 }
