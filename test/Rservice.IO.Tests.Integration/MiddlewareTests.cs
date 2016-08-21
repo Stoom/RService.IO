@@ -4,12 +4,15 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RService.IO;
 using RService.IO.Tests;
 using Xunit;
+using RService.IO.DependencyIngection;
 
 namespace Rservice.IO.Tests.Integration
 {
@@ -51,7 +54,15 @@ namespace Rservice.IO.Tests.Integration
         {
             public void ConfigureServices(IServiceCollection services)
             {
-                services.AddRServiceIo(GetAsmFromType(typeof(SvcWithMultMethodRoutes)));
+                services.AddRServiceIo(options =>
+                {
+                    options.AddServiceAssembly(typeof(SvcWithMethodRoute));
+                    options.RouteHanlder = context =>
+                    {
+                        var route = context.GetRouteData();
+                        return context.Response.WriteAsync(route.Routers[1].ToString());
+                    };
+                });
             }
 
             public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

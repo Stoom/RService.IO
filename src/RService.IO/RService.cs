@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace RService.IO
 {
@@ -13,22 +12,26 @@ namespace RService.IO
     public class RService
     {
         /// <summary>
-        /// The <see cref="Microsoft.AspNetCore.Routing.RouteHandler"/> to process request routing.
-        /// </summary>
-        public RequestDelegate RouteHanlder { get; set; } = DefaultRouteHandler;
-
-        /// <summary>
         /// All discovered routes from services and their DTOs.
         /// </summary>
         public Dictionary<string, RouteAttribute> Routes { get; }
 
+        protected RServiceOptions Options;
+
         /// <summary>
         /// Constructs a RService service and scans for routes and services in assemblies.
         /// </summary>
+        /// <param name="options">Configuration options</param>
         /// <param name="assemblies"><see cref="Assembly"/>s to scan for routes and services.</param>
-        public RService(params Assembly[] assemblies)
+        public RService(IOptions<RServiceOptions> options)
         {
-            foreach (var assembly in assemblies)
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            Routes = new Dictionary<string, RouteAttribute>();
+            Options = options.Value;
+
+            foreach (var assembly in Options.ServiceAssemblies)
             {
                 ScanAssemblyForRoutes(assembly);
             }
@@ -60,11 +63,6 @@ namespace RService.IO
                     Routes.Add(attr.Path, attr);
                 });
             });
-        }
-
-        protected static Task DefaultRouteHandler(HttpContext context)
-        {
-            throw new NotImplementedException();
         }
     }
 }

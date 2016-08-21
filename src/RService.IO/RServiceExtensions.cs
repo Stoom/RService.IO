@@ -1,44 +1,27 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace RService.IO
 {
     public static class RServiceExtensions
     {
-        public static IServiceCollection AddRServiceIo(
-            this IServiceCollection services,
-            params Assembly[] assemblies)
-        {
-            return AddRServiceIo(services, options => {});
-        }
-
-        public static IServiceCollection AddRServiceIo(
-            this IServiceCollection services, 
-            Action<RouteOptions> routeOptions)
-        {
-            services.AddRouting(routeOptions);
-
-            services.AddSingleton<RService>();
-
-            return services;
-        }
-
         public static IApplicationBuilder UseRServiceIo(
             this IApplicationBuilder builder, 
             Action<IRouteBuilder> configureRoutes)
         {
             var service = builder.ApplicationServices.GetService<RService>();
+            var options = builder.ApplicationServices.GetRequiredService<IOptions<RServiceOptions>>().Value;
 
             var routes = new RouteBuilder(builder);
 
             foreach (var route in service.Routes)
             {
-                routes.MapRServiceIoRoute(route.Value, service.RouteHanlder);
+                routes.MapRServiceIoRoute(route.Value, options.RouteHanlder);
             }
 
             configureRoutes(routes);

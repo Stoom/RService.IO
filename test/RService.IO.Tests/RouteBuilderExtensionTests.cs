@@ -14,7 +14,7 @@ using Xunit;
 
 namespace RService.IO.Tests
 {
-    public class ExtensionTests
+    public class RouteBuilderExtensionTests
     {
         private static readonly RequestDelegate NullHandler = (c) => Task.FromResult(0);
 
