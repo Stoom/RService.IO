@@ -1,4 +1,4 @@
-{
+﻿{
   "version": "1.0.0",
 
   "testRunner": "xunit",
@@ -7,9 +7,9 @@
     "xunit": "2.2.0-*",
     "dotnet-test-xunit": "2.2.0-*",
     "RService.IO": "1.0.0-*",
-    "Microsoft.AspNetCore.Http": "1.0.0-*",
-    "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
-    "Microsoft.Extensions.Logging": "1.0.0-*"
+    "RService.IO.Tests": "1.0.0-*",
+    "Microsoft.AspNetCore.TestHost": "1.0.0",
+    "FluentAssertions": "4.13.0"
   },
 
   "frameworks": {
@@ -23,10 +23,7 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        },
-        "moq.netcore": "4.4.0-*",
-        "System.Diagnostics.TraceSource": "4.0.0-*",
-        "FluentAssertions": "4.13.0"
+        }
       }
     }
   }
