@@ -19,8 +19,7 @@ namespace RService.IO.DependencyIngection
         public static IServiceCollection AddRServiceIo(
             this IServiceCollection services,
             Action<RServiceOptions> rserviceOptions,
-            Action<RouteOptions> routeOptions,
-            params Assembly[] assemblies)
+            Action<RouteOptions> routeOptions)
         {
             services.AddOptions();
             services.AddRouting(routeOptions);
