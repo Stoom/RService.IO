@@ -21,8 +21,7 @@ namespace RService.IO
         /// <summary>
         /// Constructs a RService service and scans for routes and services in assemblies.
         /// </summary>
-        /// <param name="options">Configuration options</param>
-        /// <param name="assemblies"><see cref="Assembly"/>s to scan for routes and services.</param>
+        /// <param name="options">Configuration options including the assemblies to scan.</param>
         public RService(IOptions<RServiceOptions> options)
         {
             if (options == null)
