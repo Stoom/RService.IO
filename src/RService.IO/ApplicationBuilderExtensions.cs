@@ -6,8 +6,15 @@ using Microsoft.Extensions.Options;
 
 namespace RService.IO
 {
-    public static class RServiceExtensions
+    public static class ApplicationBuilderExtensions
     {
+        private static readonly Action<IRouteBuilder> EmptyRouteConfigure = builder => { };
+
+        public static IApplicationBuilder UseRServiceIo(this IApplicationBuilder builder)
+        {
+            return builder.UseRServiceIo(EmptyRouteConfigure);
+        }
+
         public static IApplicationBuilder UseRServiceIo(
             this IApplicationBuilder builder, 
             Action<IRouteBuilder> configureRoutes)
