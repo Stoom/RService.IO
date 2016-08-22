@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 namespace RService.IO
 {
+    /// <summary>
+    /// The RESTful verbs supported by RServiceIO.
+    /// </summary>
     [Flags]
     public enum RestVerbs
     {
@@ -16,8 +19,16 @@ namespace RService.IO
         Any = Get | Post | Put | Patch | Delete | Options
     }
 
+    /// <summary>
+    /// Extensions to the <see cref="RestVerbs"/> enum.
+    /// </summary>
     public static class RestVerbsExtensions
     {
+        /// <summary>
+        /// Gets an <see cref="IEnumerable{T}"/> of the verb strings.
+        /// </summary>
+        /// <param name="verbs"><see cref="RestVerbs"/> to get an enumeration of.</param>
+        /// <returns>The <see cref="IEnumerable{T}"/> of verb <see cref="string"/>s.</returns>
         public static IEnumerable<string> ToEnumerable(this RestVerbs verbs)
         {
             if (verbs == RestVerbs.Any)
