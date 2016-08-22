@@ -35,21 +35,18 @@ namespace RService.IO.Router
                 _logger.RequestDidNotMatchRoutes();
                 await _next.Invoke(httpContext);
             }
-            else if (context.Handler == RServiceHandler.Handler)
-            {
-                httpContext.Features[typeof(IRoutingFeature)] = new RoutingFeature()
-                {
-                    RouteData = context.RouteData,
-                };
-                await _next.Invoke(httpContext);
-            }
             else
             {
                 httpContext.Features[typeof(IRoutingFeature)] = new RoutingFeature()
                 {
                     RouteData = context.RouteData,
+                    RouteHandler = context.Handler
                 };
-                await context.Handler(context.HttpContext);
+
+                if (context.Handler == RServiceHandler.Handler)
+                    await _next.Invoke(httpContext);
+                else
+                    await context.Handler(context.HttpContext);
             }
         }
     }
