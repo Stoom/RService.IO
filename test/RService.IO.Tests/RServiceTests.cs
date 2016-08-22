@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using RService.IO.DependencyIngection;
 using Xunit;
 
 namespace RService.IO.Tests

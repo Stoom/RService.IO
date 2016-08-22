@@ -1,8 +1,10 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using RService.IO.Router;
 
 namespace RService.IO
 {
@@ -30,9 +32,22 @@ namespace RService.IO
             }
 
             configureRoutes(routes);
+            builder.RegisterRoutes(routes.Build());
 
-            builder.UseRouter(routes.Build());
             return builder.UseMiddleware<RServiceMiddleware>();
+        }
+
+        // ReSharper disable once UnusedMethodReturnValue.Local
+        private static IApplicationBuilder RegisterRoutes(this IApplicationBuilder builder, IRouter router)
+        {
+            if (builder == null)
+                throw new ArgumentNullException(nameof(builder));
+            if (router == null)
+                throw new ArgumentNullException(nameof(router));
+            if (builder.ApplicationServices.GetService(typeof(RoutingMarkerService)) == null)
+                throw new InvalidOperationException($"Unable to find service {nameof(RoutingMarkerService)}");
+
+            return builder.UseMiddleware<RServiceRouterMiddleware>(router);
         }
     }
 }
