@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -19,15 +20,15 @@ namespace Rservice.IO.Tests.Integration
     public class MiddlewareTests
     {
         // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
-        private readonly TestServer _server;
-        private readonly HttpClient _client;
+        private readonly TestServer _routeServer;
+        private readonly HttpClient _routeClient;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
 
         public MiddlewareTests()
         {
-            _server = new TestServer(new WebHostBuilder()
-                .UseStartup<Startup>());
-            _client = _server.CreateClient();
+            _routeServer = new TestServer(new WebHostBuilder()
+                .UseStartup<RouteTestStartup>());
+            _routeClient = _routeServer.CreateClient();
         }
 
         [Theory]
@@ -40,17 +41,17 @@ namespace Rservice.IO.Tests.Integration
         public async Task Configure__AddsAllDiscoverdRoutes(string path)
         {
             var expectedPath = path.Substring(1);
-            var response = await _client.GetAsync(path);
+            var response = await _routeClient.GetAsync(path);
             response.EnsureSuccessStatusCode();
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            Assert.Equal(expectedPath, responseString);
+            responseString.Should().Be(expectedPath);
         }
 
         #region Classes for testing
         // ReSharper disable once ClassNeverInstantiated.Local
-        private class Startup
+        private class RouteTestStartup
         {
             public void ConfigureServices(IServiceCollection services)
             {
