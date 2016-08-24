@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Options;
+using RService.IO.Abstractions;
 
 namespace RService.IO
 {

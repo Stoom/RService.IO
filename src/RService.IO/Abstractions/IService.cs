@@ -1,4 +1,4 @@
-﻿namespace RService.IO
+﻿namespace RService.IO.Abstractions
 {
     /// <summary>
     /// Tagging interface for RService services.
