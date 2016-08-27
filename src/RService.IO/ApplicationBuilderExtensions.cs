@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Internal;
@@ -28,7 +29,7 @@ namespace RService.IO
 
             foreach (var route in service.Routes)
             {
-                routes.MapRServiceIoRoute(route.Value, options.RouteHanlder);
+                routes.MapRServiceIoRoute(route.Value.Route, options.RouteHanlder);
             }
 
             configureRoutes(routes);

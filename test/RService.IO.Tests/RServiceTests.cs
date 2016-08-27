@@ -26,9 +26,14 @@ namespace RService.IO.Tests
         public void Ctor__ScansAssembliesForRoutesOnMethods()
         {
             var route = new RouteAttribute(SvcWithMethodRoute.RoutePath);
-            var expected = new Dictionary<string, RouteAttribute>
+            var def = new ServiceDef
             {
-                { route.Path, route }
+                Route = route,
+                ServiceType = typeof(SvcWithMethodRoute)
+            };
+            var expected = new Dictionary<string, ServiceDef>
+            {
+                { route.Path, def }
             };
 
             var service = new RService(_options);
@@ -40,9 +45,14 @@ namespace RService.IO.Tests
         public void Ctor__ScansAssembliesForRoutesOnMethodsFirstParam()
         {
             var route = new RouteAttribute(SvcWithParamRoute.RoutePath);
-            var expected = new Dictionary<string, RouteAttribute>
+            var def = new ServiceDef
             {
-                { route.Path, route }
+                Route = route,
+                ServiceType = typeof(SvcWithParamRoute)
+            };
+            var expected = new Dictionary<string, ServiceDef>
+            {
+                { route.Path, def }
             };
 
             var service = new RService(_options);
@@ -55,10 +65,20 @@ namespace RService.IO.Tests
         {
             var route1 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath1);
             var route2 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath2);
-            var expected = new Dictionary<string, RouteAttribute>
+            var def1 = new ServiceDef
             {
-                { route1.Path, route1 },
-                { route2.Path, route2 }
+                Route = route1,
+                ServiceType = typeof(SvcWithMultMethodRoutes)
+            };
+            var def2 = new ServiceDef
+            {
+                Route = route2,
+                ServiceType = typeof(SvcWithMultMethodRoutes)
+            };
+            var expected = new Dictionary<string, ServiceDef>
+            {
+                { route1.Path, def1 },
+                { route2.Path, def2 }
             };
 
             var service = new RService(_options);
@@ -71,10 +91,20 @@ namespace RService.IO.Tests
         {
             var route1 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath1);
             var route2 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath2);
-            var expected = new Dictionary<string, RouteAttribute>
+            var def1 = new ServiceDef
             {
-                { route1.Path, route1 },
-                { route2.Path, route2 }
+                Route = route1,
+                ServiceType = typeof(SvcWithMultParamRoutes)
+            };
+            var def2 = new ServiceDef
+            {
+                Route = route2,
+                ServiceType = typeof(SvcWithMultParamRoutes)
+            };
+            var expected = new Dictionary<string, ServiceDef>
+            {
+                { route1.Path, def1 },
+                { route2.Path, def2 }
             };
 
             var service = new RService(_options);

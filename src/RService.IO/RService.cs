@@ -15,8 +15,12 @@ namespace RService.IO
         /// <summary>
         /// All discovered routes from services and their DTOs.
         /// </summary>
-        public Dictionary<string, RouteAttribute> Routes { get; protected set; }
-        public IList<Type> ServiceTypes { get; protected set; }
+        public Dictionary<string, ServiceDef> Routes { get; protected set; }
+
+        /// <summary>
+        /// <see cref="Type"/>s of all the services in the <see cref="Assembly"/>s.
+        /// </summary>
+        public IEnumerable<Type> ServiceTypes => Routes.Values.Select(x => x.ServiceType);
 
         protected readonly RServiceOptions Options;
 
@@ -29,8 +33,7 @@ namespace RService.IO
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            Routes = new Dictionary<string, RouteAttribute>();
-            ServiceTypes = new List<Type>();
+            Routes = new Dictionary<string, ServiceDef>();
             Options = options.Value;
 
             foreach (var assembly in Options.ServiceAssemblies)
@@ -49,21 +52,34 @@ namespace RService.IO
             var methodsWithAttribute = classes.SelectMany(x => x.GetPublicMethods()).Where(x => x.HasAttribute<RouteAttribute>()).ToList();
             var methodsParamWithAttribute = classes.SelectMany(x => x.GetPublicMethods()).Where(x => x.HasParamWithAttribute<RouteAttribute>()).ToList();
 
-            ServiceTypes = classes;
             methodsWithAttribute.ForEach(method =>
             {
                 var attrs = method.GetCustomAttributes<RouteAttribute>().ToList();
-                attrs.ForEach(attr => Routes.Add(attr.Path, attr));
+                var type = method.DeclaringType;
+                attrs.ForEach(attr =>
+                {
+                    var def = new ServiceDef
+                    {
+                        Route = attr,
+                        ServiceType = type
+                    };
+                    Routes.Add(attr.Path, def);
+                });
             });
 
             methodsParamWithAttribute.ForEach(method =>
             {
-                var type = method.GetParamWithAttribute<RouteAttribute>();
-                var attrs = type?.GetAttributes<RouteAttribute>().ToList();
+                var methodType = method.DeclaringType;
+                var paramType = method.GetParamWithAttribute<RouteAttribute>();
+                var attrs = paramType?.GetAttributes<RouteAttribute>().ToList();
                 attrs?.ForEach(a =>
                 {
-                    var attr = (RouteAttribute)a;
-                    Routes.Add(attr.Path, attr);
+                    var def = new ServiceDef
+                    {
+                        Route = (RouteAttribute)a,
+                        ServiceType = methodType
+                    };
+                    Routes.Add(def.Route.Path, def);
                 });
             });
         }

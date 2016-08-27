@@ -23,13 +23,14 @@ namespace RService.IO.Tests
         {
             IRouteBuilder routeBuilder = null;
             var route = new RouteAttribute("/Foobar");
+            var def = new ServiceDef { Route = route };
 
             var services = new ServiceCollection();
             services.AddRServiceIo(sOps => { sOps.RouteHanlder = EmptyHandler; }, EmptyRouteOptions);
 
             var builder = BuildApplicationBuilder(services);
             var service = builder.ApplicationServices.GetService<RService>();
-            service?.Routes.Add(route.Path, route);
+            service?.Routes.Add(route.Path, def);
 
             builder.UseRServiceIo(x =>
             {
