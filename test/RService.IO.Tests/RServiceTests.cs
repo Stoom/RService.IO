@@ -81,5 +81,15 @@ namespace RService.IO.Tests
 
             service.Routes.Should().Contain(expected);
         }
+
+        [Fact]
+        public void Ctor__ScansAssembliesForSerivceTypes()
+        {
+            var expectedServiceType = typeof(SvcWithMethodRoute);
+
+            var service = new RService(_options);
+
+            service.ServiceTypes.Should().Contain(expectedServiceType);
+        }
     }
 }

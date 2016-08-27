@@ -15,9 +15,10 @@ namespace RService.IO
         /// <summary>
         /// All discovered routes from services and their DTOs.
         /// </summary>
-        public Dictionary<string, RouteAttribute> Routes { get; }
+        public Dictionary<string, RouteAttribute> Routes { get; protected set; }
+        public IList<Type> ServiceTypes { get; protected set; }
 
-        protected RServiceOptions Options;
+        protected readonly RServiceOptions Options;
 
         /// <summary>
         /// Constructs a RService service and scans for routes and services in assemblies.
@@ -29,6 +30,7 @@ namespace RService.IO
                 throw new ArgumentNullException(nameof(options));
 
             Routes = new Dictionary<string, RouteAttribute>();
+            ServiceTypes = new List<Type>();
             Options = options.Value;
 
             foreach (var assembly in Options.ServiceAssemblies)
@@ -47,9 +49,10 @@ namespace RService.IO
             var methodsWithAttribute = classes.SelectMany(x => x.GetPublicMethods()).Where(x => x.HasAttribute<RouteAttribute>()).ToList();
             var methodsParamWithAttribute = classes.SelectMany(x => x.GetPublicMethods()).Where(x => x.HasParamWithAttribute<RouteAttribute>()).ToList();
 
-            methodsWithAttribute.ForEach(x =>
+            ServiceTypes = classes;
+            methodsWithAttribute.ForEach(method =>
             {
-                var attrs = x.GetCustomAttributes<RouteAttribute>().ToList();
+                var attrs = method.GetCustomAttributes<RouteAttribute>().ToList();
                 attrs.ForEach(attr => Routes.Add(attr.Path, attr));
             });
 

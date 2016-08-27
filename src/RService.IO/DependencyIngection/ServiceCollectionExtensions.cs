@@ -26,6 +26,14 @@ namespace RService.IO.DependencyIngection
             services.AddSingleton<RService>();
             services.Configure(rserviceOptions);
 
+            var provider = services.BuildServiceProvider();
+            var rservice = provider.GetService<RService>();
+            foreach (var serviceType in rservice.ServiceTypes)
+            {
+                services.AddTransient(serviceType);
+            }
+
+
             return services;
         }
     }

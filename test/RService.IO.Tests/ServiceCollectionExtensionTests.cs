@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
@@ -15,6 +16,7 @@ namespace RService.IO.Tests
     {
         private static readonly Action<RServiceOptions> EmptyRServiceOptions = options => { };
         private static readonly Action<RouteOptions> EmptyRouteOptions = options => { };
+        private Assembly CurrentAssembly => GetType().GetTypeInfo().Assembly;
 
         [Fact]
         public void AddRServiceIo__AddsRService()
@@ -93,6 +95,34 @@ namespace RService.IO.Tests
             options.Value.AppendTrailingSlash.Should().Be(expectedOptions.AppendTrailingSlash);
             options.Value.LowercaseUrls.Should().Be(expectedOptions.LowercaseUrls);
 
+        }
+
+        [Fact]
+        public void AddRServiceIo__AddsWebServiceTypes()
+        {
+            var services = new ServiceCollection();
+
+            services.AddRServiceIo(opts => { opts.ServiceAssemblies.Add(CurrentAssembly); });
+
+            var app = BuildApplicationBuilder(services);
+            var webservice = app.ApplicationServices.GetService(typeof(SvcWithMethodRoute));
+
+            webservice.Should().NotBeNull();
+            webservice.Should().BeOfType<SvcWithMethodRoute>();
+        }
+
+        [Fact]
+        public void AddRServiceIo__WebServicesShouldBeTransient()
+        {
+            var services = new ServiceCollection();
+
+            services.AddRServiceIo(opts => { opts.ServiceAssemblies.Add(CurrentAssembly); });
+
+            var app = BuildApplicationBuilder(services);
+            var webservice1 = app.ApplicationServices.GetService(typeof(SvcWithMethodRoute));
+            var webservice2 = app.ApplicationServices.GetService(typeof(SvcWithMethodRoute));
+
+            webservice1.Should().NotBe(webservice2);
         }
 
         private static IApplicationBuilder BuildApplicationBuilder(IServiceCollection services)
