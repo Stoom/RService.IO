@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RService.IO
+namespace RService.IO.Abstractions
 {
     /// <summary>
     /// Used to decorate Request DTO's or service method to associate a RESTful 

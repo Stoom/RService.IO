@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
+using RService.IO.Abstractions;
 using Xunit;
 
 namespace RService.IO.Tests

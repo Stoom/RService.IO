@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.ObjectPool;
 using Moq;
+using RService.IO.Abstractions;
 using Xunit;
 
 namespace RService.IO.Tests

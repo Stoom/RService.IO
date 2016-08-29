@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace RService.IO
+namespace RService.IO.Abstractions
 {
     /// <summary>
     /// The RESTful verbs supported by RServiceIO.

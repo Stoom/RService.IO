@@ -1,4 +1,5 @@
 ﻿using System;
+using RService.IO.Abstractions;
 
 namespace RService.IO
 {

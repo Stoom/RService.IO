@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
+using RService.IO.Abstractions;
 using RService.IO.DependencyIngection;
 using Xunit;
 
