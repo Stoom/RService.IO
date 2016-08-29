@@ -6,8 +6,8 @@ platform: Any CPU
 environment:
   # Don't report back to the mothership
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
-#  COVERALLS_REPO_TOKEN: 
-#    secure: qjAE6yLU/MiYj8qF8DiOpvde5f9gElb3f57sCi5FDBWLi5OlOhuOu0H7gou7QXyl
+  COVERALLS_REPO_TOKEN: 
+    secure:ZOotByGmB2CHvWqjjKkuBJd9g2akvEajO87x4kW1cTVjUYHPQv9KmHa9+YRCnIHU
 pull_requests:
   do_not_increment_build_number: true
 #assembly_info:
@@ -22,15 +22,15 @@ before_build:
 - appveyor-retry dotnet restore -v Minimal
 build_script:
 - dotnet build "src\RService.IO" -c %CONFIGURATION% --version-suffix %LABEL%
-#after_build:
+after_build:
 #- dotnet pack "src\LibNETStandard10" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 #- dotnet publish "src\ConsoleApplication" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts\ConsoleApplication
-#  - ps: >-
-#      $ProgramFiles = (${env:ProgramFiles(x86)}, ${env:ProgramFiles} -ne $null)[0]
-#
-#      .\packages\OpenCover.4.6.519\tools\OpenCover.Console.exe -register:user -filter:"+[*]*" -target:"$ProgramFiles\Microsoft Visual Studio 12.0\Common7\IDE\MSTest.exe" -targetargs:"/testcontainer:$env:APPVEYOR_PROJECT_NAME.Tests/bin/$env:CONFIGURATION/$env:APPVEYOR_PROJECT_NAME.Tests.dll" -output:coverage.xml
-#
-#      .\packages\coveralls.io.1.3.4\tools\coveralls.net.exe --opencover coverage.xml
+  - ps: >-
+      $ProgramFiles = (${env:ProgramFiles(x86)}, ${env:ProgramFiles} -ne $null)[0]
+ 
+      & ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Tests" -register:user -filter:"+[RService*]*" -output:coverage.xml -oldStyle
+ 
+      & ${env:homedrive}${env:homepath}\.nuget\packages\coveralls.io\1.3.4\tools\coveralls.net.exe --opencover coverage.xml
 test_script:
 - dotnet test "test\RService.IO.Tests" -c %CONFIGURATION%
 - dotnet test "test\RService.IO.Tests.Integration" -c %CONFIGURATION%
