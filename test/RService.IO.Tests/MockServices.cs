@@ -1,11 +1,16 @@
-﻿namespace RService.IO.Tests
+﻿using RService.IO.Abstractions;
+
+namespace RService.IO.Tests
 {
     public class SvcWithMethodRoute : IService
     {
         public const string RoutePath = "/Foobar";
 
         [Route(RoutePath)]
-        public void Any() { }
+        public object Any()
+        {
+            return null;
+        }
     }
 
     public class SvcWithMultMethodRoutes : IService
@@ -15,14 +20,20 @@
 
         [Route(RoutePath1)]
         [Route(RoutePath2)]
-        public void Any() { }
+        public object Any()
+        {
+            return null;
+        }
     }
 
     public class SvcWithParamRoute : IService
     {
         public const string RoutePath = "/Llamas";
 
-        public void Any(DtoForParamRoute dto) { }
+        public object Any(DtoForParamRoute dto)
+        {
+            return null;
+        }
     }
 
     public class SvcWithMultParamRoutes : IService
@@ -30,7 +41,10 @@
         public const string RoutePath1 = "/Llamas/Eats";
         public const string RoutePath2 = "/Llamas/Hands";
 
-        public void Any(DtoForMultParamRoutes dto) { }
+        public object Any(DtoForMultParamRoutes dto)
+        {
+            return null;
+        }
     }
 
     [Route(SvcWithParamRoute.RoutePath)]

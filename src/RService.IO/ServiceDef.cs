@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection.Emit;
 
 namespace RService.IO
 {
@@ -7,6 +6,6 @@ namespace RService.IO
     {
         public RouteAttribute Route;
         public Type ServiceType;
-        public DynamicMethod ServiceMethod;
+        public DelegateFactory.Activator ServiceMethod;
     }
 }

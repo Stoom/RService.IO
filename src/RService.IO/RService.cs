@@ -61,7 +61,8 @@ namespace RService.IO
                     var def = new ServiceDef
                     {
                         Route = attr,
-                        ServiceType = type
+                        ServiceType = type,
+                        ServiceMethod = DelegateFactory.GenerateMethodCall(method)
                     };
                     Routes.Add(attr.Path, def);
                 });
@@ -77,7 +78,8 @@ namespace RService.IO
                     var def = new ServiceDef
                     {
                         Route = (RouteAttribute)a,
-                        ServiceType = methodType
+                        ServiceType = methodType,
+                        ServiceMethod = DelegateFactory.GenerateMethodCall(method)
                     };
                     Routes.Add(def.Route.Path, def);
                 });
