@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using RService.IO.Router;
 
 namespace RService.IO.Abstractions

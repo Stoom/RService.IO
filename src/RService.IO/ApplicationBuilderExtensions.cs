@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RService.IO.Router;
