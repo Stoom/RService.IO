@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reflection;
+using FluentAssertions;
 using RService.IO.Abstractions;
 using Xunit;
 
@@ -54,6 +56,22 @@ namespace RService.IO.Tests
                     .ToList();
 
             Assert.Equal(1, methods.Count);
+        }
+
+        [Fact]
+        public void Ctor__ThrowsExcetpionWithNullPath()
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            Action comparison = () => new RouteAttribute(null);
+            comparison.ShouldThrow<ArgumentException>();
+        }
+
+        [Fact]
+        public void Ctor__ThrowsExcetpionWithBlankPath()
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            Action comparison = () => new RouteAttribute(string.Empty);
+            comparison.ShouldThrow<ArgumentException>();
         }
 
         #region Classes to test attribute
