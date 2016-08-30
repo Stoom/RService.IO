@@ -10,7 +10,7 @@ using Moq;
 using RService.IO.DependencyIngection;
 using Xunit;
 
-namespace RService.IO.Tests
+namespace RService.IO.Tests.DependencyIngection
 {
     public class ServiceCollectionExtensionTests
     {

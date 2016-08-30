@@ -8,7 +8,7 @@ using RService.IO.Router;
 using Xunit;
 using RoutingHttpContextExtensions = RService.IO.Abstractions.RoutingHttpContextExtensions;
 
-namespace RService.IO.Tests
+namespace RService.IO.Tests.Abstractions
 {
     public class RoutingHttpContextExtensionsTests
     {
@@ -31,7 +31,7 @@ namespace RService.IO.Tests
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
             routingFeature.Object.RouteHandler = routeHandler.Object;
 
-            var handle = RoutingHttpContextExtensions.GetRouteHandler(context.Object);
+            var handle = context.Object.GetRouteHandler();
 
             handle.Should().NotBeNull();
         }
@@ -45,7 +45,7 @@ namespace RService.IO.Tests
             context.SetupGet(x => x.Features).Returns(features.Object);
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
 
-            var handle = RoutingHttpContextExtensions.GetRouteHandler(context.Object);
+            var handle = context.Object.GetRouteHandler();
 
             handle.Should().BeNull();
         }

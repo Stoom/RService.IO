@@ -2,7 +2,7 @@
 using RService.IO.Abstractions;
 using Xunit;
 
-namespace RService.IO.Tests
+namespace RService.IO.Tests.Abstractions
 {
     public class RestVerbsTests
     {
