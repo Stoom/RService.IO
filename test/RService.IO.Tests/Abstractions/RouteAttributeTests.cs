@@ -74,6 +74,32 @@ namespace RService.IO.Tests.Abstractions
             comparison.ShouldThrow<ArgumentException>();
         }
 
+        [Fact]
+        public void Equals__ReturnsFalseIfOtherIsNullAsObject()
+        {
+            var attr = new RouteAttribute("/Foobar");
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            var results = attr.Equals((object)null);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public void Equals__ReturnsFalseIfOtherIsNullAsRouteAttribute()
+        {
+            var attr = new RouteAttribute("/Foobar");
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            var results = attr.Equals(null);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public void GetHashCode__ReturnsGreaterThanZero()
+        {
+            var attr = new RouteAttribute("/Foobar");
+            var results = attr.GetHashCode();
+            results.Should().BeGreaterThan(0);
+        }
+
         #region Classes to test attribute
         [Route(FIRST_PATH)]
         private class AttrPath
