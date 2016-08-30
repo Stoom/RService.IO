@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using RService.IO.Handler;
@@ -36,6 +37,14 @@ namespace RService.IO.Tests
 
             options.ServiceAssemblies.Should().NotBeNull();
             options.ServiceAssemblies.Count.Should().Be(0);
+        }
+
+        [Fact]
+        public void AddServiceAssembly__ThrowsExceptionOnNullType()
+        {
+            var options = new RServiceOptions();
+            Action comparison = () => options.AddServiceAssembly(null);
+            comparison.ShouldThrow<ArgumentNullException>();
         }
     }
 }

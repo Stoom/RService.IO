@@ -9,7 +9,6 @@
     "Microsoft.AspNetCore.Http": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
-    "moq.netcore": "4.4.0-beta8",
     "OpenCover": "4.6.519",
     "RService.IO": "1.0.0-*",
     "xunit": "2.2.0-*"

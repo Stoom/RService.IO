@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
@@ -94,6 +94,14 @@ namespace RService.IO.Tests
             var service = new RService(_options);
 
             service.ServiceTypes.Should().Contain(expectedServiceType);
+        }
+
+        [Fact]
+        public void Ctor__ThrowsExceptionIfNullOptions()
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            Action comparison = () => new RService(null);
+            comparison.ShouldThrow<ArgumentNullException>();
         }
     }
 }

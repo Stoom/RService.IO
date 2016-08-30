@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
@@ -66,6 +67,62 @@ namespace RService.IO.Tests
             var actualRoutes = GetRouteTemplates((RouteBuilder) routeBuilder)
                     .FirstOrDefault(x => x.RouteTemplate.Equals(expectedPath));
             actualRoutes.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void UserRServiceIo__DefaultsEmptyRouteConfig()
+        {
+            IRouteBuilder routeBuilder = null;
+
+            var services = new ServiceCollection();
+            services.AddRServiceIo(sOps => { sOps.RouteHanlder = EmptyHandler; }, EmptyRouteOptions);
+
+            var builder = BuildApplicationBuilder(services);
+
+
+            var emptyRouteConfig = typeof(ApplicationBuilderExtensions).GetField("EmptyRouteConfigure",
+                             BindingFlags.Static |
+                             BindingFlags.NonPublic);
+
+            emptyRouteConfig.SetValue(null, new Action<IRouteBuilder>(x => routeBuilder = x ));
+
+            builder.UseRServiceIo();
+
+            routeBuilder.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void UseRServiceIo__ThrowsExceptionIfBuilderIsNull()
+        {
+            Action comparison = () => ApplicationBuilderExtensions.UseRServiceIo(null, null);
+
+            comparison.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void UseRServiceIo__ThrowsExceptionIfRouteConfigIsNull()
+        {
+            var builder = BuildApplicationBuilder(new ServiceCollection());
+
+            Action comparison = () => builder.UseRServiceIo(null);
+
+            comparison.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void UseRServiceIo__ThrowsExceptionIfRoutingNotAdded()
+        {
+            var services = new ServiceCollection();
+            services.AddOptions();
+            services.AddSingleton<RService>();
+            Action<RServiceOptions> opts = x => x.RouteHanlder = EmptyHandler;
+            services.Configure(opts);
+
+            var builder = BuildApplicationBuilder(services);
+
+            Action comparison = () => builder.UseRServiceIo();
+
+            comparison.ShouldThrow<InvalidOperationException>();
         }
 
         private static IEnumerable<Route> GetRouteTemplates(IRouteBuilder builder)
