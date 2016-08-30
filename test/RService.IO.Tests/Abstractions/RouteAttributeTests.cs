@@ -93,11 +93,11 @@ namespace RService.IO.Tests.Abstractions
         }
 
         [Fact]
-        public void GetHashCode__ReturnsGreaterThanZero()
+        public void GetHashCode__IsNotZero()
         {
             var attr = new RouteAttribute("/Foobar");
             var results = attr.GetHashCode();
-            results.Should().BeGreaterThan(0);
+            results.Should().NotBe(0);
         }
 
         #region Classes to test attribute
