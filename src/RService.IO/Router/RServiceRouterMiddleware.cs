@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using RService.IO.Handler;
 
 namespace RService.IO.Router
 {
@@ -43,7 +42,7 @@ namespace RService.IO.Router
                     RouteHandler = context.Handler
                 };
 
-                if (context.Handler == RServiceHandler.Handler)
+                if (context.Handler == Handler.ServiceHandler)
                     await _next.Invoke(httpContext);
                 else
                     await context.Handler(context.HttpContext);

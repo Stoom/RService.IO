@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Testing;
-using RService.IO.Handler;
 using RService.IO.Router;
 using Xunit;
 
@@ -151,7 +150,7 @@ namespace RService.IO.Tests.Router
                 if (_isHandled)
                     context.Handler = c => Task.FromResult(0);
                 else if (_isRService)
-                    context.Handler = RServiceHandler.Handler;
+                    context.Handler = Handler.ServiceHandler;
                 else
                     context.Handler = null;
                 return Task.FromResult<object>(null);

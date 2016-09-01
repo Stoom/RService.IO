@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace RService.IO.Handler
+namespace RService.IO
 {
     /// <summary>
     /// The RServiceIO route handlers.
     /// </summary>
-    public class RServiceHandler
+    public class Handler
     {
         /// <summary>
         /// The default route handler that must be used with RService.
@@ -18,7 +18,7 @@ namespace RService.IO.Handler
         /// Pre/post routing tasks can be expanded by extending 
         /// the <b>BeforeHandler</b> and <b>AfterHandler</b> methods.
         /// </remarks>
-        public static Task Handler(HttpContext context)
+        public static Task ServiceHandler(HttpContext context)
         {
             throw new NotImplementedException();
         }

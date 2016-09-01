@@ -2,7 +2,6 @@
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using RService.IO.Handler;
 using Xunit;
 
 namespace RService.IO.Tests
@@ -25,7 +24,7 @@ namespace RService.IO.Tests
         public void RouteHandler__DefaultsToRServiceHandler()
         {
             var options = new RServiceOptions();
-            var expected = (RequestDelegate) RServiceHandler.Handler;
+            var expected = (RequestDelegate) Handler.ServiceHandler;
 
             options.RouteHanlder.Should().Be(expected);
         }
