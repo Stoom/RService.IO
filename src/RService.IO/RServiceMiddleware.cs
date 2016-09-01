@@ -22,12 +22,15 @@ namespace RService.IO
 
         public async Task Invoke(HttpContext context)
         {
-            var route = (context.GetRouteData()?.Routers[1] as Route)?.RouteTemplate;
+            var route = (context.GetRouteData()?.Routers.Count >= 3) 
+                ? (context.GetRouteData()?.Routers[1] as Route)?.RouteTemplate
+                : null;
             var handler = context.GetRouteHandler();
             var activator = _service.Routes.FirstOrDefault(x => x.Key == route).Value.ServiceMethod;
 
             if (handler == null || activator == null)
             {
+                _logger.RequestDidNotMatchServices();
                 await _next.Invoke(context);
             }
             else

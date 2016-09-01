@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Castle.Core.Internal;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -51,7 +52,66 @@ namespace RService.IO.Tests
                 .MethodActivator.Should().Be(expectedFeature.Object.MethodActivator);
         }
 
-        private RouteData BuildRouteData(string path)
+        [Fact]
+        public async void Invoke__InvokesNextIfRouteHanlderNotSet()
+        {
+            var hasNextInvoked = false;
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var context = BuildContext(new RouteData());
+            var middleware = BuildMiddleware(sink, handler: ctx =>
+            {
+                hasNextInvoked = true;
+                return Task.FromResult(0);
+            });
+
+            await middleware.Invoke(context);
+
+            hasNextInvoked.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void Invoke__InvokesNextIfActivatorNotSet()
+        {
+            var hasNextInvoked = false;
+            var routePath = "/Foobar".Substring(1);
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var context = BuildContext(new RouteData());
+            var middleware = BuildMiddleware(sink, routePath, handler: ctx =>
+            {
+                hasNextInvoked = true;
+                return Task.FromResult(0);
+            });
+
+            await middleware.Invoke(context);
+
+            hasNextInvoked.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void Invoke__LogsWhenFeatureNotAdded()
+        {
+            const string expectedMessage = "Request did not match any services.";
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var context = BuildContext(new RouteData());
+            var middleware = BuildMiddleware(sink, handler: ctx => Task.FromResult(0));
+
+            await middleware.Invoke(context);
+
+            sink.Scopes.Should().BeEmpty();
+            sink.Writes.Count.Should().Be(1);
+            sink.Writes[0].State?.ToString().Should().Be(expectedMessage);
+        }
+
+        private static RouteData BuildRouteData(string path)
         {
             var routeTarget = new Mock<IRouter>();
             var resolver = new Mock<IInlineConstraintResolver>();
@@ -62,7 +122,7 @@ namespace RService.IO.Tests
             return routeData;
         }
 
-        private HttpContext BuildContext(RouteData routeData)
+        private static HttpContext BuildContext(RouteData routeData)
         {
             var context = new DefaultHttpContext();
             context.Features[typeof(IRoutingFeature)] = new RoutingFeature
@@ -74,13 +134,14 @@ namespace RService.IO.Tests
             return context;
         }
 
-        private RServiceMiddleware BuildMiddleware(TestSink sink, string routePath, Delegate.Activator routeActivator)
+        private RServiceMiddleware BuildMiddleware(TestSink sink, string routePath = null, Delegate.Activator routeActivator = null, RequestDelegate handler = null)
         {
 
             var loggerFactory = new TestLoggerFactory(sink, true);
-            RequestDelegate next = (c) => Task.FromResult<object>(null);
+            var next = handler ?? (c => Task.FromResult<object>(null));
             var service = new RService(_options);
-            service.Routes.Add(routePath, new ServiceDef { ServiceMethod = routeActivator });
+            if (!routePath.IsNullOrEmpty() && routeActivator != null)
+                service.Routes.Add(routePath, new ServiceDef { ServiceMethod = routeActivator });
 
             return new RServiceMiddleware(next, loggerFactory, service);
         }
