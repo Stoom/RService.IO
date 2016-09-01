@@ -1,5 +1,6 @@
 ﻿using System;
 using RService.IO.Abstractions;
+using Delegate = RService.IO.Abstractions.Delegate;
 
 namespace RService.IO
 {
@@ -7,6 +8,6 @@ namespace RService.IO
     {
         public RouteAttribute Route;
         public Type ServiceType;
-        public DelegateFactory.Activator ServiceMethod;
+        public Delegate.Activator ServiceMethod;
     }
 }

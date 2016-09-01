@@ -1,19 +1,14 @@
 ﻿using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using RService.IO.Abstractions;
 
 namespace RService.IO
 {
-    public static class DelegateFactory
+    public sealed class DelegateFactory
     {
-        /// <summary>
-        /// Activates method associated with a service.
-        /// </summary>
-        /// <param name="args">Arguments for method being activated.</param>
-        /// <returns>The service's response.</returns>
-        public delegate object Activator(object target, params object[] args);
 
-        public static Activator GenerateMethodCall(MethodInfo method)
+        public static Delegate.Activator GenerateMethodCall(MethodInfo method)
         {
             var methodType = method.DeclaringType;
 
@@ -25,7 +20,7 @@ namespace RService.IO
                 method,
                 CreateParameterExpressions(method, arguments)
                 );
-            var lambda = Expression.Lambda<Activator>(
+            var lambda = Expression.Lambda<Delegate.Activator>(
                 Expression.Convert(call, typeof(object)),
                 instance,
                 arguments);
