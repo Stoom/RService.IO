@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
@@ -9,7 +8,6 @@ namespace RService.IO.Tests
 {
     public class RServiceTests
     {
-        private Assembly CurrentAssembly => GetType().GetTypeInfo().Assembly;
         private readonly IOptions<RServiceOptions> _options;
 
         public RServiceTests()
@@ -18,7 +16,7 @@ namespace RService.IO.Tests
             {
                 new ConfigureOptions<RServiceOptions>(opt =>
                 {
-                    opt.ServiceAssemblies.Add(CurrentAssembly);
+                    opt.ServiceAssemblies.Add(Utils.Instance.CurrentAssembly);
                 })
             });
         }
@@ -27,26 +25,28 @@ namespace RService.IO.Tests
         public void Ctor__ScansAssembliesForRoutesOnMethods()
         {
             var route = new RouteAttribute(SvcWithMethodRoute.RoutePath);
+            var expectedPath = route.Path.Substring(1);
 
             var service = new RService(_options);
 
-            service.Routes.Keys.Should().Contain(route.Path);
-            service.Routes[route.Path].Route.Should().Be(route);
-            service.Routes[route.Path].ServiceType.Should().Be(typeof(SvcWithMethodRoute));
-            service.Routes[route.Path].ServiceMethod.Should().NotBeNull();
+            service.Routes.Keys.Should().Contain(expectedPath);
+            service.Routes[expectedPath].Route.Should().Be(route);
+            service.Routes[expectedPath].ServiceType.Should().Be(typeof(SvcWithMethodRoute));
+            service.Routes[expectedPath].ServiceMethod.Should().NotBeNull();
         }
 
         [Fact]
         public void Ctor__ScansAssembliesForRoutesOnMethodsFirstParam()
         {
             var route = new RouteAttribute(SvcWithParamRoute.RoutePath);
+            var expectedPath = route.Path.Substring(1);
 
             var service = new RService(_options);
 
-            service.Routes.Keys.Should().Contain(route.Path);
-            service.Routes[route.Path].Route.Should().Be(route);
-            service.Routes[route.Path].ServiceType.Should().Be(typeof(SvcWithParamRoute));
-            service.Routes[route.Path].ServiceMethod.Should().NotBeNull();
+            service.Routes.Keys.Should().Contain(expectedPath);
+            service.Routes[expectedPath].Route.Should().Be(route);
+            service.Routes[expectedPath].ServiceType.Should().Be(typeof(SvcWithParamRoute));
+            service.Routes[expectedPath].ServiceMethod.Should().NotBeNull();
         }
 
         [Fact]
@@ -54,17 +54,19 @@ namespace RService.IO.Tests
         {
             var route1 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath1);
             var route2 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath2);
+            var expectedPath1 = route1.Path.Substring(1);
+            var expectedPath2 = route2.Path.Substring(1);
 
             var service = new RService(_options);
 
-            service.Routes.Keys.Should().Contain(route1.Path);
-            service.Routes[route1.Path].Route.Should().Be(route1);
-            service.Routes[route1.Path].ServiceType.Should().Be(typeof(SvcWithMultMethodRoutes));
-            service.Routes[route1.Path].ServiceMethod.Should().NotBeNull();
-            service.Routes.Keys.Should().Contain(route2.Path);
-            service.Routes[route2.Path].Route.Should().Be(route2);
-            service.Routes[route2.Path].ServiceType.Should().Be(typeof(SvcWithMultMethodRoutes));
-            service.Routes[route2.Path].ServiceMethod.Should().NotBeNull();
+            service.Routes.Keys.Should().Contain(expectedPath1);
+            service.Routes[expectedPath1].Route.Should().Be(route1);
+            service.Routes[expectedPath1].ServiceType.Should().Be(typeof(SvcWithMultMethodRoutes));
+            service.Routes[expectedPath1].ServiceMethod.Should().NotBeNull();
+            service.Routes.Keys.Should().Contain(expectedPath2);
+            service.Routes[expectedPath2].Route.Should().Be(route2);
+            service.Routes[expectedPath2].ServiceType.Should().Be(typeof(SvcWithMultMethodRoutes));
+            service.Routes[expectedPath2].ServiceMethod.Should().NotBeNull();
         }
 
         [Fact]
@@ -72,18 +74,20 @@ namespace RService.IO.Tests
         {
             var route1 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath1);
             var route2 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath2);
+            var expectedPath1 = route1.Path.Substring(1);
+            var expectedPath2 = route2.Path.Substring(1);
 
             var service = new RService(_options);
 
 
-            service.Routes.Keys.Should().Contain(route1.Path);
-            service.Routes[route1.Path].Route.Should().Be(route1);
-            service.Routes[route1.Path].ServiceType.Should().Be(typeof(SvcWithMultParamRoutes));
-            service.Routes[route1.Path].ServiceMethod.Should().NotBeNull();
-            service.Routes.Keys.Should().Contain(route2.Path);
-            service.Routes[route2.Path].Route.Should().Be(route2);
-            service.Routes[route2.Path].ServiceType.Should().Be(typeof(SvcWithMultParamRoutes));
-            service.Routes[route2.Path].ServiceMethod.Should().NotBeNull();
+            service.Routes.Keys.Should().Contain(expectedPath1);
+            service.Routes[expectedPath1].Route.Should().Be(route1);
+            service.Routes[expectedPath1].ServiceType.Should().Be(typeof(SvcWithMultParamRoutes));
+            service.Routes[expectedPath1].ServiceMethod.Should().NotBeNull();
+            service.Routes.Keys.Should().Contain(expectedPath2);
+            service.Routes[expectedPath2].Route.Should().Be(route2);
+            service.Routes[expectedPath2].ServiceType.Should().Be(typeof(SvcWithMultParamRoutes));
+            service.Routes[expectedPath2].ServiceMethod.Should().NotBeNull();
         }
 
         [Fact]

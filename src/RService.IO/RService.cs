@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
 
@@ -23,6 +24,7 @@ namespace RService.IO
         public IEnumerable<Type> ServiceTypes => Routes.Values.Select(x => x.ServiceType);
 
         protected readonly RServiceOptions Options;
+        protected static Regex RoutePathCleaner = new Regex(@"^[\/~]+", RegexOptions.Compiled);
 
         /// <summary>
         /// Constructs a RService service and scans for routes and services in assemblies.
@@ -64,7 +66,7 @@ namespace RService.IO
                         ServiceType = type,
                         ServiceMethod = DelegateFactory.GenerateMethodCall(method)
                     };
-                    Routes.Add(attr.Path, def);
+                    Routes.Add(CleanRoutePath(attr.Path), def);
                 });
             });
 
@@ -81,9 +83,14 @@ namespace RService.IO
                         ServiceType = methodType,
                         ServiceMethod = DelegateFactory.GenerateMethodCall(method)
                     };
-                    Routes.Add(def.Route.Path, def);
+                    Routes.Add(CleanRoutePath(def.Route.Path), def);
                 });
             });
+        }
+
+        protected static string CleanRoutePath(string value)
+        {
+            return RoutePathCleaner.Replace(value, string.Empty);
         }
     }
 }

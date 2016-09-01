@@ -58,7 +58,7 @@ namespace RService.IO.Tests
         {
             const string path = "/Foobar";
             var builder = CreateRouteBuilder();
-            var route = new RouteAttribute(path, RestVerbs.Get|RestVerbs.Post);
+            var route = new RouteAttribute(path, RestVerbs.Get | RestVerbs.Post);
 
             builder.MapRServiceIoRoute(route, NullHandler);
             var routes = GetRouteTemplates(builder);

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using RService.IO.Abstractions;
@@ -7,10 +8,11 @@ namespace RService.IO
 {
     public static class RouteBuilderExtensions
     {
+        internal static Regex RoutePathCleaner = new Regex(@"^[\/~]+", RegexOptions.Compiled);
 
         public static IRouteBuilder MapRServiceIoRoute(this IRouteBuilder builder, RouteAttribute route, RequestDelegate handler)
         {
-            var path = route.Path.Substring(1);
+            var path = RoutePathCleaner.Replace(route.Path, string.Empty);
 
             // ReSharper disable once SwitchStatementMissingSomeCases
             switch (route.Verbs)
