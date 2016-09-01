@@ -111,6 +111,33 @@ namespace RService.IO.Tests
             sink.Writes[0].State?.ToString().Should().Be(expectedMessage);
         }
 
+        [Fact]
+        public async void Invoke_CallsHandlerIfActivatorFound()
+        {
+            var hasHandlerInvoked = false;
+
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                hasHandlerInvoked = true;
+                return Task.FromResult(0);
+            });
+            var middleware = BuildMiddleware(sink, routePath, routeActivator);
+
+            await middleware.Invoke(context);
+
+            hasHandlerInvoked.Should().BeTrue();
+        }
+
         private static RouteData BuildRouteData(string path)
         {
             var routeTarget = new Mock<IRouter>();
@@ -122,13 +149,13 @@ namespace RService.IO.Tests
             return routeData;
         }
 
-        private static HttpContext BuildContext(RouteData routeData)
+        private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null)
         {
             var context = new DefaultHttpContext();
             context.Features[typeof(IRoutingFeature)] = new RoutingFeature
             {
                 RouteData = routeData,
-                RouteHandler = c => Task.FromResult(0)
+                RouteHandler = handler ?? (c => Task.FromResult(0))
             };
 
             return context;

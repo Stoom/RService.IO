@@ -39,6 +39,8 @@ namespace RService.IO
                 {
                     MethodActivator = activator
                 };
+
+                await handler.Invoke(context);
             }
         }
     }
