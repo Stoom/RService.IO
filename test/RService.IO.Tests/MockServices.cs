@@ -5,11 +5,21 @@ namespace RService.IO.Tests
     public class SvcWithMethodRoute : IService
     {
         public const string RoutePath = "/Foobar";
+        public const string GetPath = "/Foobar/Get";
+        public bool HasAnyBeenCalled { get; set; }
+        public string GetResponse { get; set; }
 
         [Route(RoutePath)]
         public object Any()
         {
+            HasAnyBeenCalled = true;
             return null;
+        }
+
+        [Route(GetPath, RestVerbs.Get)]
+        public string Get()
+        {
+            return GetResponse;
         }
     }
 

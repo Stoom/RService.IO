@@ -26,9 +26,9 @@ namespace RService.IO
                 ? (context.GetRouteData()?.Routers[1] as Route)?.RouteTemplate
                 : null;
             var handler = context.GetRouteHandler();
-            var activator = _service.Routes.FirstOrDefault(x => x.Key == route).Value.ServiceMethod;
+            var serviceDef = _service.Routes.FirstOrDefault(x => x.Key == route).Value;
 
-            if (handler == null || activator == null)
+            if (handler == null || serviceDef.ServiceMethod == null)
             {
                 _logger.RequestDidNotMatchServices();
                 await _next.Invoke(context);
@@ -37,7 +37,8 @@ namespace RService.IO
             {
                 context.Features[typeof(IRServiceFeature)] = new RServiceFeature
                 {
-                    MethodActivator = activator
+                    MethodActivator = serviceDef.ServiceMethod,
+                    Service = context.RequestServices.GetService(serviceDef.ServiceType) as IService
                 };
 
                 await handler.Invoke(context);

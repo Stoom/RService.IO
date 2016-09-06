@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using RService.IO.Abstractions;
 
 namespace RService.IO
 {
@@ -20,7 +21,13 @@ namespace RService.IO
         /// </remarks>
         public static Task ServiceHandler(HttpContext context)
         {
-            throw new NotImplementedException();
+            var service = context.GetServiceInstance();
+            var activator = context.GetServiceMethodActivator();
+            var args = new object[] {};
+
+            var response = activator.Invoke(service, args);
+
+            return context.Response.WriteAsync(response as string ?? string.Empty);
         }
     }
 }
