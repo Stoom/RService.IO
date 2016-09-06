@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 using FluentAssertions;
@@ -11,6 +12,7 @@ using NuGet.Packaging;
 using RService.IO.Abstractions;
 using RService.IO.Router;
 using Xunit;
+using Delegate = RService.IO.Abstractions.Delegate;
 using IRoutingFeature = Microsoft.AspNetCore.Routing.IRoutingFeature;
 
 namespace RService.IO.Tests
@@ -152,11 +154,14 @@ namespace RService.IO.Tests
         private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null)
         {
             var context = new DefaultHttpContext();
+            var ioc = new Mock<IServiceProvider>().SetupAllProperties();
             context.Features[typeof(IRoutingFeature)] = new RoutingFeature
             {
                 RouteData = routeData,
                 RouteHandler = handler ?? (c => Task.FromResult(0))
             };
+            ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService) null);
+            context.RequestServices = ioc.Object;
 
             return context;
         }
