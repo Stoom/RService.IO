@@ -23,11 +23,19 @@ namespace RService.IO
         {
             var service = context.GetServiceInstance();
             var activator = context.GetServiceMethodActivator();
-            var args = new object[] {};
+            var args = new object[] { };
 
-            var response = activator.Invoke(service, args);
+            var res = activator.Invoke(service, args);
+            if (ReferenceEquals(null, res))
+                return context.Response.WriteAsync(string.Empty);
 
-            return context.Response.WriteAsync(response as string ?? string.Empty);
+            var responseType = res?.GetType();
+            var response = Convert.ChangeType(res, responseType);
+
+            if (response.IsSimple())
+                return context.Response.WriteAsync(response.ToString());
+
+            throw new NotImplementedException();
         }
     }
 }

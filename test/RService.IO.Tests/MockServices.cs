@@ -6,8 +6,10 @@ namespace RService.IO.Tests
     {
         public const string RoutePath = "/Foobar";
         public const string GetPath = "/Foobar/Get";
+        public const string PostPath = "/Foobar/Post";
         public bool HasAnyBeenCalled { get; set; }
         public string GetResponse { get; set; }
+        public int PostResponse { get; set; }
 
         [Route(RoutePath)]
         public object Any()
@@ -20,6 +22,12 @@ namespace RService.IO.Tests
         public string Get()
         {
             return GetResponse;
+        }
+
+        [Route(PostPath, RestVerbs.Post)]
+        public int Post()
+        {
+            return PostResponse;
         }
     }
 

@@ -95,5 +95,26 @@ namespace RService.IO
             return info.IsClass && info.IsPublic && info.IsAbstract == isAbstract &&
                    info.GetInterfaces().Any(i => i == typeof(TInterface));
         }
+
+        /// <summary>
+        /// Checks if the object is a simple type.
+        /// </summary>
+        /// <param name="obj">The object to check.</param>
+        /// <returns><b>True</b> if the object is a simple type, else <b>False</b>.</returns>
+        public static bool IsSimple(this object obj)
+        {
+            var type = obj.GetType();
+            var typeInfo = type.GetTypeInfo();
+
+            if (typeInfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                // ReSharper disable once TailRecursiveCall
+                return IsSimple(type.GetGenericArguments()[0]);
+            }
+            return typeInfo.IsPrimitive
+              || typeInfo.IsEnum
+              || type == typeof(string)
+              || type == typeof(decimal);
+        }
     }
 }

@@ -55,6 +55,38 @@ namespace RService.IO.Tests
                 reader.ReadToEnd().Should().Be(service.GetResponse);
         }
 
+        [Fact]
+        public void ServiceHandler__WritesPrimitiveResponseToContextResponse()
+        {
+            var service = new SvcWithMethodRoute {PostResponse = 100};
+            var routePath = SvcWithMethodRoute.PostPath.Substring(1);
+
+            var context = BuildContext(routePath, service);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(service.PostResponse.ToString());
+        }
+
+        [Fact]
+        public void ServiceHandler__WritesEmptyStringIfServiceMethodReturnsNull()
+        {
+            var service = new SvcWithMethodRoute {GetResponse = null};
+            var routePath = SvcWithMethodRoute.GetPath.Substring(1);
+
+            var context = BuildContext(routePath, service);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(string.Empty);
+        }
+
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance)
         {
             var context = new Mock<HttpContext>().SetupAllProperties();
