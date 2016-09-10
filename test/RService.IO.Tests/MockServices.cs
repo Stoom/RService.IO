@@ -50,7 +50,7 @@ namespace RService.IO.Tests
 
         public object Any(DtoForParamRoute dto)
         {
-            return null;
+            return dto.Foobar;
         }
     }
 
@@ -68,7 +68,7 @@ namespace RService.IO.Tests
     [Route(SvcWithParamRoute.RoutePath)]
     public class DtoForParamRoute
     {
-        
+        public string Foobar { get; set; }
     }
 
     [Route(SvcWithMultParamRoutes.RoutePath1)]

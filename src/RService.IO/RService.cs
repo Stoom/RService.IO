@@ -81,7 +81,8 @@ namespace RService.IO
                     {
                         Route = (RouteAttribute)a,
                         ServiceType = methodType,
-                        ServiceMethod = DelegateFactory.GenerateMethodCall(method)
+                        ServiceMethod = DelegateFactory.GenerateMethodCall(method),
+                        RequestDtoType = paramType
                     };
                     Routes.Add(CleanRoutePath(def.Route.Path), def);
                 });

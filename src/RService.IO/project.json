@@ -1,12 +1,15 @@
 {
+  "title": "RService.IO",
   "version": "1.0.0",
 
   "dependencies": {
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Http": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Routing": "1.0.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "System.Reflection.Emit.Lightweight": "4.0.1",
+    "NetJSON.Core": "1.1.0" 
   },
 
   "frameworks": {

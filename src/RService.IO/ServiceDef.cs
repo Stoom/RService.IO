@@ -9,5 +9,6 @@ namespace RService.IO
         public RouteAttribute Route;
         public Type ServiceType;
         public Delegate.Activator ServiceMethod;
+        public Type RequestDtoType;
     }
 }

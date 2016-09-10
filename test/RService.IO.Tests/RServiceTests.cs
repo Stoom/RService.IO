@@ -47,6 +47,7 @@ namespace RService.IO.Tests
             service.Routes[expectedPath].Route.Should().Be(route);
             service.Routes[expectedPath].ServiceType.Should().Be(typeof(SvcWithParamRoute));
             service.Routes[expectedPath].ServiceMethod.Should().NotBeNull();
+            service.Routes[expectedPath].RequestDtoType.Should().Be(typeof(DtoForParamRoute));
         }
 
         [Fact]
@@ -84,10 +85,12 @@ namespace RService.IO.Tests
             service.Routes[expectedPath1].Route.Should().Be(route1);
             service.Routes[expectedPath1].ServiceType.Should().Be(typeof(SvcWithMultParamRoutes));
             service.Routes[expectedPath1].ServiceMethod.Should().NotBeNull();
+            service.Routes[expectedPath1].RequestDtoType.Should().Be(typeof(DtoForMultParamRoutes));
             service.Routes.Keys.Should().Contain(expectedPath2);
             service.Routes[expectedPath2].Route.Should().Be(route2);
             service.Routes[expectedPath2].ServiceType.Should().Be(typeof(SvcWithMultParamRoutes));
             service.Routes[expectedPath2].ServiceMethod.Should().NotBeNull();
+            service.Routes[expectedPath2].RequestDtoType.Should().Be(typeof(DtoForMultParamRoutes));
         }
 
         [Fact]
