@@ -71,6 +71,42 @@ namespace RService.IO.Tests
             methods.Should().Contain(expectedVerbs);
         }
 
+        [Fact]
+        public void IsSimple_StringReturnsTrue()
+        {
+            var simple = string.Empty.IsSimple();
+            simple.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsSimple_IntReturnsTrue()
+        {
+            var simple = 0.IsSimple();
+            simple.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsSimple_DecimalReturnsTrue()
+        {
+            var simple = ((decimal) 0.0).IsSimple();
+            simple.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsSimple_EnumReturnsTrue()
+        {
+            var simple = RestVerbs.Any.IsSimple();
+            simple.Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsSimple_DtoReturnsFalse()
+        {
+            var dto = new DtoForParamRoute();
+            var simple = dto.IsSimple();
+            simple.Should().BeFalse();
+        }
+
         private static IEnumerable<Route> GetRouteTemplates(IRouteBuilder builder)
         {
             return builder.Routes
