@@ -104,6 +104,16 @@ namespace RService.IO
         public static bool IsSimple(this object obj)
         {
             var type = obj.GetType();
+            return type.IsSimple();
+        }
+
+        /// <summary>
+        /// Checks if the type is a simple type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns><b>True</b> if the type is a simple type, else <b>False</b>.</returns>
+        public static bool IsSimple(this Type type)
+        {
             var typeInfo = type.GetTypeInfo();
 
             if (typeInfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))

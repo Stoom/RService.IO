@@ -107,6 +107,18 @@ namespace RService.IO.Tests
             simple.Should().BeFalse();
         }
 
+        [Fact]
+        public void IsSimple_NullibleIntSimpleReturnsTrue()
+        {
+            typeof(int?).IsSimple().Should().BeTrue();
+        }
+
+        [Fact]
+        public void IsSimple_GenericSimpleReturnsFalse()
+        {
+            typeof(List<int>).IsSimple().Should().BeFalse();
+        }
+
         private static IEnumerable<Route> GetRouteTemplates(IRouteBuilder builder)
         {
             return builder.Routes
