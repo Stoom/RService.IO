@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using RService.IO.Abstractions;
+using RService.IO.Router;
 using Xunit;
 
 namespace RService.IO.Tests
@@ -106,7 +113,52 @@ namespace RService.IO.Tests
             using (var reader = new StreamReader(body))
                 reader.ReadToEnd().Should().Be(expectedValue);
         }
-        private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null, string requestBody = "")
+
+        [Fact]
+        public void ServiceHandler__CreatesRequestDtoObjectFromUri()
+        {
+            const string expectedValue = "Eats llamas";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePathUri.Substring(1);
+            var routeValues = new Dictionary<string, object>
+            {
+                { "Foobar", expectedValue }
+            };
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamQueryRoute), routeTemplate: routePath, routeValues: routeValues);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(expectedValue);
+        }
+
+        [Fact]
+        public void ServiceHandler__CreatesRequestDtoObjectFromQueryString()
+        {
+            const string expectedValue = "FizzBuzz";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            var query = new QueryCollection(new Dictionary<string, StringValues>
+            {
+                { nameof(DtoForParamRoute.Foobar), expectedValue }
+            });
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), query: query);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(expectedValue);
+        }
+
+        private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
+            string requestBody = "", string routeTemplate = "",
+            Dictionary<string, object> routeValues = null, QueryCollection query = null)
         {
             var context = new Mock<HttpContext>().SetupAllProperties();
             var request = new Mock<HttpRequest>().SetupAllProperties();
@@ -115,13 +167,33 @@ namespace RService.IO.Tests
             var resBody = new MemoryStream();
             var features = new Mock<IFeatureCollection>().SetupAllProperties();
             var rserviceFeature = new RServiceFeature();
+            var routingFeature = new RoutingFeature();
 
             features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
+            features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature);
+
             rserviceFeature.RequestDtoType = requestDto;
             rserviceFeature.MethodActivator = _rservice.Routes[routePath].ServiceMethod;
             rserviceFeature.Service = serviceInstance;
 
+            if (!string.IsNullOrWhiteSpace(routeTemplate))
+            {
+                routingFeature.RouteData = new RouteData();
+                var constraints = new Mock<IInlineConstraintResolver>().SetupAllProperties();
+                var irouter = new Mock<IRouter>().SetupAllProperties();
+                var router = new Mock<Route>(irouter.Object, routeTemplate, constraints.Object)
+                    .SetupAllProperties();
+                foreach (var kvp in routeValues ?? new Dictionary<string, object>())
+                {
+                    routingFeature.RouteData.Values.Add(kvp.Key, kvp.Value);
+                }
+                routingFeature.RouteData.Routers.Add(null);
+                routingFeature.RouteData.Routers.Add(router.Object);
+                routingFeature.RouteData.Routers.Add(null);
+            }
+
             request.Object.Body = reqBody;
+            request.Object.Query = query;
             response.Object.Body = resBody;
 
             context.SetupGet(x => x.Request).Returns(request.Object);

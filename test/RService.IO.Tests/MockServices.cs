@@ -1,4 +1,5 @@
-﻿using RService.IO.Abstractions;
+﻿using System;
+using RService.IO.Abstractions;
 
 namespace RService.IO.Tests
 {
@@ -47,8 +48,14 @@ namespace RService.IO.Tests
     public class SvcWithParamRoute : IService
     {
         public const string RoutePath = "/Llamas";
+        public const string RoutePathUri = "/Llamas/Foo/{Foobar}";
 
         public object Any(DtoForParamRoute dto)
+        {
+            return dto.Foobar;
+        }
+
+        public object Any(DtoForParamQueryRoute dto)
         {
             return dto.Foobar;
         }
@@ -67,6 +74,12 @@ namespace RService.IO.Tests
 
     [Route(SvcWithParamRoute.RoutePath)]
     public class DtoForParamRoute
+    {
+        public string Foobar { get; set; }
+    }
+
+    [Route(SvcWithParamRoute.RoutePathUri)]
+    public class DtoForParamQueryRoute
     {
         public string Foobar { get; set; }
     }

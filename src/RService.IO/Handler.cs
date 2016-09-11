@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.AspNetCore.Routing;
 using RService.IO.Abstractions;
 
 namespace RService.IO
@@ -12,6 +14,9 @@ namespace RService.IO
     /// </summary>
     public class Handler
     {
+        private static readonly QueryCollection EmptyQuery = new QueryCollection();
+        private static readonly RouteValueDictionary EmptyRouteValues = new RouteValueDictionary();
+
         /// <summary>
         /// The default route handler that must be used with RService.
         /// </summary>
@@ -33,7 +38,17 @@ namespace RService.IO
             {
                 using (var reader = new StreamReader(context.Request.Body))
                 {
-                    var dto = NetJSON.NetJSON.Deserialize(dtoType, reader.ReadToEnd());
+                    var routeData = context.GetRouteData();
+                    dynamic dto = NetJSON.NetJSON.Deserialize(dtoType, reader.ReadToEnd()) ??
+                                  Activator.CreateInstance(dtoType);
+                    foreach (var queryKvp in context.Request.Query ?? EmptyQuery)
+                    {
+                        dto.Foobar = queryKvp.Value;
+                    }
+                    foreach (var routeValue in routeData?.Values ?? EmptyRouteValues)
+                    {
+                        dto.Foobar = routeValue.Value as string;
+                    }
                     args.Add(dto);
                 }
             }
