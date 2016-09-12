@@ -34,24 +34,9 @@ namespace RService.IO
             var args = new List<object>();
 
             // TODO: This needs to be converted into lambda
-            if (dtoType != null)
-            {
-                using (var reader = new StreamReader(context.Request.Body))
-                {
-                    var routeData = context.GetRouteData();
-                    dynamic dto = NetJSON.NetJSON.Deserialize(dtoType, reader.ReadToEnd()) ??
-                                  Activator.CreateInstance(dtoType);
-                    foreach (var queryKvp in context.Request.Query ?? EmptyQuery)
-                    {
-                        dto.Foobar = queryKvp.Value;
-                    }
-                    foreach (var routeValue in routeData?.Values ?? EmptyRouteValues)
-                    {
-                        dto.Foobar = routeValue.Value as string;
-                    }
-                    args.Add(dto);
-                }
-            }
+            dynamic dto = HydrateRequestDto(context, dtoType);
+            if (dto != null)
+                args.Add(dto);
 
             var res = activator.Invoke(service, args.ToArray());
             if (ReferenceEquals(null, res))
@@ -72,7 +57,29 @@ namespace RService.IO
 
         protected static object HydrateRequestDto(HttpContext context, Type dtoType)
         {
-            throw new NotImplementedException();
+            if (dtoType == null)
+                return null;
+
+            string reqBody;
+            using (var reader = new StreamReader(context.Request.Body))
+            {
+                reqBody = reader.ReadToEnd();
+            }
+
+            dynamic dto = NetJSON.NetJSON.Deserialize(dtoType, reqBody) ??
+                            Activator.CreateInstance(dtoType);
+
+            foreach (var queryKvp in context.Request.Query ?? EmptyQuery)
+            {
+                dto.Foobar = queryKvp.Value;
+            }
+
+            var routeData = context.GetRouteData();
+            foreach (var routeValue in routeData?.Values ?? EmptyRouteValues)
+            {
+                dto.Foobar = routeValue.Value as string;
+            }
+            return dto;
         }
     }
 }
