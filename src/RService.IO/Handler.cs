@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -16,6 +19,7 @@ namespace RService.IO
     {
         private static readonly QueryCollection EmptyQuery = new QueryCollection();
         private static readonly RouteValueDictionary EmptyRouteValues = new RouteValueDictionary();
+        private static readonly List<string> EmptyKeys = new List<string>();
 
         /// <summary>
         /// The default route handler that must be used with RService.
@@ -55,6 +59,18 @@ namespace RService.IO
             // And wouldn't need to do dynamic things.
         }
 
+        /// <summary>
+        /// Hydrates a request DTO.
+        /// </summary>
+        /// <param name="context">The <see cref="HttpContext"/> including the request.</param>
+        /// <param name="dtoType">The type of for the request DTO.</param>
+        /// <returns>The populated request DTO.</returns>
+        /// <remarks>
+        /// Priority:
+        /// 1) Route templated variables
+        /// 2) Query string variables
+        /// 3) Request JSON body
+        /// </remarks>
         protected static object HydrateRequestDto(HttpContext context, Type dtoType)
         {
             if (dtoType == null)
@@ -66,19 +82,56 @@ namespace RService.IO
                 reqBody = reader.ReadToEnd();
             }
 
-            dynamic dto = NetJSON.NetJSON.Deserialize(dtoType, reqBody) ??
-                            Activator.CreateInstance(dtoType);
 
-            foreach (var queryKvp in context.Request.Query ?? EmptyQuery)
-            {
-                dto.Foobar = queryKvp.Value;
-            }
+            var method = typeof(NetJSON.NetJSON)
+                .GetMethod("Deserialize", new[] { typeof(string) })
+                .MakeGenericMethod(dtoType);
+            var dtoCtor = dtoType.GetConstructors().First();
 
-            var routeData = context.GetRouteData();
-            foreach (var routeValue in routeData?.Values ?? EmptyRouteValues)
+            var json = Expression.Parameter(typeof(string), "json");
+            var reqDto = Expression.Variable(dtoType, "requestDto");
+            var returnTarget = Expression.Label(dtoType);
+            var returnExp = Expression.Return(returnTarget, reqDto, dtoType);
+            var returnLable = Expression.Label(returnTarget,
+                Expression.Convert(Expression.Constant(null), dtoType));
+            var callExpressions = new List<Expression>
             {
-                dto.Foobar = routeValue.Value as string;
-            }
+                Expression.Assign(reqDto, Expression.Call(method, json)),
+                Expression.IfThen(
+                    Expression.Equal(reqDto, Expression.Constant(null)),
+                    Expression.Assign(reqDto, Expression.New(dtoCtor))
+                )
+
+            };
+
+            var dtoProps = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v);
+            var routeData = context.GetRouteData()?.Values;
+
+            callExpressions.AddRange(
+                from prop
+                in context.Request.Query?.Keys.Intersect(dtoProps.Keys) ?? EmptyKeys
+                let setterMethod = dtoProps[prop].GetSetMethod()
+                let value = context.Request.Query[prop]
+                select Expression.Call(reqDto, setterMethod,
+                    Expression.Convert(Expression.Constant(value), typeof(string))));
+
+            callExpressions.AddRange(
+                from prop in routeData?.Keys.Intersect(dtoProps.Keys) ?? EmptyKeys
+                let value = routeData?[prop]
+                let setterMethod = dtoProps[prop].GetSetMethod()
+                select Expression.Call(reqDto, setterMethod, Expression.Constant(value)));
+
+            callExpressions.Add(returnExp);
+            callExpressions.Add(returnLable);
+            var call = Expression.Block(new[] { reqDto }, callExpressions);
+
+            dynamic lambda = Expression.Lambda<Func<string, object>>(
+                Expression.Convert(call, typeof(object)),
+                json);
+
+            var dto = lambda.Compile().DynamicInvoke(reqBody);
+
             return dto;
         }
     }
