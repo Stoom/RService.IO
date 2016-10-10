@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Routing;
 using RService.IO.Abstractions;
 
@@ -19,10 +18,6 @@ namespace RService.IO
     /// </summary>
     public class Handler
     {
-        private static readonly QueryCollection EmptyQuery = new QueryCollection();
-        private static readonly RouteValueDictionary EmptyRouteValues = new RouteValueDictionary();
-        private static readonly List<string> EmptyKeys = new List<string>();
-
         private static readonly Regex JsonNoQuotes = new Regex(@"(^[\d.]+)|(^[Tt][Rr][Uu][Ee])|(^[Ff][Aa][Ll][Ss][Ee])|(^[Nn][Uu][Ll]{2})", RegexOptions.Compiled);
 
         /// <summary>
@@ -91,44 +86,62 @@ namespace RService.IO
                 var dtoProps = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v);
 
-                var queryData = context.Request.Query;
-                if (queryData != null)
-                {
-                    foreach (var key in queryData.Keys.Intersect(dtoProps.Keys))
-                    {
-                        var seperator = (reqBodyBuilder.Length > 1) ? "," : string.Empty;
+                AddQueryStringParams(context, ref dtoProps, ref reqBodyBuilder);
+                AddRouteParams(context, ref dtoProps, ref reqBodyBuilder);
 
-                        var value = queryData[key];
-                        reqBodyBuilder.AppendLine(!JsonNoQuotes.IsMatch(value)
-                            ? $"{seperator}\"{key}\": \"{value}\""
-                            : $"{seperator}\"{key}\": {value}");
-                    }
-                }
-
-                var routeData = context.GetRouteData()?.Values;
-                if (routeData != null)
-                {
-                    foreach (var key in routeData.Keys.Intersect(dtoProps.Keys))
-                    {
-                        var seperator = (reqBodyBuilder.Length > 1) ? "," : string.Empty;
-
-                        var value = routeData[key];
-                        var valueType = value.GetType();
-                        if (valueType == typeof(string))
-                        {
-                            reqBodyBuilder.AppendLine($"{seperator}\"{key}\": \"{value}\"");
-                        }
-                        else if (valueType == typeof(decimal) || valueType == typeof(float) || valueType == typeof(double) ||
-                                 valueType == typeof(int) || valueType == typeof(long) || valueType == typeof(bool))
-                        {
-                            reqBodyBuilder.AppendLine($"{seperator}\"{key}\": {value}");
-                        }
-                    }
-                }
+                
                 reqBodyBuilder.AppendLine("}");
                 reqBody = reqBodyBuilder.ToString();
             }
 
+            var dto = GetDtoCtorDelegate(dtoType).DynamicInvoke(reqBody);
+
+            return dto;
+        }
+
+        private static void AddQueryStringParams(HttpContext context, ref Dictionary<string, PropertyInfo> dtoProps, ref StringBuilder reqBodyBuilder)
+        {
+            var queryData = context.Request.Query;
+            if (queryData == null)
+                return;
+
+            foreach (var key in queryData.Keys.Intersect(dtoProps.Keys))
+            {
+                var seperator = (reqBodyBuilder.Length > 1) ? "," : string.Empty;
+
+                var value = queryData[key];
+                reqBodyBuilder.AppendLine(!JsonNoQuotes.IsMatch(value)
+                    ? $"{seperator}\"{key}\": \"{value}\""
+                    : $"{seperator}\"{key}\": {value}");
+            }
+        }
+
+        private static void AddRouteParams(HttpContext context, ref Dictionary<string, PropertyInfo> dtoProps, ref StringBuilder reqBodyBuilder)
+        {
+            var routeData = context.GetRouteData()?.Values;
+            if (routeData != null)
+            {
+                foreach (var key in routeData.Keys.Intersect(dtoProps.Keys))
+                {
+                    var seperator = (reqBodyBuilder.Length > 1) ? "," : string.Empty;
+
+                    var value = routeData[key];
+                    var valueType = value.GetType();
+                    if (valueType == typeof(string))
+                    {
+                        reqBodyBuilder.AppendLine($"{seperator}\"{key}\": \"{value}\"");
+                    }
+                    else if (valueType == typeof(decimal) || valueType == typeof(float) || valueType == typeof(double) ||
+                             valueType == typeof(int) || valueType == typeof(long) || valueType == typeof(bool))
+                    {
+                        reqBodyBuilder.AppendLine($"{seperator}\"{key}\": {value}");
+                    }
+                }
+            }
+        }
+
+        private static dynamic GetDtoCtorDelegate(Type dtoType)
+        {
             // Methods
             var deserializeMethod = typeof(NetJSON.NetJSON)
                 .GetMethod("Deserialize", new[] { typeof(string) })
@@ -167,9 +180,7 @@ namespace RService.IO
                 Expression.Convert(call, typeof(object)),
                 jsonParam);
 
-            var dto = lambda.Compile().DynamicInvoke(reqBody);
-
-            return dto;
+            return lambda.Compile();
         }
     }
 }
