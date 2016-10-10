@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -46,7 +47,7 @@ namespace RService.IO
             if (ReferenceEquals(null, res))
                 return context.Response.WriteAsync(string.Empty);
 
-            var responseType = res?.GetType();
+            var responseType = res.GetType();
             var response = Convert.ChangeType(res, responseType);
 
             if (response.IsSimple())
@@ -77,58 +78,86 @@ namespace RService.IO
                 return null;
 
             string reqBody;
+            var reqBodyBuilder = new StringBuilder();
             using (var reader = new StreamReader(context.Request.Body))
             {
-                reqBody = reader.ReadToEnd();
+                var body = reader.ReadToEnd().Trim();
+                body = body.Length > 0
+                    ? body.Remove(body.Length - 1)
+                    : "{";
+
+                reqBodyBuilder.Append(body);
+
+                var routeData = context.GetRouteData()?.Values;
+                if (routeData != null)
+                {
+                    var dtoProps = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                        .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v);
+                    foreach (var key in routeData.Keys.Intersect(dtoProps.Keys))
+                    {
+                        var seperator = (reqBodyBuilder.Length > 1) ? "," : String.Empty;
+
+                        var value = routeData[key];
+                        var valueType = value.GetType();
+                        if (valueType == typeof(string))
+                        {
+                            reqBodyBuilder.AppendLine($"{seperator}\"{key}\": \"{value}\"");
+                        }
+                        else if (valueType == typeof(decimal) || valueType == typeof(float) || valueType == typeof(double) ||
+                                 valueType == typeof(int) || valueType == typeof(long) || valueType == typeof(bool))
+                        {
+                            reqBodyBuilder.AppendLine($"{seperator}\"{key}\": {value}");
+                        }
+                    }
+                }
+                reqBodyBuilder.AppendLine("}");
+                reqBody = reqBodyBuilder.ToString();
             }
 
-
-            var method = typeof(NetJSON.NetJSON)
+            // Methods
+            var deserializeMethod = typeof(NetJSON.NetJSON)
                 .GetMethod("Deserialize", new[] { typeof(string) })
                 .MakeGenericMethod(dtoType);
             var dtoCtor = dtoType.GetConstructors().First();
 
-            var json = Expression.Parameter(typeof(string), "json");
-            var reqDto = Expression.Variable(dtoType, "requestDto");
+            // Properties and fields
+            var jsonParam = Expression.Parameter(typeof(string), "Json Body");
+            var reqDtoVar = Expression.Variable(dtoType, "Request Dto");
+
+            // Return
             var returnTarget = Expression.Label(dtoType);
-            var returnExp = Expression.Return(returnTarget, reqDto, dtoType);
+            var returnExp = Expression.Return(returnTarget, reqDtoVar, dtoType);
             var returnLable = Expression.Label(returnTarget,
                 Expression.Convert(Expression.Constant(null), dtoType));
+
+            // Constants
+            var nullConst = Expression.Constant(null);
+
             var callExpressions = new List<Expression>
             {
-                Expression.Assign(reqDto, Expression.Call(method, json)),
+                // Deserialize or ctor
+                Expression.Assign(reqDtoVar, Expression.Call(deserializeMethod, jsonParam)),
                 Expression.IfThen(
-                    Expression.Equal(reqDto, Expression.Constant(null)),
-                    Expression.Assign(reqDto, Expression.New(dtoCtor))
-                )
-
+                    Expression.Equal(reqDtoVar, nullConst),
+                    Expression.Assign(reqDtoVar, Expression.New(dtoCtor))
+                ),
+                returnExp,
+                returnLable
             };
 
-            var dtoProps = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v);
-            var routeData = context.GetRouteData()?.Values;
+            //callExpressions.AddRange(
+            //    from prop
+            //    in context.Request.Query?.Keys.Intersect(dtoProps.Keys) ?? EmptyKeys
+            //    let setterMethod = dtoProps[prop].GetSetMethod()
+            //    let value = context.Request.Query[prop]
+            //    select Expression.Call(reqDtoVar, setterMethod,
+            //        Expression.Convert(Expression.Constant(value), typeof(string))));
 
-            callExpressions.AddRange(
-                from prop
-                in context.Request.Query?.Keys.Intersect(dtoProps.Keys) ?? EmptyKeys
-                let setterMethod = dtoProps[prop].GetSetMethod()
-                let value = context.Request.Query[prop]
-                select Expression.Call(reqDto, setterMethod,
-                    Expression.Convert(Expression.Constant(value), typeof(string))));
-
-            callExpressions.AddRange(
-                from prop in routeData?.Keys.Intersect(dtoProps.Keys) ?? EmptyKeys
-                let value = routeData?[prop]
-                let setterMethod = dtoProps[prop].GetSetMethod()
-                select Expression.Call(reqDto, setterMethod, Expression.Constant(value)));
-
-            callExpressions.Add(returnExp);
-            callExpressions.Add(returnLable);
-            var call = Expression.Block(new[] { reqDto }, callExpressions);
+            var call = Expression.Block(new[] { reqDtoVar }, callExpressions);
 
             dynamic lambda = Expression.Lambda<Func<string, object>>(
                 Expression.Convert(call, typeof(object)),
-                json);
+                jsonParam);
 
             var dto = lambda.Compile().DynamicInvoke(reqBody);
 

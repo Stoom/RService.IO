@@ -134,6 +134,28 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public void ServiceHandler__UriOverridesContextBody()
+        {
+            const string expectedValue = "Eats llamas";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePathUri.Substring(1);
+            var routeValues = new Dictionary<string, object>
+            {
+                { "Foobar", expectedValue }
+            };
+            var reqBody = $"{{\"{nameof(DtoForParamRoute.Foobar)}\":\"Bar\"}}";
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamQueryRoute), routeTemplate: routePath, routeValues: routeValues, requestBody:reqBody);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(expectedValue);
+        }
+
+        [Fact]
         public void ServiceHandler__CreatesRequestDtoObjectFromQueryString()
         {
             const string expectedValue = "FizzBuzz";
