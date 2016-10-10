@@ -120,7 +120,7 @@ namespace RService.IO.Tests
             var routePath = SvcWithParamRoute.RoutePathUri.Substring(1);
             var routeValues = new Dictionary<string, object>
             {
-                { "Foobar", expectedValue }
+                { nameof(DtoForParamRoute.Foobar), expectedValue }
             };
 
             var context = BuildContext(routePath, service, typeof(DtoForParamQueryRoute), routeTemplate: routePath, routeValues: routeValues);
@@ -141,7 +141,7 @@ namespace RService.IO.Tests
             var routePath = SvcWithParamRoute.RoutePathUri.Substring(1);
             var routeValues = new Dictionary<string, object>
             {
-                { "Foobar", expectedValue }
+                { nameof(DtoForParamRoute.Foobar), expectedValue }
             };
             var reqBody = $"{{\"{nameof(DtoForParamRoute.Foobar)}\":\"Bar\"}}";
 
@@ -156,7 +156,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void ServiceHandler__CreatesRequestDtoObjectFromQueryString()
+        public void ServiceHandler__CreatesRequestDtoObjectFromQueryString_String()
         {
             const string expectedValue = "FizzBuzz";
             var service = new SvcWithParamRoute();
@@ -176,9 +176,55 @@ namespace RService.IO.Tests
                 reader.ReadToEnd().Should().Be(expectedValue);
         }
 
+        [Fact]
+        public void ServiceHandler__CreatesRequestDtoObjectFromQueryString_Integer()
+        {
+            const string expectedValue = "100";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            var query = new QueryCollection(new Dictionary<string, StringValues>
+            {
+                { nameof(DtoForParamRoute.Llama), expectedValue }
+            });
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), query: query);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be($"{expectedValue}");
+        }
+
+        [Fact]
+        public void ServiceHandler__UriOverridesQueryString()
+        {
+            const string expectedValue = "Eats llamas";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePathUri.Substring(1);
+            var routeValues = new Dictionary<string, object>
+            {
+                { nameof(DtoForParamRoute.Foobar), expectedValue }
+            };
+            var query = new QueryCollection(new Dictionary<string, StringValues>
+            {
+                { nameof(DtoForParamRoute.Foobar), "FizzBuzz" }
+            });
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamQueryRoute), routeTemplate: routePath, routeValues: routeValues, query: query);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(expectedValue);
+        }
+
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
             string requestBody = "", string routeTemplate = "",
-            Dictionary<string, object> routeValues = null, QueryCollection query = null)
+            Dictionary<string, object> routeValues = null, IQueryCollection query = null)
         {
             var context = new Mock<HttpContext>().SetupAllProperties();
             var request = new Mock<HttpRequest>().SetupAllProperties();

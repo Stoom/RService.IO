@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -21,6 +22,8 @@ namespace RService.IO
         private static readonly QueryCollection EmptyQuery = new QueryCollection();
         private static readonly RouteValueDictionary EmptyRouteValues = new RouteValueDictionary();
         private static readonly List<string> EmptyKeys = new List<string>();
+
+        private static readonly Regex JsonNoQuotes = new Regex(@"(^[\d.]+)|(^[Tt][Rr][Uu][Ee])|(^[Ff][Aa][Ll][Ss][Ee])|(^[Nn][Uu][Ll]{2})", RegexOptions.Compiled);
 
         /// <summary>
         /// The default route handler that must be used with RService.
@@ -44,14 +47,11 @@ namespace RService.IO
                 args.Add(dto);
 
             var res = activator.Invoke(service, args.ToArray());
+
             if (ReferenceEquals(null, res))
                 return context.Response.WriteAsync(string.Empty);
-
-            var responseType = res.GetType();
-            var response = Convert.ChangeType(res, responseType);
-
-            if (response.IsSimple())
-                return context.Response.WriteAsync(response.ToString());
+            if (res.IsSimple())
+                return context.Response.WriteAsync(res.ToString());
 
 
 
@@ -88,14 +88,29 @@ namespace RService.IO
 
                 reqBodyBuilder.Append(body);
 
+                var dtoProps = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                    .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v);
+
+                var queryData = context.Request.Query;
+                if (queryData != null)
+                {
+                    foreach (var key in queryData.Keys.Intersect(dtoProps.Keys))
+                    {
+                        var seperator = (reqBodyBuilder.Length > 1) ? "," : string.Empty;
+
+                        var value = queryData[key];
+                        reqBodyBuilder.AppendLine(!JsonNoQuotes.IsMatch(value)
+                            ? $"{seperator}\"{key}\": \"{value}\""
+                            : $"{seperator}\"{key}\": {value}");
+                    }
+                }
+
                 var routeData = context.GetRouteData()?.Values;
                 if (routeData != null)
                 {
-                    var dtoProps = dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                        .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v);
                     foreach (var key in routeData.Keys.Intersect(dtoProps.Keys))
                     {
-                        var seperator = (reqBodyBuilder.Length > 1) ? "," : String.Empty;
+                        var seperator = (reqBodyBuilder.Length > 1) ? "," : string.Empty;
 
                         var value = routeData[key];
                         var valueType = value.GetType();
@@ -145,13 +160,6 @@ namespace RService.IO
                 returnLable
             };
 
-            //callExpressions.AddRange(
-            //    from prop
-            //    in context.Request.Query?.Keys.Intersect(dtoProps.Keys) ?? EmptyKeys
-            //    let setterMethod = dtoProps[prop].GetSetMethod()
-            //    let value = context.Request.Query[prop]
-            //    select Expression.Call(reqDtoVar, setterMethod,
-            //        Expression.Convert(Expression.Constant(value), typeof(string))));
 
             var call = Expression.Block(new[] { reqDtoVar }, callExpressions);
 
