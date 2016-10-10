@@ -48,6 +48,7 @@ namespace RService.IO.Tests
     {
         public const string RoutePath = "/Llamas";
         public const string RoutePathUri = "/Llamas/Foo/{Foobar}";
+        public const string RoutePathUri2 = "/Llamas/Fizz/{Llama}";
 
         public object Get(DtoForParamRoute dto)
         {
@@ -59,7 +60,10 @@ namespace RService.IO.Tests
 
         public object Any(DtoForParamQueryRoute dto)
         {
-            return dto.Foobar;
+            if (!string.IsNullOrWhiteSpace(dto.Foobar))
+                return dto.Foobar;
+
+            return dto.Llama;
         }
     }
 
@@ -82,9 +86,11 @@ namespace RService.IO.Tests
     }
 
     [Route(SvcWithParamRoute.RoutePathUri)]
+    [Route(SvcWithParamRoute.RoutePathUri2)]
     public class DtoForParamQueryRoute
     {
         public string Foobar { get; set; }
+        public int Llama { get; set; }
     }
 
     [Route(SvcWithMultParamRoutes.RoutePath1)]

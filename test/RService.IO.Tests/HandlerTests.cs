@@ -113,7 +113,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void ServiceHandler__CreatesRequestDtoObjectFromUri()
+        public void ServiceHandler__CreatesRequestDtoObjectFromUri_String()
         {
             const string expectedValue = "Eats llamas";
             var service = new SvcWithParamRoute();
@@ -131,6 +131,27 @@ namespace RService.IO.Tests
 
             using (var reader = new StreamReader(body))
                 reader.ReadToEnd().Should().Be(expectedValue);
+        }
+
+        [Fact]
+        public void ServiceHandler__CreatesRequestDtoObjectFromUri_Integer()
+        {
+            const int expectedValue = 100;
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePathUri.Substring(1);
+            var routeValues = new Dictionary<string, object>
+            {
+                { nameof(DtoForParamRoute.Llama), expectedValue }
+            };
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamQueryRoute), routeTemplate: routePath, routeValues: routeValues);
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be($"{expectedValue}");
         }
 
         [Fact]
