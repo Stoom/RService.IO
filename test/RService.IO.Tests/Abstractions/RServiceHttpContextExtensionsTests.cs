@@ -52,6 +52,14 @@ namespace RService.IO.Tests.Abstractions
         }
 
         [Fact]
+        public void GetResponseDtoType__ThrowsArguementNullExceptionOnNullContext()
+        {
+            Action comparison = () => { RServiceHttpContextExtensions.GetResponseDtoType(null); };
+
+            comparison.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
         public void GetResponseDtoType__GetsHandlerFromRServiceFeature()
         {
             var expectedDtoType = typeof(ResponseDto);
