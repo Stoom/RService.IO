@@ -8,8 +8,9 @@
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Routing": "1.0.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "System.ComponentModel.Primitives": "4.1.0",
     "System.Reflection.Emit.Lightweight": "4.0.1",
-    "NetJSON": "1.2.1.4" 
+    "NetJSON": "1.2.1.4"
   },
 
   "frameworks": {

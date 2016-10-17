@@ -50,10 +50,9 @@ namespace RService.IO
                 return context.Response.WriteAsync(res.ToString());
 
 
-
+            // TODO: Handle response DTO
+            // TODO: Check if methods are handled?
             throw new NotImplementedException();
-            // TODO: Possible make this an expression tree delegate?  Should have a standard pattern
-            // And wouldn't need to do dynamic things.
         }
 
         /// <summary>
@@ -72,6 +71,10 @@ namespace RService.IO
         {
             if (dtoType == null)
                 return null;
+
+           if (!context.Request.ContentType.Equals(HttpContentTypes.ApplicationJson, StringComparison.CurrentCultureIgnoreCase)
+                && context.Request.Body.Length > 0)
+                    throw new NotImplementedException($"{context.Request.ContentType} is currently not supported.");
 
             var reqBodyBuilder = new StringBuilder();
             using (var reader = new StreamReader(context.Request.Body))

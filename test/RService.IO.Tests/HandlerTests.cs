@@ -95,6 +95,49 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public void ServiceHandler__ThrowsNotImplementedIfNotJsonAndBodyHasContent()
+        {
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            const string reqBody = "Hello World";
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), reqBody, contentType: "text/plain");
+
+            Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
+
+            act.ShouldThrow<NotImplementedException>().WithMessage("text/plain is currently not supported.");
+        }
+
+        [Fact]
+        public void ServiceHandler__DoesNotThrowIfJsonAndBodyHasContent()
+        {
+            const string expectedValue = "Eats llamas";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            var reqBody = $"{{\"{nameof(DtoForParamRoute.Foobar)}\":\"{expectedValue}\"}}";
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), reqBody);
+
+            Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
+
+            act.ShouldNotThrow<NotImplementedException>();
+        }
+
+        [Fact]
+        public void ServiceHandler__DoesNotThrowIfEmptyBodyAndNotJson()
+        {
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            const string reqBody = "";
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), reqBody, contentType: "text/plain");
+
+            Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
+
+            act.ShouldNotThrow<NotImplementedException>();
+        }
+
+        [Fact]
         public void ServiceHandler__CreatesRequestDtoObjectFromContextBody()
         {
             const string expectedValue = "Eats llamas";
@@ -244,7 +287,7 @@ namespace RService.IO.Tests
         }
 
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
-            string requestBody = "", string routeTemplate = "",
+            string requestBody = "", string routeTemplate = "", string contentType = "application/json",
             Dictionary<string, object> routeValues = null, IQueryCollection query = null)
         {
             var context = new Mock<HttpContext>().SetupAllProperties();
@@ -279,6 +322,7 @@ namespace RService.IO.Tests
                 routingFeature.RouteData.Routers.Add(null);
             }
 
+            request.Object.ContentType = contentType;
             request.Object.Body = reqBody;
             request.Object.Query = query;
             response.Object.Body = resBody;
