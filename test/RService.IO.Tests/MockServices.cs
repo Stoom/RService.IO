@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using RService.IO.Abstractions;
+﻿using RService.IO.Abstractions;
 
 namespace RService.IO.Tests
 {

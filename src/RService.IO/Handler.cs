@@ -148,6 +148,7 @@ namespace RService.IO
 
         private static Task WriteJsonResponse(HttpContext context, Type dtoResType, object res)
         {
+            // TODO: Possibly convert this to the generic serialize function if this takes too long
             var response = NetJSON.NetJSON.Serialize(dtoResType, res);
             context.Response.ContentType = HttpContentTypes.ApplicationJson;
             return context.Response.WriteAsync(response);
