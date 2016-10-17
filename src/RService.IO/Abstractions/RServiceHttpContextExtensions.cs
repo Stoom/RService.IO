@@ -12,6 +12,13 @@ namespace RService.IO.Abstractions
             var feature = context.Features[typeof(IRServiceFeature)] as RServiceFeature;
             return feature?.RequestDtoType;
         }
+        public static Type GetResponseDtoType(this HttpContext context)
+        {
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            var feature = context.Features[typeof(IRServiceFeature)] as RServiceFeature;
+            return feature?.ResponseDtoType;
+        }
 
         public static Delegate.Activator GetServiceMethodActivator(this HttpContext context)
         {

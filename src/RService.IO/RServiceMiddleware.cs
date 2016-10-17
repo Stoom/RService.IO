@@ -39,7 +39,8 @@ namespace RService.IO
                 {
                     MethodActivator = serviceDef.ServiceMethod,
                     Service = context.RequestServices.GetService(serviceDef.ServiceType) as IService,
-                    RequestDtoType = serviceDef.RequestDtoType
+                    RequestDtoType = serviceDef.RequestDtoType,
+                    ResponseDtoType = serviceDef.ResponseDtoType
                 };
 
                 await handler.Invoke(context);

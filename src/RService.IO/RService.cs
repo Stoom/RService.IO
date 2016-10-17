@@ -58,37 +58,13 @@ namespace RService.IO
             RegisterParameterRoutes(methodsParamWithAttribute);
         }
 
-        private void RegisterParameterRoutes(List<MethodInfo> methodsParamWithAttribute)
-        {
-            methodsParamWithAttribute.ForEach(method =>
-            {
-                var methodType = method.DeclaringType;
-                var paramType = method.GetParamWithAttribute<RouteAttribute>();
-                var attrs = paramType?.GetAttributes<RouteAttribute>().ToList();
-                attrs?.ForEach(a =>
-                {
-                    var route = (RouteAttribute) a;
-                    route.Verbs.GetFlags().ForEach(x =>
-                    {
-                        var def = new ServiceDef
-                        {
-                            Route = route,
-                            ServiceType = methodType,
-                            ServiceMethod = DelegateFactory.GenerateMethodCall(method),
-                            RequestDtoType = paramType
-                        };
-                        Routes.Add(BuildCompositKey(route.Path, x), def);
-                    });
-                });
-            });
-        }
-
         private void RegisterMethodRoutes(List<MethodInfo> methodsWithAttribute)
         {
             methodsWithAttribute.ForEach(method =>
             {
                 var attrs = method.GetCustomAttributes<RouteAttribute>().ToList();
-                var type = method.DeclaringType;
+                var methodType = method.DeclaringType;
+                var responseType = method.ReturnType;
                 attrs.ForEach(attr =>
                 {
                     attr.Verbs.GetFlags().ForEach(x =>
@@ -96,10 +72,38 @@ namespace RService.IO
                         var def = new ServiceDef
                         {
                             Route = attr,
-                            ServiceType = type,
-                            ServiceMethod = DelegateFactory.GenerateMethodCall(method)
+                            ServiceType = methodType,
+                            ServiceMethod = DelegateFactory.GenerateMethodCall(method),
+                            ResponseDtoType = responseType
                         };
                         Routes.Add(BuildCompositKey(attr.Path, x), def);
+                    });
+                });
+            });
+        }
+
+        private void RegisterParameterRoutes(List<MethodInfo> methodsParamWithAttribute)
+        {
+            methodsParamWithAttribute.ForEach(method =>
+            {
+                var methodType = method.DeclaringType;
+                var paramType = method.GetParamWithAttribute<RouteAttribute>();
+                var responseType = method.ReturnType;
+                var attrs = paramType?.GetAttributes<RouteAttribute>().ToList();
+                attrs?.ForEach(a =>
+                {
+                    var route = (RouteAttribute)a;
+                    route.Verbs.GetFlags().ForEach(x =>
+                    {
+                        var def = new ServiceDef
+                        {
+                            Route = route,
+                            ServiceType = methodType,
+                            ServiceMethod = DelegateFactory.GenerateMethodCall(method),
+                            RequestDtoType = paramType,
+                            ResponseDtoType = responseType
+                        };
+                        Routes.Add(BuildCompositKey(route.Path, x), def);
                     });
                 });
             });

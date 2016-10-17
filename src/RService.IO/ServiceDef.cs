@@ -10,5 +10,6 @@ namespace RService.IO
         public Type ServiceType;
         public Delegate.Activator ServiceMethod;
         public Type RequestDtoType;
+        public Type ResponseDtoType;
     }
 }

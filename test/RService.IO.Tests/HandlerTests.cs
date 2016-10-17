@@ -286,9 +286,34 @@ namespace RService.IO.Tests
                 reader.ReadToEnd().Should().Be(expectedValue);
         }
 
+        [Fact]
+        public void ServiceHandler__SerializesResponseDto()
+        {
+            const string expectedValue = "FizzBuzz";
+            var expectedBody = $"{{\"{nameof(RequestDto.Foobar)}\":\"{expectedValue}\"}}";
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            var query = new QueryCollection(new Dictionary<string, StringValues>
+            {
+                { nameof(RequestDto.Foobar), expectedValue }
+            });
+
+            var context = BuildContext(routePath, service, 
+                typeof(RequestDto), responseDto: typeof(ResponseDto), 
+                query: query, method:"PUT");
+            var body = context.Object.Response.Body;
+
+            Handler.ServiceHandler(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(expectedBody);
+        }
+
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
-            string requestBody = "", string routeTemplate = "", string contentType = "application/json",
-            string method = "GET", Dictionary<string, object> routeValues = null, IQueryCollection query = null)
+            string requestBody = "", Type responseDto = null, string routeTemplate = "", 
+            string contentType = "application/json", string method = "GET", 
+            Dictionary<string, object> routeValues = null, IQueryCollection query = null)
         {
             RestVerbs restMethods;
             Enum.TryParse(method, true, out restMethods);
@@ -307,6 +332,7 @@ namespace RService.IO.Tests
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature);
 
             rserviceFeature.RequestDtoType = requestDto;
+            rserviceFeature.ResponseDtoType = responseDto;
             rserviceFeature.MethodActivator = _rservice.Routes[Utils.GetRouteKey(route, 0)].ServiceMethod;
             rserviceFeature.Service = serviceInstance;
 

@@ -66,6 +66,11 @@ namespace RService.IO.Tests
 
             return dto.Llama;
         }
+
+        public ResponseDto Put(RequestDto dto)
+        {
+            return new ResponseDto {Foobar = dto.Foobar};
+        }
     }
 
     public class SvcWithMultParamRoutes : IService
@@ -120,5 +125,16 @@ namespace RService.IO.Tests
     public class DtoForMultParamRoutes
     {
         
+    }
+
+    [Route(SvcWithParamRoute.RoutePath, RestVerbs.Put)]
+    public class RequestDto
+    {
+        public string Foobar { get; set; }
+    }
+
+    public class ResponseDto
+    {
+        public string Foobar { get; set; }
     }
 }

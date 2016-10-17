@@ -35,10 +35,11 @@ namespace RService.IO
         {
             var service = context.GetServiceInstance();
             var activator = context.GetServiceMethodActivator();
-            var dtoType = context.GetRequestDtoType();
+            var dtoReqType = context.GetRequestDtoType();
+            var dtoResType = context.GetResponseDtoType();
             var args = new List<object>();
 
-            var dto = HydrateRequestDto(context, dtoType);
+            var dto = HydrateRequestDto(context, dtoReqType);
             if (dto != null)
                 args.Add(dto);
 
@@ -49,9 +50,7 @@ namespace RService.IO
             if (res.IsSimple())
                 return context.Response.WriteAsync(res.ToString());
 
-
-            // TODO: Handle response DTO
-            throw new NotImplementedException();
+            return WriteJsonResponse(context, dtoResType, res);
         }
 
         /// <summary>
@@ -145,6 +144,13 @@ namespace RService.IO
                 CachedDtoCtors.Add(dtoType, DelegateFactory.GenerateDtoCtor(dtoType));
 
             return CachedDtoCtors[dtoType];
+        }
+
+        private static Task WriteJsonResponse(HttpContext context, Type dtoResType, object res)
+        {
+            var response = NetJSON.NetJSON.Serialize(dtoResType, res);
+            context.Response.ContentType = HttpContentTypes.ApplicationJson;
+            return context.Response.WriteAsync(response);
         }
     }
 }
