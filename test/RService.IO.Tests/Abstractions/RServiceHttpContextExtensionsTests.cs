@@ -52,6 +52,37 @@ namespace RService.IO.Tests.Abstractions
         }
 
         [Fact]
+        public void GetResponseDtoType__GetsHandlerFromRServiceFeature()
+        {
+            var expectedDtoType = typeof(ResponseDto);
+
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var rserviceFeature = new RServiceFeature();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
+            rserviceFeature.ResponseDtoType = expectedDtoType;
+
+            var type = context.Object.GetResponseDtoType();
+
+            type.Should().NotBeNull().And.Be(expectedDtoType);
+        }
+
+        [Fact]
+        public void GetResponseDtoType__ReturnsNullIfNotRServiceFeature()
+        {
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var routingFeature = new Mock<IRoutingFeature>().SetupAllProperties();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
+
+            var handle = context.Object.GetResponseDtoType();
+
+            handle.Should().BeNull();
+        }
+
+        [Fact]
         public void GetServiceMethodActivator__ThrowsArguementNullExceptionOnNullContext()
         {
             Action comparison = () => { RServiceHttpContextExtensions.GetServiceMethodActivator(null); };
