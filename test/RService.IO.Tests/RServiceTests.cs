@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
@@ -22,10 +23,38 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public void Ctor__CompositeKeyIncludesPathAndRoute()
+        {
+            const string path = SvcForMethods.PostPath;
+            const RestVerbs method = SvcForMethods.PostMethod;
+            var route = new RouteAttribute(path, method);
+
+            var service = new RService(_options);
+
+            service.Routes.Keys.Should().Contain(Utils.GetRouteKey(route));
+        }
+
+        [Fact]
+        public void Ctor__AddsEntryForEachMethod()
+        {
+            const string path = SvcForMethods.MultiPath;
+            const RestVerbs methods = SvcForMethods.MultiMethod;
+            var routes = methods.GetFlags().Select(m => new RouteAttribute(path, m)).ToList();
+            var expectedKeys = routes.Select(r => Utils.GetRouteKey(r)).ToList();
+            var expectedRoute = new RouteAttribute(path, methods);
+
+            var service = new RService(_options);
+
+            service.Routes.Keys.Should().Contain(expectedKeys);
+            service.Routes[expectedKeys[0]].Route.Should().Be(expectedRoute);
+            service.Routes[expectedKeys[1]].Route.Should().Be(expectedRoute);
+        }
+
+        [Fact]
         public void Ctor__ScansAssembliesForRoutesOnMethods()
         {
-            var route = new RouteAttribute(SvcWithMethodRoute.RoutePath);
-            var expectedPath = route.Path.Substring(1);
+            var route = new RouteAttribute(SvcWithMethodRoute.RoutePath, RestVerbs.Get);
+            var expectedPath = Utils.GetRouteKey(route);
 
             var service = new RService(_options);
 
@@ -38,8 +67,8 @@ namespace RService.IO.Tests
         [Fact]
         public void Ctor__ScansAssembliesForRoutesOnMethodsFirstParam()
         {
-            var route = new RouteAttribute(SvcWithParamRoute.RoutePath);
-            var expectedPath = route.Path.Substring(1);
+            var route = new RouteAttribute(SvcWithParamRoute.RoutePath, RestVerbs.Get);
+            var expectedPath = Utils.GetRouteKey(route);
 
             var service = new RService(_options);
 
@@ -53,10 +82,10 @@ namespace RService.IO.Tests
         [Fact]
         public void Ctor__ScansAssembliesForMultipleRoutesOnMethods()
         {
-            var route1 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath1);
-            var route2 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath2);
-            var expectedPath1 = route1.Path.Substring(1);
-            var expectedPath2 = route2.Path.Substring(1);
+            var route1 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath1, RestVerbs.Get);
+            var route2 = new RouteAttribute(SvcWithMultMethodRoutes.RoutePath2, RestVerbs.Get);
+            var expectedPath1 = Utils.GetRouteKey(route1);
+            var expectedPath2 = Utils.GetRouteKey(route2);
 
             var service = new RService(_options);
 
@@ -73,10 +102,10 @@ namespace RService.IO.Tests
         [Fact]
         public void Ctor__ScansAssembliesForMultipleRoutesOfParams()
         {
-            var route1 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath1);
-            var route2 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath2);
-            var expectedPath1 = route1.Path.Substring(1);
-            var expectedPath2 = route2.Path.Substring(1);
+            var route1 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath1, RestVerbs.Get);
+            var route2 = new RouteAttribute(SvcWithMultParamRoutes.RoutePath2, RestVerbs.Get);
+            var expectedPath1 = Utils.GetRouteKey(route1);
+            var expectedPath2 = Utils.GetRouteKey(route2);
 
             var service = new RService(_options);
 

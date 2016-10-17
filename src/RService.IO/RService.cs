@@ -60,13 +60,16 @@ namespace RService.IO
                 var type = method.DeclaringType;
                 attrs.ForEach(attr =>
                 {
-                    var def = new ServiceDef
+                    attr.Verbs.GetFlags().ForEach(x =>
                     {
-                        Route = attr,
-                        ServiceType = type,
-                        ServiceMethod = DelegateFactory.GenerateMethodCall(method)
-                    };
-                    Routes.Add(CleanRoutePath(attr.Path), def);
+                        var def = new ServiceDef
+                        {
+                            Route = attr,
+                            ServiceType = type,
+                            ServiceMethod = DelegateFactory.GenerateMethodCall(method)
+                        };
+                        Routes.Add(BuildCompositKey(attr.Path, x), def);
+                    });
                 });
             });
 
@@ -77,16 +80,25 @@ namespace RService.IO
                 var attrs = paramType?.GetAttributes<RouteAttribute>().ToList();
                 attrs?.ForEach(a =>
                 {
-                    var def = new ServiceDef
+                    var route = (RouteAttribute) a;
+                    route.Verbs.GetFlags().ForEach(x =>
                     {
-                        Route = (RouteAttribute)a,
-                        ServiceType = methodType,
-                        ServiceMethod = DelegateFactory.GenerateMethodCall(method),
-                        RequestDtoType = paramType
-                    };
-                    Routes.Add(CleanRoutePath(def.Route.Path), def);
+                        var def = new ServiceDef
+                        {
+                            Route = route,
+                            ServiceType = methodType,
+                            ServiceMethod = DelegateFactory.GenerateMethodCall(method),
+                            RequestDtoType = paramType
+                        };
+                        Routes.Add(BuildCompositKey(route.Path, x), def);
+                    });
                 });
             });
+        }
+
+        protected static string BuildCompositKey(string path, RestVerbs verb)
+        {
+            return $"{CleanRoutePath(path)}:{verb}";
         }
 
         protected static string CleanRoutePath(string value)

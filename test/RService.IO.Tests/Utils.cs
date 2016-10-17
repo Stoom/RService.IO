@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using RService.IO.Abstractions;
 
 namespace RService.IO.Tests
 {
@@ -13,5 +14,10 @@ namespace RService.IO.Tests
 
 
         private Utils() { }
+
+        public static string GetRouteKey(RouteAttribute route, int offset=1)
+        {
+            return $"{route.Path.Substring(offset)}:{route.Verbs}";
+        }
     }
 }

@@ -40,5 +40,28 @@ namespace RService.IO.Abstractions
                 .Split(',')
                 .Select(x => x.Trim());
         }
+
+        /// <summary>
+        /// Returns <see cref="IEnumerable{T}"/> of enumeration flags.
+        /// </summary>
+        /// <param name="verbs">The flag enumeration.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of each flag.</returns>
+        public static List<RestVerbs> GetFlags(this RestVerbs verbs)
+        {
+            return Enum.GetValues(verbs.GetType())
+                .Cast<RestVerbs>()
+                .Where(value => verbs.HasFlag(value) && ((ulong) value).IsPrimitiveFlag())
+                .ToList();
+        }
+
+        /// <summary>
+        /// Checks if an unsigned long is a power of 2.
+        /// </summary>
+        /// <param name="value">The value to check.</param>
+        /// <returns><b>True</b> if the <see cref="ulong"/> is the power of 2, else <b>false</b>.</returns>
+        public static bool IsPrimitiveFlag(this ulong value)
+        {
+            return (value != 0) && ((value & (value - 1)) == 0);
+        }
     }
 }

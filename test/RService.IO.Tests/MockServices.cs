@@ -1,17 +1,18 @@
-﻿using RService.IO.Abstractions;
+﻿using System.Security.Cryptography.X509Certificates;
+using RService.IO.Abstractions;
 
 namespace RService.IO.Tests
 {
     public class SvcWithMethodRoute : IService
     {
         public const string RoutePath = "/Foobar";
-        public const string GetPath = "/Foobar/Get";
-        public const string PostPath = "/Foobar/Post";
+        public const string GetPath = "/Foobar/Method";
+        public const string PostPath = "/Foobar/Method";
         public bool HasAnyBeenCalled { get; set; }
         public string GetResponse { get; set; }
         public int PostResponse { get; set; }
 
-        [Route(RoutePath)]
+        [Route(RoutePath, RestVerbs.Get)]
         public object Any()
         {
             HasAnyBeenCalled = true;
@@ -36,8 +37,8 @@ namespace RService.IO.Tests
         public const string RoutePath1 = "/Foobar/Llamas";
         public const string RoutePath2 = "/Foobar/Eats";
 
-        [Route(RoutePath1)]
-        [Route(RoutePath2)]
+        [Route(RoutePath1, RestVerbs.Get)]
+        [Route(RoutePath2, RestVerbs.Get)]
         public object Any()
         {
             return null;
@@ -78,23 +79,44 @@ namespace RService.IO.Tests
         }
     }
 
-    [Route(SvcWithParamRoute.RoutePath)]
+    public class SvcForMethods : IService
+    {
+        public const string PostPath = "/Methods";
+        public const RestVerbs PostMethod = RestVerbs.Post;
+
+        public const string MultiPath = "/Multi";
+        public const RestVerbs MultiMethod = RestVerbs.Get | RestVerbs.Post;
+
+        [Route(PostPath, PostMethod)]
+        public object Post()
+        {
+            return null;
+        }
+
+        [Route(MultiPath, MultiMethod)]
+        public object GetPost()
+        {
+            return null;
+        }
+    }
+
+    [Route(SvcWithParamRoute.RoutePath, RestVerbs.Get)]
     public class DtoForParamRoute
     {
         public string Foobar { get; set; }
         public int Llama { get; set; }
     }
 
-    [Route(SvcWithParamRoute.RoutePathUri)]
-    [Route(SvcWithParamRoute.RoutePathUri2)]
+    [Route(SvcWithParamRoute.RoutePathUri, RestVerbs.Get)]
+    [Route(SvcWithParamRoute.RoutePathUri2, RestVerbs.Get)]
     public class DtoForParamQueryRoute
     {
         public string Foobar { get; set; }
         public int Llama { get; set; }
     }
 
-    [Route(SvcWithMultParamRoutes.RoutePath1)]
-    [Route(SvcWithMultParamRoutes.RoutePath2)]
+    [Route(SvcWithMultParamRoutes.RoutePath1, RestVerbs.Get)]
+    [Route(SvcWithMultParamRoutes.RoutePath2, RestVerbs.Get)]
     public class DtoForMultParamRoutes
     {
         
