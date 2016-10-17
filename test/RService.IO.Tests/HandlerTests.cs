@@ -68,7 +68,7 @@ namespace RService.IO.Tests
             var service = new SvcWithMethodRoute { PostResponse = 100 };
             var routePath = SvcWithMethodRoute.PostPath.Substring(1);
 
-            var context = BuildContext(routePath, service);
+            var context = BuildContext(routePath, service, method:"POST");
             var body = context.Object.Response.Body;
 
             Handler.ServiceHandler(context.Object).Wait(5000);
@@ -288,8 +288,12 @@ namespace RService.IO.Tests
 
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
             string requestBody = "", string routeTemplate = "", string contentType = "application/json",
-            Dictionary<string, object> routeValues = null, IQueryCollection query = null)
+            string method = "GET", Dictionary<string, object> routeValues = null, IQueryCollection query = null)
         {
+            RestVerbs restMethods;
+            Enum.TryParse(method, true, out restMethods);
+            var route = new RouteAttribute(routePath, restMethods);
+
             var context = new Mock<HttpContext>().SetupAllProperties();
             var request = new Mock<HttpRequest>().SetupAllProperties();
             var response = new Mock<HttpResponse>().SetupAllProperties();
@@ -303,7 +307,7 @@ namespace RService.IO.Tests
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature);
 
             rserviceFeature.RequestDtoType = requestDto;
-            rserviceFeature.MethodActivator = _rservice.Routes[routePath].ServiceMethod;
+            rserviceFeature.MethodActivator = _rservice.Routes[Utils.GetRouteKey(route, 0)].ServiceMethod;
             rserviceFeature.Service = serviceInstance;
 
             if (!string.IsNullOrWhiteSpace(routeTemplate))
@@ -322,6 +326,7 @@ namespace RService.IO.Tests
                 routingFeature.RouteData.Routers.Add(null);
             }
 
+            request.Object.Method = method;
             request.Object.ContentType = contentType;
             request.Object.Body = reqBody;
             request.Object.Query = query;
