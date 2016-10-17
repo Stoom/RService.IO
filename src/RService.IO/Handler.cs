@@ -51,7 +51,6 @@ namespace RService.IO
 
 
             // TODO: Handle response DTO
-            // TODO: Check if methods are handled?
             throw new NotImplementedException();
         }
 
