@@ -33,7 +33,7 @@ test_script:
 - dotnet test "test\RService.IO.Tests" -c %CONFIGURATION%
 - dotnet test "test\RService.IO.Tests.Integration" -c %CONFIGURATION%
 artifacts:
-  - path: '**/ServiceR.IO.*.nupkg'
+  - path: '**/RService.IO.*.nupkg'
     name: NuGet Package
 #cache:
 #- '%USERPROFILE%\.nuget\packages'
