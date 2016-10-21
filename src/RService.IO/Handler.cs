@@ -70,9 +70,18 @@ namespace RService.IO
             if (dtoType == null)
                 return null;
 
-           if (!context.Request.ContentType.Equals(HttpContentTypes.ApplicationJson, StringComparison.CurrentCultureIgnoreCase)
-                && context.Request.Body.Length > 0)
-                    throw new NotImplementedException($"{context.Request.ContentType} is currently not supported.");
+            if (context.Request.ContentType == null && context.Request.Body.Length == 0)
+            {
+                return GetDtoCtorDelegate(dtoType).Invoke(string.Empty);
+            }
+
+            if (context.Request.Body.Length > 0
+                && (context.Request.ContentType == null
+                || !context.Request.ContentType.Equals(HttpContentTypes.ApplicationJson,StringComparison.CurrentCultureIgnoreCase)))
+            {
+                throw new NotImplementedException(
+                    $"{context.Request.ContentType ?? "Missing content type"} is currently not supported.");
+            }
 
             var reqBodyBuilder = new StringBuilder();
             using (var reader = new StreamReader(context.Request.Body))

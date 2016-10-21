@@ -109,6 +109,33 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public void ServiceHandler__ThrowsNotImplementedIfNoContentTypeAndBodyHasContent()
+        {
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+            const string reqBody = "Hello World";
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), reqBody, contentType: null);
+
+            Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
+
+            act.ShouldThrow<NotImplementedException>().WithMessage("Missing content type is currently not supported.");
+        }
+
+        [Fact]
+        public void ServiceHandler__DoesNotThrowIfNoContentTypeAndNoBody()
+        {
+            var service = new SvcWithParamRoute();
+            var routePath = SvcWithParamRoute.RoutePath.Substring(1);
+
+            var context = BuildContext(routePath, service, typeof(DtoForParamRoute), string.Empty, contentType: null);
+
+            Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
+
+            act.ShouldNotThrow<Exception>();
+        }
+
+        [Fact]
         public void ServiceHandler__DoesNotThrowIfJsonAndBodyHasContent()
         {
             const string expectedValue = "Eats llamas";
@@ -120,7 +147,7 @@ namespace RService.IO.Tests
 
             Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
 
-            act.ShouldNotThrow<NotImplementedException>();
+            act.ShouldNotThrow<Exception>();
         }
 
         [Fact]
@@ -134,7 +161,7 @@ namespace RService.IO.Tests
 
             Action act = () => Handler.ServiceHandler(context.Object).Wait(5000);
 
-            act.ShouldNotThrow<NotImplementedException>();
+            act.ShouldNotThrow<Exception>();
         }
 
         [Fact]
