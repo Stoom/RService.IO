@@ -70,12 +70,18 @@ namespace RService.IO
             if (dtoType == null)
                 return null;
 
-            if (context.Request.ContentType == null && context.Request.Body.Length == 0)
+            string body;
+            using (var reader = new StreamReader(context.Request.Body))
+            {
+                body = reader.ReadToEnd().Trim();
+            }
+
+            if (context.Request.ContentType == null && body.Length == 0)
             {
                 return GetDtoCtorDelegate(dtoType).Invoke(string.Empty);
             }
 
-            if (context.Request.Body.Length > 0
+            if (body.Length > 0
                 && (context.Request.ContentType == null
                 || !context.Request.ContentType.Equals(HttpContentTypes.ApplicationJson,StringComparison.CurrentCultureIgnoreCase)))
             {
@@ -83,25 +89,18 @@ namespace RService.IO
                     $"{context.Request.ContentType ?? "Missing content type"} is currently not supported.");
             }
 
-            var reqBodyBuilder = new StringBuilder();
-            using (var reader = new StreamReader(context.Request.Body))
+            var reqBodyBuilder = new StringBuilder((body.Length > 0) ? body.Remove(body.Length - 1) : "{");
+
+            if (!CachedDtoProps.ContainsKey(dtoType))
             {
-                var body = reader.ReadToEnd().Trim();
-                body = body.Length > 0
-                    ? body.Remove(body.Length - 1)
-                    : "{";
-
-                reqBodyBuilder.Append(body);
-
-                if (!CachedDtoProps.ContainsKey(dtoType))
-                    CachedDtoProps.Add(dtoType, dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                CachedDtoProps.Add(dtoType, dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
                     .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v));
-
-                AddQueryStringParams(context, CachedDtoProps[dtoType], ref reqBodyBuilder);
-                AddRouteParams(context, CachedDtoProps[dtoType], ref reqBodyBuilder);
-                
-                reqBodyBuilder.AppendLine("}");
             }
+
+            AddQueryStringParams(context, CachedDtoProps[dtoType], ref reqBodyBuilder);
+            AddRouteParams(context, CachedDtoProps[dtoType], ref reqBodyBuilder);
+                
+            reqBodyBuilder.AppendLine("}");
 
             return GetDtoCtorDelegate(dtoType).Invoke(reqBodyBuilder.ToString());
         }
