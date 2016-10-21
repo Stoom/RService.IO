@@ -43,7 +43,7 @@ namespace RService.IO.Tests
 
             var routeData = BuildRouteData(routePath);
             var context = BuildContext(routeData);
-            var middleware = BuildMiddleware(sink, routePath, routeActivator);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
 
             await middleware.Invoke(context);
 
@@ -118,6 +118,7 @@ namespace RService.IO.Tests
         {
             var hasHandlerInvoked = false;
 
+
             var routePath = "/Foobar".Substring(1);
             Delegate.Activator routeActivator = (target, args) => null;
             var expectedFeature = new Mock<IRServiceFeature>();
@@ -133,7 +134,7 @@ namespace RService.IO.Tests
                 hasHandlerInvoked = true;
                 return Task.FromResult(0);
             });
-            var middleware = BuildMiddleware(sink, routePath, routeActivator);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
 
             await middleware.Invoke(context);
 
@@ -151,7 +152,7 @@ namespace RService.IO.Tests
             return routeData;
         }
 
-        private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null)
+        private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET")
         {
             var context = new DefaultHttpContext();
             var ioc = new Mock<IServiceProvider>().SetupAllProperties();
@@ -162,6 +163,7 @@ namespace RService.IO.Tests
             };
             ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService) null);
             context.RequestServices = ioc.Object;
+            context.Request.Method = method;
 
             return context;
         }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using System.Reflection;
+﻿using System.Net.Http;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
@@ -22,6 +20,8 @@ namespace Rservice.IO.Tests.Integration
         // ReSharper disable PrivateFieldCanBeConvertedToLocalVariable
         private readonly TestServer _routeServer;
         private readonly HttpClient _routeClient;
+        private readonly TestServer _rserviceServer;
+        private readonly HttpClient _rserviceClient;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
 
         public MiddlewareTests()
@@ -29,6 +29,9 @@ namespace Rservice.IO.Tests.Integration
             _routeServer = new TestServer(new WebHostBuilder()
                 .UseStartup<RouteTestStartup>());
             _routeClient = _routeServer.CreateClient();
+            _rserviceServer = new TestServer(new WebHostBuilder()
+                .UseStartup<RServiceStartup>());
+            _rserviceClient = _rserviceServer.CreateClient();
         }
 
         [Theory]
@@ -47,6 +50,13 @@ namespace Rservice.IO.Tests.Integration
             var responseString = await response.Content.ReadAsStringAsync();
 
             responseString.Should().Be(expectedPath);
+        }
+
+        [Fact]
+        public async Task E2E__HandlesRequest()
+        {
+            var response = await _rserviceClient.GetAsync(SvcWithMethodRoute.RoutePath);
+            response.EnsureSuccessStatusCode();
         }
 
         #region Classes for testing
@@ -70,10 +80,22 @@ namespace Rservice.IO.Tests.Integration
             {
                 app.UseRServiceIo(builder => { });
             }
+        }
 
-            private static Assembly GetAsmFromType(Type type)
+        // ReSharper disable once ClassNeverInstantiated.Local
+        private class RServiceStartup
+        {
+            public void ConfigureServices(IServiceCollection services)
             {
-                return type.GetTypeInfo().Assembly;
+                services.AddRServiceIo(options =>
+                {
+                    options.AddServiceAssembly(typeof(SvcWithMethodRoute));
+                });
+            }
+
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+            {
+                app.UseRServiceIo();
             }
         }
 

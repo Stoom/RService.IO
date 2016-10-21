@@ -17,7 +17,7 @@ namespace RService.IO.Tests
 
         public static string GetRouteKey(RouteAttribute route, int offset=1)
         {
-            return $"{route.Path.Substring(offset)}:{route.Verbs}";
+            return $"{route.Path.Substring(offset)}:{route.Verbs.ToString().ToUpperInvariant()}";
         }
     }
 }

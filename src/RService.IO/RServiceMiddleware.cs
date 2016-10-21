@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -23,11 +24,14 @@ namespace RService.IO
 
         public async Task Invoke(HttpContext context)
         {
-            var route = (context.GetRouteData()?.Routers.Count >= 3) 
-                ? (context.GetRouteData()?.Routers[1] as Route)?.RouteTemplate
+            var routeData = (context.GetRouteData()?.Routers.Count >= 3)
+                ? (context.GetRouteData()?.Routers[1] as Route)
                 : null;
+            var route = $"{routeData?.RouteTemplate}:{context.Request.Method}";
+
             var handler = context.GetRouteHandler();
-            var serviceDef = _service.Routes.FirstOrDefault(x => x.Key.StartsWith(route, StringComparison.CurrentCultureIgnoreCase)).Value;
+            ServiceDef serviceDef;
+            _service.Routes.TryGetValue(route, out serviceDef);
 
             if (handler == null || serviceDef.ServiceMethod == null)
             {

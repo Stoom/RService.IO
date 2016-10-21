@@ -111,7 +111,7 @@ namespace RService.IO
 
         protected static string BuildCompositKey(string path, RestVerbs verb)
         {
-            return $"{CleanRoutePath(path)}:{verb}";
+            return $"{CleanRoutePath(path)}:{verb.ToString().ToUpperInvariant()}";
         }
 
         protected static string CleanRoutePath(string value)
