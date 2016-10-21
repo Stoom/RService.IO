@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -26,7 +27,7 @@ namespace RService.IO
                 ? (context.GetRouteData()?.Routers[1] as Route)?.RouteTemplate
                 : null;
             var handler = context.GetRouteHandler();
-            var serviceDef = _service.Routes.FirstOrDefault(x => x.Key == route).Value;
+            var serviceDef = _service.Routes.FirstOrDefault(x => x.Key.StartsWith(route, StringComparison.CurrentCultureIgnoreCase)).Value;
 
             if (handler == null || serviceDef.ServiceMethod == null)
             {
