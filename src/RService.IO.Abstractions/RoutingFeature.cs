@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
-namespace RService.IO.Router
+namespace RService.IO.Abstractions
 {
 
     public class RoutingFeature : IRoutingFeature

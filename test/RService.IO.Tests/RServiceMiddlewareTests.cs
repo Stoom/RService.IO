@@ -10,7 +10,6 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NuGet.Packaging;
 using RService.IO.Abstractions;
-using RService.IO.Router;
 using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
 using IRoutingFeature = Microsoft.AspNetCore.Routing.IRoutingFeature;

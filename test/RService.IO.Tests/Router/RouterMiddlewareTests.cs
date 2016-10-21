@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Testing;
+using RService.IO.Abstractions;
 using RService.IO.Router;
 using Xunit;
 

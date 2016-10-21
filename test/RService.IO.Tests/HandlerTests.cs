@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using RService.IO.Abstractions;
-using RService.IO.Router;
 using Xunit;
 
 namespace RService.IO.Tests

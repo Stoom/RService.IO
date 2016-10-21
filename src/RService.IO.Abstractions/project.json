@@ -1,15 +1,16 @@
-{
-  "title": "RService.IO",
-  "version": "0.1.5",
+﻿{
+  "title": "RService.IO.Abstractions",
+  "version": "0.1.0",
 
   "packOptions": {
-    "summary": "A web service framework for dotnet core loosely based on ServiceStack v3",
+    "summary": "The abstractions required for implementing a RService.IO service and routes.",
     "releaseNotes": "Initial alpha release",
     "owners": [ "James Stumme" ],
     "tags": [
       "microservice",
       "webservice",
-      "dotnet core"
+      "dotnet core",
+      "RService.IO"
     ],
     "licenseUrl": "https://github.com/Stoom/RService.IO/blob/master/LICENSE",
     "projectUrl": "https://rservice.io",
@@ -21,15 +22,8 @@
   },
 
   "dependencies": {
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
-    "Microsoft.AspNetCore.Http": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
-    "Microsoft.AspNetCore.Routing": "1.0.0",
-    "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "System.ComponentModel.Primitives": "4.1.0",
-    "System.Reflection.Emit.Lightweight": "4.0.1",
-    "NetJSON": "1.2.1.4",
-    "RService.IO.Abstractions": "0.1.0"
+    "Microsoft.AspNetCore.Routing.Abstractions": "1.0.0"
   },
 
   "frameworks": {

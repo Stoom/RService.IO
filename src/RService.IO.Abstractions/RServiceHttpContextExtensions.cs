@@ -9,14 +9,14 @@ namespace RService.IO.Abstractions
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-            var feature = context.Features[typeof(IRServiceFeature)] as RServiceFeature;
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
             return feature?.RequestDtoType;
         }
         public static Type GetResponseDtoType(this HttpContext context)
         {
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-            var feature = context.Features[typeof(IRServiceFeature)] as RServiceFeature;
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
             return feature?.ResponseDtoType;
         }
 
@@ -25,7 +25,7 @@ namespace RService.IO.Abstractions
 
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-            var feature = context.Features[typeof(IRServiceFeature)] as RServiceFeature;
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
             return feature?.MethodActivator;
         }
 
@@ -34,7 +34,7 @@ namespace RService.IO.Abstractions
 
             if (context == null)
                 throw new ArgumentNullException(nameof(context));
-            var feature = context.Features[typeof(IRServiceFeature)] as RServiceFeature;
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
             return feature?.Service;
         }
     }
