@@ -76,11 +76,6 @@ namespace RService.IO
                 body = reader.ReadToEnd().Trim();
             }
 
-            if (context.Request.ContentType == null && body.Length == 0)
-            {
-                return GetDtoCtorDelegate(dtoType).Invoke(string.Empty);
-            }
-
             if (body.Length > 0
                 && (context.Request.ContentType == null
                 || !context.Request.ContentType.Equals(HttpContentTypes.ApplicationJson,StringComparison.CurrentCultureIgnoreCase)))
