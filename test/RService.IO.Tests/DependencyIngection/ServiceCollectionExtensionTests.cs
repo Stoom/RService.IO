@@ -135,7 +135,7 @@ namespace RService.IO.Tests.DependencyIngection
             services.AddRServiceIo(opts =>
             {
                 opts.ServiceAssemblies.Add(CurrentAssembly);
-                opts.GlobalExceptionHandler = exceptionFilter.Object;
+                opts.ExceptionFilter = exceptionFilter.Object;
             });
 
             var app = BuildApplicationBuilder(services);
@@ -152,7 +152,7 @@ namespace RService.IO.Tests.DependencyIngection
             services.AddRServiceIo(opts =>
             {
                 opts.ServiceAssemblies.Add(CurrentAssembly);
-                opts.GlobalExceptionHandler = null;
+                opts.ExceptionFilter = null;
             });
 
             var app = BuildApplicationBuilder(services);

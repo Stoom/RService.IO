@@ -25,10 +25,10 @@ namespace RService.IO
         public bool EnableDebugging { get; set; }
 
         /// <summary>
-        /// The global exception handler called when an <see cref="Exception"/> is
+        /// The exception filter called when an <see cref="Exception"/> is
         /// thrown in a <see cref="IService"/>.
         /// </summary>
-        public IExceptionFilter GlobalExceptionHandler { get; set; }
+        public IExceptionFilter ExceptionFilter { get; set; }
 
         /// <summary>
         /// Assemblies containing RServiceIO services.

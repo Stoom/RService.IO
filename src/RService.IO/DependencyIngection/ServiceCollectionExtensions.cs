@@ -30,8 +30,8 @@ namespace RService.IO.DependencyIngection
             var options = new RServiceOptions();
             rserviceOptions(options);
 
-            if (options.GlobalExceptionHandler != null)
-                services.AddScoped(typeof(IExceptionFilter), options.GlobalExceptionHandler.GetType());
+            if (options.ExceptionFilter != null)
+                services.AddScoped(typeof(IExceptionFilter), options.ExceptionFilter.GetType());
 
             var provider = services.BuildServiceProvider();
             var rservice = provider.GetService<RService>();
