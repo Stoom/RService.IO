@@ -24,6 +24,10 @@ namespace RService.IO
         /// </remarks>
         public bool EnableDebugging { get; set; }
 
+        /// <summary>
+        /// The global exception handler called when an <see cref="Exception"/> is
+        /// thrown in a <see cref="IService"/>.
+        /// </summary>
         public IExceptionFilter GlobalExceptionHandler { get; set; }
 
         /// <summary>
