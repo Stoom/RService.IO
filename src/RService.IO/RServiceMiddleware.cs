@@ -51,15 +51,6 @@ namespace RService.IO
                 {
                     await handler.Invoke(context);
                 }
-                catch (ApiExceptions exc)
-                {
-                    if (_service.IsDebugEnabled)
-                        throw;
-
-                    context.Response.Clear();
-                    context.Response.StatusCode = (int) exc.StatusCode;
-                    await context.Response.WriteAsync(exc.Message);
-                }
                 catch (Exception exc)
                 {
                     if (_service.IsDebugEnabled)
@@ -67,6 +58,13 @@ namespace RService.IO
 
                     context.Response.Clear();
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                    // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
+                    if (exc is ApiExceptions)
+                    {
+                        context.Response.StatusCode = (int) ((ApiExceptions) exc).StatusCode;
+                        await context.Response.WriteAsync(exc.Message);
+                    }
                 }
             }
         }
