@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Castle.Core.Internal;
 using FluentAssertions;
@@ -22,10 +24,7 @@ namespace RService.IO.Tests
 
         public RServiceMiddlewareTests()
         {
-            _options = new OptionsManager<RServiceOptions>(new[]
-            {
-                new ConfigureOptions<RServiceOptions>(opt => { })
-            });
+            _options = BuildRServiceOptions(opt => { });
         }
 
         [Fact]
@@ -117,7 +116,6 @@ namespace RService.IO.Tests
         {
             var hasHandlerInvoked = false;
 
-
             var routePath = "/Foobar".Substring(1);
             Delegate.Activator routeActivator = (target, args) => null;
             var expectedFeature = new Mock<IRServiceFeature>();
@@ -140,6 +138,126 @@ namespace RService.IO.Tests
             hasHandlerInvoked.Should().BeTrue();
         }
 
+        [Fact]
+        public async void Invoke__ApiExceptionSetsStatusCodeAndBody()
+        {
+            const string expectedBody = "FizzBuzz";
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.BadRequest;
+
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                throw new ApiExceptions(expectedBody, expectedStatusCode);
+            });
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+            var body = context.Response.Body;
+
+            await middleware.Invoke(context);
+
+            body.Position = 0L;
+            using (var response = new StreamReader(body))
+                response.ReadToEnd().Should().Be(expectedBody);
+            context.Response.StatusCode.Should().Be((int)expectedStatusCode);
+        }
+
+        [Fact]
+        public async void Invoke__ExceptionSetsStatusCode()
+        {
+            const HttpStatusCode expectedStatusCode = HttpStatusCode.InternalServerError;
+
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                throw new Exception("FizzBuzz");
+            });
+
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+            var body = context.Response.Body;
+
+            await middleware.Invoke(context);
+
+            body.Position = 0L;
+            using (var response = new StreamReader(body))
+                response.ReadToEnd().Should().BeEmpty();
+            context.Response.StatusCode.Should().Be((int)expectedStatusCode);
+        }
+
+        [Fact]
+        public void Invoke__ThrowsExceptionIfDebugging()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+                TestSink.EnableWithTypeName<RServiceMiddleware>,
+                TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                throw new Exception("FizzBuzz");
+            });
+
+            var options = BuildRServiceOptions(opts => { opts.EnableDebugging = true; });
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+
+            Func<Task> act = async () =>
+            {
+                await middleware.Invoke(context);
+            };
+
+            act.ShouldThrow<Exception>();
+        }
+
+        [Fact]
+        public void Invoke__ThrowsApiExceptionIfDebugging()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+                TestSink.EnableWithTypeName<RServiceMiddleware>,
+                TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                throw new ApiExceptions("FizzBuzz", HttpStatusCode.BadRequest);
+            });
+
+            var options = BuildRServiceOptions(opts => { opts.EnableDebugging = true; });
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+
+            Func<Task> act = async () =>
+            {
+                await middleware.Invoke(context);
+            };
+
+            act.ShouldThrow<ApiExceptions>();
+        }
+
         private static RouteData BuildRouteData(string path)
         {
             var routeTarget = new Mock<IRouter>();
@@ -151,6 +269,14 @@ namespace RService.IO.Tests
             return routeData;
         }
 
+        private static IOptions<RServiceOptions> BuildRServiceOptions(Action<RServiceOptions> options)
+        {
+            return new OptionsManager<RServiceOptions>(new[]
+            {
+                new ConfigureOptions<RServiceOptions>(options)
+            });
+        }
+
         private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET")
         {
             var context = new DefaultHttpContext();
@@ -160,19 +286,22 @@ namespace RService.IO.Tests
                 RouteData = routeData,
                 RouteHandler = handler ?? (c => Task.FromResult(0))
             };
-            ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService) null);
+            ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService)null);
             context.RequestServices = ioc.Object;
             context.Request.Method = method;
+            context.Response.Body = new MemoryStream();
 
             return context;
         }
 
-        private RServiceMiddleware BuildMiddleware(TestSink sink, string routePath = null, Delegate.Activator routeActivator = null, RequestDelegate handler = null)
+        private RServiceMiddleware BuildMiddleware(TestSink sink, string routePath = null, Delegate.Activator routeActivator = null,
+            RequestDelegate handler = null, IOptions<RServiceOptions> options = null)
         {
+            options = options ?? _options;
 
             var loggerFactory = new TestLoggerFactory(sink, true);
             var next = handler ?? (c => Task.FromResult<object>(null));
-            var service = new RService(_options);
+            var service = new RService(options);
             if (!routePath.IsNullOrEmpty() && routeActivator != null)
                 service.Routes.Add(routePath, new ServiceDef { ServiceMethod = routeActivator });
 

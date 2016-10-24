@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -48,7 +47,27 @@ namespace RService.IO
                     ResponseDtoType = serviceDef.ResponseDtoType
                 };
 
-                await handler.Invoke(context);
+                try
+                {
+                    await handler.Invoke(context);
+                }
+                catch (ApiExceptions exc)
+                {
+                    if (_service.IsDebugEnabled)
+                        throw;
+
+                    context.Response.Clear();
+                    context.Response.StatusCode = (int) exc.StatusCode;
+                    await context.Response.WriteAsync(exc.Message);
+                }
+                catch (Exception exc)
+                {
+                    if (_service.IsDebugEnabled)
+                        throw;
+
+                    context.Response.Clear();
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                }
             }
         }
     }
