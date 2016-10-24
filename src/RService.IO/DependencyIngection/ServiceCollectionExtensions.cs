@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using RService.IO.Abstractions;
 
 namespace RService.IO.DependencyIngection
 {
@@ -25,6 +26,12 @@ namespace RService.IO.DependencyIngection
 
             services.AddSingleton<RService>();
             services.Configure(rserviceOptions);
+
+            var options = new RServiceOptions();
+            rserviceOptions(options);
+
+            if (options.GlobalExceptionHandler != null)
+                services.AddScoped(typeof(IExceptionFilter), options.GlobalExceptionHandler.GetType());
 
             var provider = services.BuildServiceProvider();
             var rservice = provider.GetService<RService>();

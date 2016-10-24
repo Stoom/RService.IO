@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
+using RService.IO.Abstractions;
 
 namespace RService.IO
 {
@@ -22,6 +23,8 @@ namespace RService.IO
         /// Debugging is defaulted to <b>False</b> and also requires to be in <b>development</b> mode.
         /// </remarks>
         public bool EnableDebugging { get; set; }
+
+        public IExceptionFilter GlobalExceptionHandler { get; set; }
 
         /// <summary>
         /// Assemblies containing RServiceIO services.

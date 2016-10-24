@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
+using RService.IO.Abstractions;
 using RService.IO.DependencyIngection;
 using Xunit;
 
@@ -123,6 +124,41 @@ namespace RService.IO.Tests.DependencyIngection
             var webservice2 = app.ApplicationServices.GetService(typeof(SvcWithMethodRoute));
 
             webservice1.Should().NotBe(webservice2);
+        }
+
+        [Fact]
+        public void AddRServiceIo__RegistersExceptionFilterWithIoC()
+        {
+            var services = new ServiceCollection();
+            var exceptionFilter = new Mock<IExceptionFilter>().SetupAllProperties();
+
+            services.AddRServiceIo(opts =>
+            {
+                opts.ServiceAssemblies.Add(CurrentAssembly);
+                opts.GlobalExceptionHandler = exceptionFilter.Object;
+            });
+
+            var app = BuildApplicationBuilder(services);
+            var globalExceptionFilter = app.ApplicationServices.GetService(typeof(IExceptionFilter));
+
+            globalExceptionFilter.Should().NotBeNull().And.BeOfType(exceptionFilter.Object.GetType());
+        }
+
+        [Fact]
+        public void AddRServiceIo__DoesNotRegistersExceptionFilterWithIoCIfNull()
+        {
+            var services = new ServiceCollection();
+
+            services.AddRServiceIo(opts =>
+            {
+                opts.ServiceAssemblies.Add(CurrentAssembly);
+                opts.GlobalExceptionHandler = null;
+            });
+
+            var app = BuildApplicationBuilder(services);
+            var globalExceptionFilter = app.ApplicationServices.GetService(typeof(IExceptionFilter));
+
+            globalExceptionFilter.Should().BeNull();
         }
 
         private static IApplicationBuilder BuildApplicationBuilder(IServiceCollection services)
