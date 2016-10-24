@@ -45,5 +45,13 @@ namespace RService.IO.Tests
             Action comparison = () => options.AddServiceAssembly(null);
             comparison.ShouldThrow<ArgumentNullException>();
         }
+
+        [Fact]
+        public void EnableDebugging__DefaultsToFalse()
+        {
+            var options = new RServiceOptions();
+
+            options.EnableDebugging.Should().BeFalse();
+        }
     }
 }

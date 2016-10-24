@@ -23,6 +23,11 @@ namespace RService.IO
         /// </summary>
         public IEnumerable<Type> ServiceTypes => Routes.Values.Select(x => x.ServiceType);
 
+        /// <summary>
+        /// Indicates if debugging has been enabled.
+        /// </summary>
+        public bool IsDebugEnabled { get; }
+
         protected readonly RServiceOptions Options;
         protected static Regex RoutePathCleaner = new Regex(@"^[\/~]+", RegexOptions.Compiled);
 
@@ -42,6 +47,8 @@ namespace RService.IO
             {
                 ScanAssemblyForRoutes(assembly);
             }
+
+            IsDebugEnabled = Options.EnableDebugging;
         }
 
         /// <summary>

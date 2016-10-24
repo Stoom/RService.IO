@@ -16,6 +16,14 @@ namespace RService.IO
         public RequestDelegate RouteHanlder { get; set; } = Handler.ServiceHandler;
 
         /// <summary>
+        /// Enables the UseDeveloperExceptionPage middleware.
+        /// </summary>
+        /// <remarks>
+        /// Debugging is defaulted to <b>False</b> and also requires to be in <b>development</b> mode.
+        /// </remarks>
+        public bool EnableDebugging { get; set; }
+
+        /// <summary>
         /// Assemblies containing RServiceIO services.
         /// </summary>
         public List<Assembly> ServiceAssemblies { get; set; } = new List<Assembly>();
