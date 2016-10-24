@@ -6,7 +6,7 @@
   "dependencies": {
     "xunit": "2.2.0-*",
     "dotnet-test-xunit": "2.2.0-*",
-    "RService.IO": "0.1.6-*",
+    "RService.IO": "0.1.7-*",
     "RService.IO.Tests": "1.0.0-*",
     "Microsoft.AspNetCore.TestHost": "1.0.0",
     "FluentAssertions": "4.13.0"

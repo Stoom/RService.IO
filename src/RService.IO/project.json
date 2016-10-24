@@ -1,6 +1,6 @@
 {
   "title": "RService.IO",
-  "version": "0.1.6",
+  "version": "0.1.7",
 
   "packOptions": {
     "summary": "A web service framework for dotnet core loosely based on ServiceStack v3",
@@ -29,7 +29,7 @@
     "System.ComponentModel.Primitives": "4.1.0",
     "System.Reflection.Emit.Lightweight": "4.0.1",
     "NetJSON": "1.2.1.4",
-    "RService.IO.Abstractions": "0.1.0",
+    "RService.IO.Abstractions": "0.1.1",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0"
   },
 
