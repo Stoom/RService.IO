@@ -7,6 +7,7 @@ using Castle.Core.Internal;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -201,6 +202,73 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public async void Invoke__CallsGlobalExceptionHandlerOnException()
+        {
+            var hasHandledException = false;
+
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var exceptionFilter = new Mock<IExceptionFilter>().SetupAllProperties();
+            exceptionFilter.Setup(x => x.OnException(It.IsAny<HttpContext>(), It.IsAny<Exception>()))
+                .Callback(() => hasHandledException = true);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                throw new Exception("FizzBuzz");
+            }, globalExceptionFilter: exceptionFilter.Object);
+
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+
+            await middleware.Invoke(context);
+
+            hasHandledException.Should().BeTrue();
+        }
+
+        [Fact]
+        public void Invoke__DoesNotCallGlobalExceptionFilterIfDebugging()
+        {
+            var hasHandledException = false;
+
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var exceptionFilter = new Mock<IExceptionFilter>().SetupAllProperties();
+            exceptionFilter.Setup(x => x.OnException(It.IsAny<HttpContext>(), It.IsAny<Exception>()))
+                .Callback(() => hasHandledException = true);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx =>
+            {
+                throw new Exception("FizzBuzz");
+            }, globalExceptionFilter: exceptionFilter.Object);
+
+            var options = BuildRServiceOptions(opts => { opts.EnableDebugging = true; });
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+
+            Func<Task> act = async () =>
+            {
+                await middleware.Invoke(context);
+            };
+
+            act.ShouldThrow<Exception>();
+            hasHandledException.Should().BeFalse();
+        }
+
+        [Fact]
         public void Invoke__ThrowsExceptionIfDebugging()
         {
             var routePath = "/Foobar".Substring(1);
@@ -277,16 +345,22 @@ namespace RService.IO.Tests
             });
         }
 
-        private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET")
+        private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET",
+            IExceptionFilter globalExceptionFilter = null)
         {
             var context = new DefaultHttpContext();
             var ioc = new Mock<IServiceProvider>().SetupAllProperties();
+
             context.Features[typeof(IRoutingFeature)] = new RoutingFeature
             {
                 RouteData = routeData,
                 RouteHandler = handler ?? (c => Task.FromResult(0))
             };
+
             ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService)null);
+            if (globalExceptionFilter != null)
+                ioc.Setup(x => x.GetService(typeof(IExceptionFilter))).Returns(globalExceptionFilter);
+
             context.RequestServices = ioc.Object;
             context.Request.Method = method;
             context.Response.Body = new MemoryStream();

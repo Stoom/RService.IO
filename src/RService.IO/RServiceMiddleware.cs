@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RService.IO.Abstractions;
 
@@ -23,6 +24,8 @@ namespace RService.IO
 
         public async Task Invoke(HttpContext context)
         {
+            var exceptionFilter = context.RequestServices.GetService<IExceptionFilter>();
+            
             var routeData = (context.GetRouteData()?.Routers.Count >= 3)
                 ? (context.GetRouteData()?.Routers[1] as Route)
                 : null;
@@ -65,6 +68,8 @@ namespace RService.IO
                         context.Response.StatusCode = (int) ((ApiExceptions) exc).StatusCode;
                         await context.Response.WriteAsync(exc.Message);
                     }
+
+                    exceptionFilter?.OnException(context, exc);
                 }
             }
         }
