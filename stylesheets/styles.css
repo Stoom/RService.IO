@@ -606,6 +606,7 @@ strong {
 
 .wrapper {
   max-width: 45%;
+  min-width: 650px;
   margin: 0 auto;
   position: relative;
   padding: 0 20px;
@@ -710,6 +711,7 @@ dt {
 }
 #header nav {
   max-width: 45%;
+  min-width: 650px;
   margin: 0 auto;
   padding: 0 10px;
   background: blue;
