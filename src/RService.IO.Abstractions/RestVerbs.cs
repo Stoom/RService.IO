@@ -55,6 +55,16 @@ namespace RService.IO.Abstractions
         }
 
         /// <summary>
+        /// Parses a <see cref="string"/> into a <see cref="RestVerbs"/> enumeration.
+        /// </summary>
+        /// <param name="method">The method to parse.</param>
+        /// <returns>The <see cref="RestVerbs"/> flag matching the method.</returns>
+        public static RestVerbs ParseRestVerb(this string method)
+        {
+            return (RestVerbs) Enum.Parse(typeof(RestVerbs), method, true);
+        }
+
+        /// <summary>
         /// Checks if an unsigned long is a power of 2.
         /// </summary>
         /// <param name="value">The value to check.</param>

@@ -97,6 +97,21 @@ namespace RService.IO
         }
 
         /// <summary>
+        /// Checks if a <see cref="Type"/> inherits a specified abstract class.
+        /// </summary>
+        /// <typeparam name="TAbstract">The abstract class to search for.</typeparam>
+        /// <param name="type">The type to search in.</param>
+        /// <param name="isAbstract">If it should also include abstract types.</param>
+        /// <returns><b>True</b> if the type inherits from the abstract class, otherwise <b>False</b>.</returns>
+        public static bool ImplementsAbstract<TAbstract>(this Type type, bool isAbstract = false)
+        {
+            var info = type.GetTypeInfo();
+            var baseInfo = info.BaseType?.GetTypeInfo();
+            return info.IsClass && info.IsPublic && info.IsAbstract == isAbstract &&
+                   info.BaseType == typeof(TAbstract) && (baseInfo?.IsAbstract ?? false);
+        }
+
+        /// <summary>
         /// Checks if the object is a simple type.
         /// </summary>
         /// <param name="obj">The object to check.</param>

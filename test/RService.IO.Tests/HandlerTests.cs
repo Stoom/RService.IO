@@ -336,7 +336,19 @@ namespace RService.IO.Tests
                 reader.ReadToEnd().Should().Be(expectedBody);
         }
 
-        private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
+        [Fact]
+        public void ServiceHandler__SetsContextOfService()
+        {
+            var service = new SvcBase();
+            var routePath = SvcBase.Path.Substring(1);
+
+            var context = BuildContext(routePath, service, method: "PATCH");
+            Handler.ServiceHandler(context.Object).Wait(5000);
+
+            service.Context.Should().Be(context.Object);
+        }
+
+        private Mock<HttpContext> BuildContext(string routePath, ServiceBase serviceInstance, Type requestDto = null,
             string requestBody = "", Type responseDto = null, string routeTemplate = "", 
             string contentType = "application/json", string method = "GET", 
             Dictionary<string, object> routeValues = null, IQueryCollection query = null)

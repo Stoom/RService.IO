@@ -29,7 +29,7 @@ namespace RService.IO
         public bool IsDebugEnabled { get; }
 
         protected readonly RServiceOptions Options;
-        protected static Regex RoutePathCleaner = new Regex(@"^[\/~]+", RegexOptions.Compiled);
+        protected static readonly Regex RoutePathCleaner = new Regex(@"^[\/~]+", RegexOptions.Compiled);
 
         /// <summary>
         /// Constructs a RService service and scans for routes and services in assemblies.
@@ -57,9 +57,11 @@ namespace RService.IO
         /// <param name="assembly">Assembly to scan.</param>
         protected void ScanAssemblyForRoutes(Assembly assembly)
         {
-            var classes = assembly.GetTypes().Where(x => x.ImplementsInterface<IService>()).ToList();
-            var methodsWithAttribute = classes.SelectMany(x => x.GetPublicMethods()).Where(x => x.HasAttribute<RouteAttribute>()).ToList();
-            var methodsParamWithAttribute = classes.SelectMany(x => x.GetPublicMethods()).Where(x => x.HasParamWithAttribute<RouteAttribute>()).ToList();
+            var classes = assembly.GetTypes().Where(x => x.ImplementsAbstract<ServiceBase>()).ToList();
+            var methodsWithAttribute = classes.SelectMany(x => x.GetPublicMethods())
+                .Where(x => x.HasAttribute<RouteAttribute>()).ToList();
+            var methodsParamWithAttribute = classes.SelectMany(x => x.GetPublicMethods())
+                .Where(x => x.HasParamWithAttribute<RouteAttribute>()).ToList();
 
             RegisterMethodRoutes(methodsWithAttribute);
             RegisterParameterRoutes(methodsParamWithAttribute);

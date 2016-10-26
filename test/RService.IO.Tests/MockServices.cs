@@ -1,8 +1,9 @@
-﻿using RService.IO.Abstractions;
+﻿using Microsoft.AspNetCore.Http;
+using RService.IO.Abstractions;
 
 namespace RService.IO.Tests
 {
-    public class SvcWithMethodRoute : IService
+    public class SvcWithMethodRoute : ServiceBase
     {
         public const string RoutePath = "/Foobar";
         public const string GetPath = "/Foobar/Method";
@@ -31,7 +32,18 @@ namespace RService.IO.Tests
         }
     }
 
-    public class SvcWithMultMethodRoutes : IService
+    public class SvcBase : ServiceBase
+    {
+        public const string Path = "/SvcBase";
+
+        [Route(Path)]
+        public object Any()
+        {
+            return null;
+        }
+    }
+
+    public class SvcWithMultMethodRoutes : ServiceBase
     {
         public const string RoutePath1 = "/Foobar/Llamas";
         public const string RoutePath2 = "/Foobar/Eats";
@@ -44,7 +56,7 @@ namespace RService.IO.Tests
         }
     }
 
-    public class SvcWithParamRoute : IService
+    public class SvcWithParamRoute : ServiceBase
     {
         public const string RoutePath = "/Llamas";
         public const string RoutePathUri = "/Llamas/Foo/{Foobar}";
@@ -72,7 +84,7 @@ namespace RService.IO.Tests
         }
     }
 
-    public class SvcWithMultParamRoutes : IService
+    public class SvcWithMultParamRoutes : ServiceBase
     {
         public const string RoutePath1 = "/Llamas/Eats";
         public const string RoutePath2 = "/Llamas/Hands";
@@ -83,7 +95,7 @@ namespace RService.IO.Tests
         }
     }
 
-    public class SvcForMethods : IService
+    public class SvcForMethods : ServiceBase
     {
         public const string PostPath = "/Methods";
         public const RestVerbs PostMethod = RestVerbs.Post;

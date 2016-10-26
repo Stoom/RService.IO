@@ -39,6 +39,8 @@ namespace RService.IO
             var dtoResType = context.GetResponseDtoType();
             var args = new List<object>();
 
+            service.Context = context;
+
             var dto = HydrateRequestDto(context, dtoReqType);
             if (dto != null)
                 args.Add(dto);

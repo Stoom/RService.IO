@@ -45,7 +45,7 @@ namespace RService.IO
                 context.Features[typeof(IRServiceFeature)] = new RServiceFeature
                 {
                     MethodActivator = serviceDef.ServiceMethod,
-                    Service = context.RequestServices.GetService(serviceDef.ServiceType) as IService,
+                    Service = context.RequestServices.GetService(serviceDef.ServiceType) as ServiceBase,
                     RequestDtoType = serviceDef.RequestDtoType,
                     ResponseDtoType = serviceDef.ResponseDtoType
                 };
