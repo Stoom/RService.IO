@@ -1,6 +1,6 @@
 {
   "title": "RService.IO",
-  "version": "0.1.8",
+  "version": "0.1.9",
 
   "packOptions": {
     "summary": "A web service framework for dotnet core loosely based on ServiceStack v3",
@@ -9,7 +9,10 @@
     "tags": [
       "microservice",
       "webservice",
-      "dotnet core"
+      "dotnet core",
+      "ASP.NET",
+      "api",
+      "RService.IO"
     ],
     "licenseUrl": "https://github.com/Stoom/RService.IO/blob/master/LICENSE",
     "projectUrl": "https://rservice.io",
