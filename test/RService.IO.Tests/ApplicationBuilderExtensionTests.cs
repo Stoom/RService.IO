@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Builder.Internal;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,44 +91,6 @@ namespace RService.IO.Tests
             builder.UseRServiceIo();
 
             routeBuilder.Should().NotBeNull();
-        }
-
-        [Fact]
-        public void UserRServiceIo__EnablesUseDeveloperExceptionPageIfDebugging()
-        {
-            var services = new ServiceCollection();
-            services.AddRServiceIo(opts =>
-            {
-                opts.RouteHanlder = EmptyHandler;
-                opts.EnableDebugging = true;
-            }, EmptyRouteOptions);
-
-            var builder = new ApplicationBuilder(services.BuildServiceProvider());
-
-            builder.UseRServiceIo();
-
-            var middlewares = builder.GetRegisteredMiddleware<DeveloperExceptionPageMiddleware>();
-
-            middlewares.Should().HaveCount(1);
-        }
-
-        [Fact]
-        public void UserRServiceIo__DisablesUseDeveloperExceptionPageIfNotDebugging()
-        {
-            var services = new ServiceCollection();
-            services.AddRServiceIo(opts =>
-            {
-                opts.RouteHanlder = EmptyHandler;
-                opts.EnableDebugging = false;
-            }, EmptyRouteOptions);
-
-            var builder = new ApplicationBuilder(services.BuildServiceProvider());
-
-            builder.UseRServiceIo();
-
-            var middlewares = builder.GetRegisteredMiddleware<DeveloperExceptionPageMiddleware>();
-
-            middlewares.Should().HaveCount(0);
         }
 
         [Fact]

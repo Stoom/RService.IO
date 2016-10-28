@@ -37,9 +37,6 @@ namespace RService.IO
 
             configureRoutes(routes);
 
-            if (service.IsDebugEnabled)
-                builder.UseDeveloperExceptionPage();
-
             builder.UseMiddleware<RServiceRouterMiddleware>(routes.Build());
             return builder.UseMiddleware<RServiceMiddleware>();
         }
