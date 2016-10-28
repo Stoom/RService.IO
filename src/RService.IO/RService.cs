@@ -57,7 +57,7 @@ namespace RService.IO
         /// <param name="assembly">Assembly to scan.</param>
         protected void ScanAssemblyForRoutes(Assembly assembly)
         {
-            var classes = assembly.GetTypes().Where(x => x.ImplementsAbstract<ServiceBase>()).ToList();
+            var classes = assembly.GetTypes().Where(x => x.ImplementsInterface<IService>()).ToList();
             var methodsWithAttribute = classes.SelectMany(x => x.GetPublicMethods())
                 .Where(x => x.HasAttribute<RouteAttribute>()).ToList();
             var methodsParamWithAttribute = classes.SelectMany(x => x.GetPublicMethods())

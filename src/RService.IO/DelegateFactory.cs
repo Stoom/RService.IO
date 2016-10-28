@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using RService.IO.Abstractions;
 using Delegate = RService.IO.Abstractions.Delegate;
 
 namespace RService.IO

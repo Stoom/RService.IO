@@ -348,7 +348,7 @@ namespace RService.IO.Tests
             service.Context.Should().Be(context.Object);
         }
 
-        private Mock<HttpContext> BuildContext(string routePath, ServiceBase serviceInstance, Type requestDto = null,
+        private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
             string requestBody = "", Type responseDto = null, string routeTemplate = "", 
             string contentType = "application/json", string method = "GET", 
             Dictionary<string, object> routeValues = null, IQueryCollection query = null)

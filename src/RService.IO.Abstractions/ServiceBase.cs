@@ -3,13 +3,13 @@
 namespace RService.IO.Abstractions
 {
     /// <summary>
-    /// Tagging interface for RService services.
+    /// Abstract implementation of the RService <see cref="IService"/> interface
+    /// providing easy access to the context, request context, request method,
+    /// and response context.
     /// </summary>
-    public abstract class ServiceBase
+    public abstract class ServiceBase : IService
     {
-        /// <summary>
-        /// The context of the request.
-        /// </summary>
+        /// <inheritdoc/>>
         public HttpContext Context { get; set; }
 
         /// <summary>

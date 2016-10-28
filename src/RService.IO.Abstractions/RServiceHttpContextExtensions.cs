@@ -29,7 +29,7 @@ namespace RService.IO.Abstractions
             return feature?.MethodActivator;
         }
 
-        public static ServiceBase GetServiceInstance(this HttpContext context)
+        public static IService GetServiceInstance(this HttpContext context)
         {
 
             if (context == null)

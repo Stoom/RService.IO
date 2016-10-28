@@ -357,7 +357,7 @@ namespace RService.IO.Tests
                 RouteHandler = handler ?? (c => Task.FromResult(0))
             };
 
-            ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((ServiceBase)null);
+            ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService)null);
             if (globalExceptionFilter != null)
                 ioc.Setup(x => x.GetService(typeof(IExceptionFilter))).Returns(globalExceptionFilter);
 

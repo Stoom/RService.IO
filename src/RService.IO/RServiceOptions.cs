@@ -26,7 +26,7 @@ namespace RService.IO
 
         /// <summary>
         /// The exception filter called when an <see cref="Exception"/> is
-        /// thrown in a <see cref="ServiceBase"/>.
+        /// thrown in a <see cref="IService"/>.
         /// </summary>
         public IExceptionFilter ExceptionFilter { get; set; }
 
