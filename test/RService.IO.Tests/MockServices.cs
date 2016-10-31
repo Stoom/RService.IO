@@ -30,6 +30,12 @@ namespace RService.IO.Tests
         {
             return PostResponse;
         }
+
+        [Route(RoutePath, RestVerbs.Put)]
+        public ResponseDto Put()
+        {
+            return new ResponseDto();
+        }
     }
 
     public class SvcBase : ServiceBase

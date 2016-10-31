@@ -5,85 +5,48 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using RService.IO.Abstractions;
 using Delegate = RService.IO.Abstractions.Delegate;
 
-namespace RService.IO
+namespace RService.IO.Providers
 {
-    /// <summary>
-    /// The RServiceIO route handlers.
-    /// </summary>
-    public class Handler
+    public class NetJsonProvider : ISerializationProvider
     {
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> CachedDtoProps = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
         private static readonly Dictionary<Type, Delegate.DtoCtor> CachedDtoCtors = new Dictionary<Type, Delegate.DtoCtor>();
         private static readonly Regex JsonNoQuotes = new Regex(@"(^[\d.]+)|(^[Tt][Rr][Uu][Ee])|(^[Ff][Aa][Ll][Ss][Ee])|(^[Nn][Uu][Ll]{2})", RegexOptions.Compiled);
 
-        /// <summary>
-        /// The default route handler that must be used with RService.
-        /// </summary>
-        /// <param name="context">The <see cref="HttpContext"/> of the request and response.</param>
-        /// <returns>A <see cref="Task"/> for async calls.</returns>
-        /// <remarks>
-        /// Pre/post routing tasks can be expanded by extending 
-        /// the <b>BeforeHandler</b> and <b>AfterHandler</b> methods.
-        /// </remarks>
-        public static Task ServiceHandler(HttpContext context)
-        {
-            var service = context.GetServiceInstance();
-            var activator = context.GetServiceMethodActivator();
-            var dtoReqType = context.GetRequestDtoType();
-            var dtoResType = context.GetResponseDtoType();
-            var args = new List<object>();
+        /// <inheritdoc/>
+        public string ContentType { get; } = HttpContentTypes.ApplicationJson;
 
-            service.Context = context;
-
-            var dto = HydrateRequestDto(context, dtoReqType);
-            if (dto != null)
-                args.Add(dto);
-
-            var res = activator.Invoke(service, args.ToArray());
-
-            if (ReferenceEquals(null, res))
-                return context.Response.WriteAsync(string.Empty);
-            if (res.IsSimple())
-                return context.Response.WriteAsync(res.ToString());
-
-            return WriteJsonResponse(context, dtoResType, res);
-        }
-
-        /// <summary>
-        /// Hydrates a request DTO.
-        /// </summary>
-        /// <param name="context">The <see cref="HttpContext"/> including the request.</param>
-        /// <param name="dtoType">The type of for the request DTO.</param>
-        /// <returns>The populated request DTO.</returns>
+        /// <inheritdoc/>
         /// <remarks>
         /// Priority:
         /// 1) Route templated variables
         /// 2) Query string variables
         /// 3) Request JSON body
         /// </remarks>
-        protected static object HydrateRequestDto(HttpContext context, Type dtoType)
+        public object HydrateRequest(HttpContext ctx, Type dtoType)
         {
+            var req = ctx.Request;
+
             if (dtoType == null)
                 return null;
 
             string body;
-            using (var reader = new StreamReader(context.Request.Body))
+            using (var reader = new StreamReader(req.Body))
             {
                 body = reader.ReadToEnd().Trim();
             }
 
             if (body.Length > 0
-                && (context.Request.ContentType == null
-                || !context.Request.ContentType.Equals(HttpContentTypes.ApplicationJson,StringComparison.CurrentCultureIgnoreCase)))
+                && (req.ContentType == null
+                || !req.ContentType.Equals(ContentType, StringComparison.CurrentCultureIgnoreCase)))
             {
                 throw new NotImplementedException(
-                    $"{context.Request.ContentType ?? "Missing content type"} is currently not supported.");
+                    $"{req.ContentType ?? "Missing content type"} is currently not supported.");
             }
 
             var reqBodyBuilder = new StringBuilder((body.Length > 0) ? body.Remove(body.Length - 1) : "{");
@@ -94,17 +57,22 @@ namespace RService.IO
                     .Where(x => x.CanWrite).ToDictionary(k => k.Name, v => v));
             }
 
-            AddQueryStringParams(context, CachedDtoProps[dtoType], ref reqBodyBuilder);
-            AddRouteParams(context, CachedDtoProps[dtoType], ref reqBodyBuilder);
-                
+            AddQueryStringParams(req, CachedDtoProps[dtoType], ref reqBodyBuilder);
+            AddRouteParams(ctx, CachedDtoProps[dtoType], ref reqBodyBuilder);
+
             reqBodyBuilder.AppendLine("}");
 
             return GetDtoCtorDelegate(dtoType).Invoke(reqBodyBuilder.ToString());
         }
 
-        private static void AddQueryStringParams(HttpContext context, Dictionary<string, PropertyInfo> dtoProps, ref StringBuilder reqBodyBuilder)
+        public string DehydrateResponse(object resDto)
         {
-            var queryData = context.Request.Query;
+            return NetJSON.NetJSON.Serialize(resDto.GetType(), resDto);
+        }
+
+        private static void AddQueryStringParams(HttpRequest req, Dictionary<string, PropertyInfo> dtoProps, ref StringBuilder reqBodyBuilder)
+        {
+            var queryData = req.Query;
             if (queryData == null)
                 return;
 
@@ -119,9 +87,9 @@ namespace RService.IO
             }
         }
 
-        private static void AddRouteParams(HttpContext context, Dictionary<string, PropertyInfo> dtoProps, ref StringBuilder reqBodyBuilder)
+        private static void AddRouteParams(HttpContext ctx, Dictionary<string, PropertyInfo> dtoProps, ref StringBuilder reqBodyBuilder)
         {
-            var routeData = context.GetRouteData()?.Values;
+            var routeData = ctx.GetRouteData()?.Values;
             if (routeData == null)
                 return;
 
@@ -149,14 +117,6 @@ namespace RService.IO
                 CachedDtoCtors.Add(dtoType, DelegateFactory.GenerateDtoCtor(dtoType));
 
             return CachedDtoCtors[dtoType];
-        }
-
-        private static Task WriteJsonResponse(HttpContext context, Type dtoResType, object res)
-        {
-            // TODO: Possibly convert this to the generic serialize function if this takes too long
-            var response = NetJSON.NetJSON.Serialize(dtoResType, res);
-            context.Response.ContentType = HttpContentTypes.ApplicationJson;
-            return context.Response.WriteAsync(response);
         }
     }
 }

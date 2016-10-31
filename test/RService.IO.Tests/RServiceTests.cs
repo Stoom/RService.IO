@@ -23,23 +23,6 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void Ctor__EnablesDebugginfFromOptions()
-        {
-            var options = new OptionsManager<RServiceOptions>(new[]
-            {
-                new ConfigureOptions<RServiceOptions>(opt =>
-                {
-                    opt.ServiceAssemblies.Add(Utils.Instance.CurrentAssembly);
-                    opt.EnableDebugging = true;
-                })
-            });
-
-            var service = new RService(options);
-
-            service.IsDebugEnabled.Should().BeTrue();
-        }
-
-        [Fact]
         public void Ctor__CompositeKeyIncludesPathAndRoute()
         {
             const string path = SvcForMethods.PostPath;

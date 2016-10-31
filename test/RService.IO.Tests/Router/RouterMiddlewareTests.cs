@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Testing;
-using RService.IO.Abstractions;
+using Moq;
 using RService.IO.Router;
 using Xunit;
 
@@ -24,7 +24,8 @@ namespace RService.IO.Tests.Router
                 TestSink.EnableWithTypeName<RServiceRouterMiddleware>);
             var loggerFactory = new TestLoggerFactory(sink, true);
 
-            var httpContext = new DefaultHttpContext {RequestServices = new ServiceProvider()};
+            var reqServices = new Mock<IServiceProvider>().SetupAllProperties().Object;
+            var httpContext = new DefaultHttpContext {RequestServices = reqServices};
 
             RequestDelegate next = (c) => Task.FromResult<object>(null);
 
@@ -52,7 +53,8 @@ namespace RService.IO.Tests.Router
                 TestSink.EnableWithTypeName<RServiceRouterMiddleware>);
             var loggerFactory = new TestLoggerFactory(sink, true);
 
-            var httpContext = new DefaultHttpContext {RequestServices = new ServiceProvider()};
+            var reqServices = new Mock<IServiceProvider>().SetupAllProperties().Object;
+            var httpContext = new DefaultHttpContext { RequestServices = reqServices };
 
             RequestDelegate next = (c) => Task.FromResult<object>(null);
 
@@ -81,7 +83,8 @@ namespace RService.IO.Tests.Router
                 TestSink.EnableWithTypeName<RServiceRouterMiddleware>);
             var loggerFactory = new TestLoggerFactory(sink, true);
 
-            var httpContext = new DefaultHttpContext { RequestServices = new ServiceProvider() };
+            var reqServices = new Mock<IServiceProvider>().SetupAllProperties().Object;
+            var httpContext = new DefaultHttpContext { RequestServices = reqServices };
 
             RequestDelegate next = (c) =>
             {
@@ -112,7 +115,8 @@ namespace RService.IO.Tests.Router
                 TestSink.EnableWithTypeName<RServiceRouterMiddleware>);
             var loggerFactory = new TestLoggerFactory(sink, true);
 
-            var httpContext = new DefaultHttpContext { RequestServices = new ServiceProvider() };
+            var reqServices = new Mock<IServiceProvider>().SetupAllProperties().Object;
+            var httpContext = new DefaultHttpContext { RequestServices = reqServices };
 
             RequestDelegate next = (c) =>
             {
@@ -151,18 +155,10 @@ namespace RService.IO.Tests.Router
                 if (_isHandled)
                     context.Handler = c => Task.FromResult(0);
                 else if (_isRService)
-                    context.Handler = Handler.ServiceHandler;
+                    context.Handler = RServiceTagHandler.Tag;
                 else
                     context.Handler = null;
                 return Task.FromResult<object>(null);
-            }
-        }
-
-        private class ServiceProvider : IServiceProvider
-        {
-            public object GetService(Type serviceType)
-            {
-                throw new NotImplementedException();
             }
         }
     }

@@ -7,7 +7,6 @@ using Castle.Core.Internal;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -15,6 +14,7 @@ using NuGet.Packaging;
 using RService.IO.Abstractions;
 using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
+using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
 using IRoutingFeature = Microsoft.AspNetCore.Routing.IRoutingFeature;
 
 namespace RService.IO.Tests
@@ -113,10 +113,8 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public async void Invoke_CallsHandlerIfActivatorFound()
+        public async void Invoke_CallsProviderIfActivatorFound()
         {
-            var hasHandlerInvoked = false;
-
             var routePath = "/Foobar".Substring(1);
             Delegate.Activator routeActivator = (target, args) => null;
             var expectedFeature = new Mock<IRServiceFeature>();
@@ -126,17 +124,18 @@ namespace RService.IO.Tests
                TestSink.EnableWithTypeName<RServiceMiddleware>,
                TestSink.EnableWithTypeName<RServiceMiddleware>);
 
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                    .Returns(Task.FromResult(0));
+
             var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                hasHandlerInvoked = true;
-                return Task.FromResult(0);
-            });
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0));
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
 
             await middleware.Invoke(context);
 
-            hasHandlerInvoked.Should().BeTrue();
+            provider.Verify(x => x.Invoke(It.IsAny<HttpContext>()));
         }
 
         [Fact]
@@ -154,12 +153,14 @@ namespace RService.IO.Tests
                TestSink.EnableWithTypeName<RServiceMiddleware>,
                TestSink.EnableWithTypeName<RServiceMiddleware>);
 
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Throws(new ApiExceptions(expectedBody, expectedStatusCode));
+
             var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                throw new ApiExceptions(expectedBody, expectedStatusCode);
-            });
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0));
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
             var body = context.Response.Body;
 
             await middleware.Invoke(context);
@@ -184,13 +185,14 @@ namespace RService.IO.Tests
                TestSink.EnableWithTypeName<RServiceMiddleware>,
                TestSink.EnableWithTypeName<RServiceMiddleware>);
 
-            var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                throw new Exception("FizzBuzz");
-            });
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Throws(new ApiExceptions(string.Empty, expectedStatusCode));
 
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0));
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
             var body = context.Response.Body;
 
             await middleware.Invoke(context);
@@ -215,17 +217,18 @@ namespace RService.IO.Tests
                TestSink.EnableWithTypeName<RServiceMiddleware>,
                TestSink.EnableWithTypeName<RServiceMiddleware>);
 
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Throws<Exception>();
+
             var exceptionFilter = new Mock<IExceptionFilter>().SetupAllProperties();
             exceptionFilter.Setup(x => x.OnException(It.IsAny<HttpContext>(), It.IsAny<Exception>()))
                 .Callback(() => hasHandledException = true);
 
             var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                throw new Exception("FizzBuzz");
-            }, globalExceptionFilter: exceptionFilter.Object);
-
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), globalExceptionFilter: exceptionFilter.Object);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
 
             await middleware.Invoke(context);
 
@@ -246,18 +249,21 @@ namespace RService.IO.Tests
                TestSink.EnableWithTypeName<RServiceMiddleware>,
                TestSink.EnableWithTypeName<RServiceMiddleware>);
 
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Throws<Exception>();
+
             var exceptionFilter = new Mock<IExceptionFilter>().SetupAllProperties();
             exceptionFilter.Setup(x => x.OnException(It.IsAny<HttpContext>(), It.IsAny<Exception>()))
                 .Callback(() => hasHandledException = true);
 
             var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                throw new Exception("FizzBuzz");
-            }, globalExceptionFilter: exceptionFilter.Object);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), globalExceptionFilter: exceptionFilter.Object);
 
             var options = BuildRServiceOptions(opts => { opts.EnableDebugging = true; });
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator,
+                options: options, serviceProvider: provider.Object);
 
             Func<Task> act = async () =>
             {
@@ -280,14 +286,17 @@ namespace RService.IO.Tests
                 TestSink.EnableWithTypeName<RServiceMiddleware>,
                 TestSink.EnableWithTypeName<RServiceMiddleware>);
 
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Throws<Exception>();
+
             var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                throw new Exception("FizzBuzz");
-            });
+            var context = BuildContext(routeData, ctx => Task.FromResult(0));
 
             var options = BuildRServiceOptions(opts => { opts.EnableDebugging = true; });
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator,
+                options: options, serviceProvider: provider.Object);
 
             Func<Task> act = async () =>
             {
@@ -309,14 +318,17 @@ namespace RService.IO.Tests
                 TestSink.EnableWithTypeName<RServiceMiddleware>,
                 TestSink.EnableWithTypeName<RServiceMiddleware>);
 
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Throws<ApiExceptions>();
+
             var routeData = BuildRouteData(routePath);
-            var context = BuildContext(routeData, ctx =>
-            {
-                throw new ApiExceptions("FizzBuzz", HttpStatusCode.BadRequest);
-            });
+            var context = BuildContext(routeData, ctx => Task.FromResult(0));
 
             var options = BuildRServiceOptions(opts => { opts.EnableDebugging = true; });
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator,
+                options: options, serviceProvider: provider.Object);
 
             Func<Task> act = async () =>
             {
@@ -349,7 +361,7 @@ namespace RService.IO.Tests
             IExceptionFilter globalExceptionFilter = null)
         {
             var context = new DefaultHttpContext();
-            var ioc = new Mock<IServiceProvider>().SetupAllProperties();
+            var ioc = new Mock<System.IServiceProvider>().SetupAllProperties();
 
             context.Features[typeof(IRoutingFeature)] = new RoutingFeature
             {
@@ -369,17 +381,22 @@ namespace RService.IO.Tests
         }
 
         private RServiceMiddleware BuildMiddleware(TestSink sink, string routePath = null, Delegate.Activator routeActivator = null,
-            RequestDelegate handler = null, IOptions<RServiceOptions> options = null)
+            RequestDelegate handler = null, IOptions<RServiceOptions> options = null, IServiceProvider serviceProvider = null)
         {
             options = options ?? _options;
 
             var loggerFactory = new TestLoggerFactory(sink, true);
             var next = handler ?? (c => Task.FromResult<object>(null));
             var service = new RService(options);
+
+            serviceProvider = serviceProvider ?? new Mock<IServiceProvider>()
+                .SetupAllProperties()
+                .Object;
+
             if (!routePath.IsNullOrEmpty() && routeActivator != null)
                 service.Routes.Add(routePath, new ServiceDef { ServiceMethod = routeActivator });
 
-            return new RServiceMiddleware(next, loggerFactory, service);
+            return new RServiceMiddleware(next, loggerFactory, service, serviceProvider, options);
         }
     }
 }

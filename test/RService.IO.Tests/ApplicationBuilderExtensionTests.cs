@@ -20,7 +20,8 @@ namespace RService.IO.Tests
     public class ApplicationBuilderExtensionTests
     {
         private static readonly RequestDelegate EmptyHandler = context => Task.FromResult(0);
-        private static readonly Action<RouteOptions> EmptyRouteOptions = opt => { }; 
+        private static readonly Action<RouteOptions> EmptyRouteOptions = opt => { };
+        private static readonly Action<RServiceOptions> EmptyRServieOptions = opt => { };
 
         [Fact]
         public void UserRServiceIo__AddsRoutesToRouting()
@@ -30,7 +31,7 @@ namespace RService.IO.Tests
             var def = new ServiceDef { Route = route };
 
             var services = new ServiceCollection();
-            services.AddRServiceIo(sOps => { sOps.RouteHanlder = EmptyHandler; }, EmptyRouteOptions);
+            services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);
 
             var builder = BuildApplicationBuilder(services);
             var service = builder.ApplicationServices.GetService<RService>();
@@ -54,7 +55,7 @@ namespace RService.IO.Tests
             const string expectedPath = "Llamas/Eat/Hands";
 
             var services = new ServiceCollection();
-            services.AddRServiceIo(sOps => { sOps.RouteHanlder = EmptyHandler; }, EmptyRouteOptions);
+            services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);
 
             var builder = BuildApplicationBuilder(services);
 
@@ -77,7 +78,7 @@ namespace RService.IO.Tests
             IRouteBuilder routeBuilder = null;
 
             var services = new ServiceCollection();
-            services.AddRServiceIo(sOps => { sOps.RouteHanlder = EmptyHandler; }, EmptyRouteOptions);
+            services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);
 
             var builder = BuildApplicationBuilder(services);
 
@@ -97,10 +98,7 @@ namespace RService.IO.Tests
         public void UserRServiceIo__EnablesRouting()
         {
             var services = new ServiceCollection();
-            services.AddRServiceIo(opts =>
-            {
-                opts.RouteHanlder = EmptyHandler;
-            }, EmptyRouteOptions);
+            services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);
 
             var builder = new ApplicationBuilder(services.BuildServiceProvider());
 
@@ -115,10 +113,7 @@ namespace RService.IO.Tests
         public void UserRServiceIo__EnablesRService()
         {
             var services = new ServiceCollection();
-            services.AddRServiceIo(opts =>
-            {
-                opts.RouteHanlder = EmptyHandler;
-            }, EmptyRouteOptions);
+            services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);
 
             var builder = new ApplicationBuilder(services.BuildServiceProvider());
 
@@ -153,8 +148,7 @@ namespace RService.IO.Tests
             var services = new ServiceCollection();
             services.AddOptions();
             services.AddSingleton<RService>();
-            Action<RServiceOptions> opts = x => x.RouteHanlder = EmptyHandler;
-            services.Configure(opts);
+            services.Configure(EmptyRServieOptions);
 
             var builder = BuildApplicationBuilder(services);
 

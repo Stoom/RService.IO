@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Microsoft.AspNetCore.Http;
 using RService.IO.Abstractions;
 
 namespace RService.IO
@@ -11,11 +10,6 @@ namespace RService.IO
     /// </summary>
     public class RServiceOptions
     {
-        /// <summary>
-        /// The <see cref="Microsoft.AspNetCore.Routing.RouteHandler"/> to process request routing.
-        /// </summary>
-        public RequestDelegate RouteHanlder { get; set; } = Handler.ServiceHandler;
-
         /// <summary>
         /// Enables the UseDeveloperExceptionPage middleware.
         /// </summary>

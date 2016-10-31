@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
+using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
 
 namespace RService.IO
 {
@@ -14,12 +16,16 @@ namespace RService.IO
         private readonly ILogger _logger;
         private readonly RequestDelegate _next;
         private readonly RService _service;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly RServiceOptions _options;
 
-        public RServiceMiddleware(RequestDelegate next, ILoggerFactory logFactory, RService service)
+        public RServiceMiddleware(RequestDelegate next, ILoggerFactory logFactory, RService service, IServiceProvider serviceProvider, IOptions<RServiceOptions> options)
         {
             _next = next;
             _logger = logFactory.CreateLogger<RServiceMiddleware>();
             _service = service;
+            _serviceProvider = serviceProvider;
+            _options = options?.Value;
         }
 
         public async Task Invoke(HttpContext context)
@@ -31,11 +37,10 @@ namespace RService.IO
                 : null;
             var route = $"{routeData?.RouteTemplate}:{context.Request.Method}";
 
-            var handler = context.GetRouteHandler();
             ServiceDef serviceDef;
             _service.Routes.TryGetValue(route, out serviceDef);
 
-            if (handler == null || serviceDef.ServiceMethod == null)
+            if (serviceDef.ServiceMethod == null)
             {
                 _logger.RequestDidNotMatchServices();
                 await _next.Invoke(context);
@@ -52,11 +57,11 @@ namespace RService.IO
 
                 try
                 {
-                    await handler.Invoke(context);
+                    await _serviceProvider.Invoke(context);
                 }
                 catch (Exception exc)
                 {
-                    if (_service.IsDebugEnabled)
+                    if (_options?.EnableDebugging ?? false)
                         throw;
 
                     context.Response.Clear();

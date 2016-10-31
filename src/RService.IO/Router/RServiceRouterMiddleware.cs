@@ -43,7 +43,7 @@ namespace RService.IO.Router
                     RouteHandler = context.Handler
                 };
 
-                if (context.Handler == Handler.ServiceHandler)
+                if (context.Handler == RServiceTagHandler.Tag)
                     await _next.Invoke(httpContext);
                 else
                     await context.Handler(context.HttpContext);

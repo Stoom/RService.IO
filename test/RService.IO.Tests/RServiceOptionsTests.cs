@@ -21,15 +21,6 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void RouteHandler__DefaultsToRServiceHandler()
-        {
-            var options = new RServiceOptions();
-            var expected = (RequestDelegate) Handler.ServiceHandler;
-
-            options.RouteHanlder.Should().Be(expected);
-        }
-
-        [Fact]
         public void ServiceAssemblies__DefaultsToEmptyList()
         {
             var options = new RServiceOptions();

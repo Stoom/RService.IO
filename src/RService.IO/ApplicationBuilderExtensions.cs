@@ -32,7 +32,7 @@ namespace RService.IO
 
             foreach (var route in service.Routes)
             {
-                routes.MapRServiceIoRoute(route.Value.Route, options.RouteHanlder);
+                routes.MapRServiceIoRoute(route.Value.Route, RServiceTagHandler.Tag);
             }
 
             configureRoutes(routes);
