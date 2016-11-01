@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace RService.IO.Tests
