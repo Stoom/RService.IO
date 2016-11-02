@@ -9,7 +9,11 @@ using Microsoft.Extensions.Options;
 using Moq;
 using RService.IO.Abstractions;
 using RService.IO.DependencyIngection;
+using RService.IO.Providers;
+using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
 using Xunit;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace RService.IO.Tests.DependencyIngection
 {
@@ -99,6 +103,60 @@ namespace RService.IO.Tests.DependencyIngection
         }
 
         [Fact]
+        public void AddRServiceIo__AddsNetJsonProviderForISerializationProvider()
+        {
+            var services = new ServiceCollection();
+
+            services.AddRServiceIo(EmptyRServiceOptions);
+
+            var app = BuildApplicationBuilder(services);
+            var provider = app.ApplicationServices.GetService<ISerializationProvider>();
+
+            provider.Should().NotBeNull().And.BeOfType<NetJsonProvider>();
+        }
+
+        [Fact]
+        public void AddRServiceIo__UserImplementationForISerializationProviderTakesPrecedence()
+        {
+            var services = new ServiceCollection();
+
+            services.AddTransient<ISerializationProvider, SeralizerProvider>();
+            services.AddRServiceIo(EmptyRServiceOptions);
+
+            var app = BuildApplicationBuilder(services);
+            var provider = app.ApplicationServices.GetService<ISerializationProvider>();
+
+            provider.Should().NotBeNull().And.BeOfType<SeralizerProvider>();
+        }
+
+        [Fact]
+        public void AddRServiceIo__AddsRServiceProviderForIServiceProvider()
+        {
+            var services = new ServiceCollection();
+
+            services.AddRServiceIo(EmptyRServiceOptions);
+
+            var app = BuildApplicationBuilder(services);
+            var provider = app.ApplicationServices.GetService<IServiceProvider>();
+
+            provider.Should().NotBeNull().And.BeOfType<RServiceProvider>();
+        }
+
+        [Fact]
+        public void AddRServiceIo__UserImplementationForIServiceProviderTakesPrecedence()
+        {
+            var services = new ServiceCollection();
+
+            services.AddTransient<IServiceProvider, ServiceProvider>();
+            services.AddRServiceIo(EmptyRServiceOptions);
+
+            var app = BuildApplicationBuilder(services);
+            var provider = app.ApplicationServices.GetService<IServiceProvider>();
+
+            provider.Should().NotBeNull().And.BeOfType<ServiceProvider>();
+        }
+
+        [Fact]
         public void AddRServiceIo__AddsWebServiceTypes()
         {
             var services = new ServiceCollection();
@@ -168,6 +226,28 @@ namespace RService.IO.Tests.DependencyIngection
             builder.Object.ApplicationServices = services.BuildServiceProvider();
 
             return builder.Object;
+        }
+
+        public class ServiceProvider : IServiceProvider
+        {
+            public Task Invoke(HttpContext context)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class SeralizerProvider : ISerializationProvider
+        {
+            public string ContentType { get; } = string.Empty;
+            public object HydrateRequest(HttpContext ctx, Type dtoType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string DehydrateResponse(object resDto)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

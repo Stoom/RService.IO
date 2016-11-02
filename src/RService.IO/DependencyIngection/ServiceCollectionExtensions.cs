@@ -1,7 +1,10 @@
 ﻿using System;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using RService.IO.Abstractions;
+using RService.IO.Providers;
+using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
 
 namespace RService.IO.DependencyIngection
 {
@@ -23,6 +26,9 @@ namespace RService.IO.DependencyIngection
         {
             services.AddOptions();
             services.AddRouting(routeOptions);
+
+            services.TryAddTransient<ISerializationProvider, NetJsonProvider>();
+            services.TryAddTransient<IServiceProvider, RServiceProvider>();
 
             services.AddSingleton<RService>();
             services.Configure(rserviceOptions);
