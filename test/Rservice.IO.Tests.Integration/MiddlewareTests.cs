@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RService.IO;
+using RService.IO.Abstractions;
 using RService.IO.Tests;
 using Xunit;
 using RService.IO.DependencyIngection;
@@ -60,19 +61,26 @@ namespace Rservice.IO.Tests.Integration
         }
 
         #region Classes for testing
-        // ReSharper disable once ClassNeverInstantiated.Local
+        // ReSharper disable ClassNeverInstantiated.Local
+        // ReSharper disable UnusedMember.Local
+        // ReSharper disable UnusedParameter.Local
+        private class ServiceProvider : IServiceProvider
+        {
+            public Task Invoke(HttpContext context)
+            {
+                var route = context.GetRouteData();
+                return context.Response.WriteAsync(route.Routers[1].ToString());
+            }
+        }
+
         private class RouteTestStartup
         {
             public void ConfigureServices(IServiceCollection services)
             {
+                services.AddTransient<IServiceProvider, ServiceProvider>();
                 services.AddRServiceIo(options =>
                 {
                     options.AddServiceAssembly(typeof(SvcWithMethodRoute));
-                    options.RouteHanlder = context =>
-                    {
-                        var route = context.GetRouteData();
-                        return context.Response.WriteAsync(route.Routers[1].ToString());
-                    };
                 });
             }
 
@@ -82,7 +90,6 @@ namespace Rservice.IO.Tests.Integration
             }
         }
 
-        // ReSharper disable once ClassNeverInstantiated.Local
         private class RServiceStartup
         {
             public void ConfigureServices(IServiceCollection services)
@@ -98,7 +105,9 @@ namespace Rservice.IO.Tests.Integration
                 app.UseRServiceIo();
             }
         }
-
+        // ReSharper restore UnusedParameter.Local
+        // ReSharper restore UnusedMember.Local
+        // ReSharper restore ClassNeverInstantiated.Local
         #endregion
     }
 }
