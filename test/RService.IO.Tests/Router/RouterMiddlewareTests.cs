@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Testing;
@@ -132,6 +133,16 @@ namespace RService.IO.Tests.Router
             await middleware.Invoke(httpContext);
 
             Assert.True(wasCalled);
+        }
+
+        [Fact]
+        public void TagHandler__IsNotSupported()
+        {
+            var ctx = new Mock<HttpContext>();
+
+            Action act = () => RServiceTagHandler.Tag(ctx.Object);
+
+            act.ShouldThrow<NotSupportedException>();
         }
 
         private class TestRouter : IRouter
