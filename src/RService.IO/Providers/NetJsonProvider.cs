@@ -12,6 +12,9 @@ using Delegate = RService.IO.Abstractions.Delegate;
 
 namespace RService.IO.Providers
 {
+    /// <summary>
+    /// Adapter for the NetJson serialization.
+    /// </summary>
     public class NetJsonProvider : ISerializationProvider
     {
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> CachedDtoProps = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
@@ -65,6 +68,7 @@ namespace RService.IO.Providers
             return GetDtoCtorDelegate(dtoType).Invoke(reqBodyBuilder.ToString());
         }
 
+        /// <inheritdoc/>
         public string DehydrateResponse(object resDto)
         {
             return NetJSON.NetJSON.Serialize(resDto.GetType(), resDto);
