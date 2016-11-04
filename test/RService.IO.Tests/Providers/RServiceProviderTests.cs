@@ -19,6 +19,7 @@ namespace RService.IO.Tests.Providers
         private readonly RService _rservice;
         private RServiceProvider _provider;
         private Mock<ISerializationProvider> _serializationProvider;
+        private Mock<IAuthProvider> _authProvider;
 
         public RServiceProviderTests()
         {
@@ -35,11 +36,12 @@ namespace RService.IO.Tests.Providers
         private void Init()
         {
             _serializationProvider = new Mock<ISerializationProvider>();
-            _provider = new RServiceProvider(_serializationProvider.Object);
+            _authProvider = new Mock<IAuthProvider>();
+            _provider = new RServiceProvider(_serializationProvider.Object, _authProvider.Object);
         }
 
         [Fact]
-        public void ServiceHandler__CallsServiceMethod()
+        public void Invoke__CallsServiceMethod()
         {
             Init();
 
@@ -54,7 +56,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void ServiceHandler__WritesStringResponseToContextResponse()
+        public void Invoke__WritesStringResponseToContextResponse()
         {
             Init();
 
@@ -72,7 +74,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void ServiceHandler__WritesPrimitiveResponseToContextResponse()
+        public void Invoke__WritesPrimitiveResponseToContextResponse()
         {
             Init();
 
@@ -90,7 +92,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void ServiceHandler__WritesEmptyStringIfServiceMethodReturnsNull()
+        public void Invoke__WritesEmptyStringIfServiceMethodReturnsNull()
         {
             Init();
 
@@ -108,7 +110,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void ServiceHandler__SerializesResponseDto()
+        public void Invoke__SerializesResponseDto()
         {
             Init();
 
@@ -132,7 +134,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void ServiceHandler__SetsContextOfService()
+        public void Invoke__SetsContextOfService()
         {
             Init();
 
