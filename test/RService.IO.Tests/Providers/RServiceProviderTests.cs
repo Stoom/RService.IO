@@ -19,7 +19,6 @@ namespace RService.IO.Tests.Providers
         private readonly RService _rservice;
         private RServiceProvider _provider;
         private Mock<ISerializationProvider> _serializationProvider;
-        private Mock<IAuthProvider> _authProvider;
 
         public RServiceProviderTests()
         {
@@ -36,8 +35,7 @@ namespace RService.IO.Tests.Providers
         private void Init()
         {
             _serializationProvider = new Mock<ISerializationProvider>();
-            _authProvider = new Mock<IAuthProvider>();
-            _provider = new RServiceProvider(_serializationProvider.Object, _authProvider.Object);
+            _provider = new RServiceProvider(_serializationProvider.Object);
         }
 
         [Fact]

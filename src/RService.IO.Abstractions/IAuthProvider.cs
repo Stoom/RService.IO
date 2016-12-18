@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
 namespace RService.IO.Abstractions
@@ -26,12 +26,22 @@ namespace RService.IO.Abstractions
         /// <summary>
         /// Checks if the requester is authorized to given endpoint.
         /// </summary>
-        /// <param name="user">The <see cref="ClaimsPrincipal"/> of the user.</param>
+        /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
         /// <param name="authorizationFilters">A collection of "authorized"/"allow anonymous" attributes.</param>
         /// <returns><b>True</b> if the user is authorized for the given endpoint, else <b>False</b>.</returns>
         /// <remarks>
         /// All attributes on an endpoint and class must evaluate to <b>True</b> for this to return <b>True</b>.
         /// </remarks>
-        bool IsAuthorized(ClaimsPrincipal user, IEnumerable<object> authorizationFilters);
+        Task<bool> IsAuthorizedAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
+
+        /// <summary>
+        /// Called early in the filter pipeline to confirm request is authorized.
+        /// </summary>
+        /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
+        /// <param name="authorizationFilters">A collection of "authorized"/"allow anonymous" attributes.</param>
+        /// <returns>
+        /// A <see cref="Task"/> that on completion indicates the filter has executed.
+        /// </returns>
+        Task OnAuthorizationAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
     }
 }
