@@ -161,12 +161,6 @@ namespace RService.IO.Tests.Providers
             _anonymousContext.User.Should().NotBeNull();
         }
 
-        [Fact]
-        public async void IsAuthorized__AllAttributesMust()
-        {
-            
-        }
-
         private static HttpContext GetContext(Action<ServiceCollection> registerServices, bool anonymous = false)
         {
             var basicPrincipal = new ClaimsPrincipal(
