@@ -100,7 +100,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public async void IsAuthorized__AuthoriedWithNoAttributes()
+        public async void IsAuthorizedAsync__AuthoriedWithNoAttributes()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new object[] {};
@@ -110,7 +110,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public async void IsAuthorized__AuthorizedWithSpecifiedScheme()
+        public async void IsAuthorizedAsync__AuthorizedWithSpecifiedScheme()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[]
@@ -127,7 +127,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public async void IsAuthorized__NotAuthorizedWithSpecifiedMissingScheme()
+        public async void IsAuthorizedAsync__NotAuthorizedWithSpecifiedMissingScheme()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[]
@@ -144,7 +144,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public async void IsAuthorized__ProvideDefaultIdentityIfClaimsFails()
+        public async void IsAuthorizedAsync__ProvideDefaultIdentityIfClaimsFails()
         {
             var authProvider = GetAuthProvider(_anonymousContext);
             var attributes = new[]
@@ -162,7 +162,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public async void IsAuthorized__AuthorizedWhenSpecifingMultipleRolesInSingleAttr()
+        public async void IsAuthorizedAsync__AuthorizedWhenSpecifingMultipleRolesInSingleAttr()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[] { new AuthorizeAttribute { Roles = "Administrator, PowerUser" } };
@@ -172,7 +172,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public async void IsAuthorized__AuthorizedRequireAllAttrToBeAuthorized()
+        public async void IsAuthorizedAsync__AuthorizedRequireAllAttrToBeAuthorized()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[]
