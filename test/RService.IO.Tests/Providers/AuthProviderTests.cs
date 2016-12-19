@@ -161,6 +161,30 @@ namespace RService.IO.Tests.Providers
             _anonymousContext.User.Should().NotBeNull();
         }
 
+        [Fact]
+        public async void IsAuthorized__AuthorizedWhenSpecifingMultipleRolesInSingleAttr()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var attributes = new[] { new AuthorizeAttribute { Roles = "Administrator, PowerUser" } };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorized__AuthorizedRequireAllAttrToBeAuthorized()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var attributes = new[]
+            {
+                new AuthorizeAttribute { Roles = "Administrator" },
+                new AuthorizeAttribute { Roles = "PowerUser" }
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            results.Should().BeFalse();
+        }
+
         private static HttpContext GetContext(Action<ServiceCollection> registerServices, bool anonymous = false)
         {
             var basicPrincipal = new ClaimsPrincipal(
