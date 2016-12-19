@@ -45,7 +45,7 @@ namespace RService.IO.Providers
         }
 
         /// <inheritdoc/>
-        public async Task OnAuthorizationAsync(HttpContext ctx, IEnumerable<object> authorizationFilters)
+        public async Task OnChallengeAuthorizationAsync(HttpContext ctx, IEnumerable<object> authorizationFilters)
         {
             var response = await AuthorizedAsync(ctx, authorizationFilters);
             if (!response.IsAuthorized)

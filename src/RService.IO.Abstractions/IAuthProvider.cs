@@ -17,14 +17,14 @@ namespace RService.IO.Abstractions
     public interface IAuthProvider
     {
         /// <summary>
-        /// Checks if the request is authenticated.
+        /// Checks AuthN of the request.
         /// </summary>
         /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
         /// <returns><b>True</b> if the request is authenticated, else <b>False</b>.</returns>
         bool IsAuthenticated(HttpContext ctx);
 
         /// <summary>
-        /// Checks if the requester is authorized to given endpoint.
+        /// Checks AuthZ on a given endpoint.
         /// </summary>
         /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
         /// <param name="authorizationFilters">A collection of "authorized"/"allow anonymous" attributes.</param>
@@ -35,13 +35,13 @@ namespace RService.IO.Abstractions
         Task<bool> IsAuthorizedAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
 
         /// <summary>
-        /// Called early in the filter pipeline to confirm request is authorized.
+        /// If AuthZ failed this will challenge the user for new AuthZ.
         /// </summary>
         /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
         /// <param name="authorizationFilters">A collection of "authorized"/"allow anonymous" attributes.</param>
         /// <returns>
         /// A <see cref="Task"/> that on completion indicates the filter has executed.
         /// </returns>
-        Task OnAuthorizationAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
+        Task OnChallengeAuthorizationAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
     }
 }
