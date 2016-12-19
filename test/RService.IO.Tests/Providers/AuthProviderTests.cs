@@ -110,6 +110,58 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
+        public async void IsAuthorized__AuthorizedWithSpecifiedScheme()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var attributes = new[]
+            {
+                new AuthorizeAttribute
+                {
+                    Roles = "Administrator",
+                    ActiveAuthenticationSchemes = "Basic"
+                }
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorized__NotAuthorizedWithSpecifiedMissingScheme()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var attributes = new[]
+            {
+                new AuthorizeAttribute
+                {
+                    Roles = "Administrator",
+                    ActiveAuthenticationSchemes = "FizzBuzzScheme"
+                }
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorized__ProvideDefaultIdentityIfClaimsFails()
+        {
+            var authProvider = GetAuthProvider(_anonymousContext);
+            var attributes = new[]
+            {
+                new AuthorizeAttribute
+                {
+                    Roles = "Administrator",
+                    ActiveAuthenticationSchemes = "Basic"
+                }
+            };
+
+            _anonymousContext.User.Should().BeNull();
+            await authProvider.IsAuthorizedAsync(_anonymousContext, attributes);
+            _anonymousContext.User.Should().NotBeNull();
+        }
+
+        [Fact]
         public async void IsAuthorized__AllAttributesMust()
         {
             
@@ -168,7 +220,7 @@ namespace RService.IO.Tests.Providers
             return context.Object;
         }
 
-        private IAuthProvider GetAuthProvider(HttpContext ctx)
+        private static IAuthProvider GetAuthProvider(HttpContext ctx)
         {
             return ctx.RequestServices.GetRequiredService<IAuthProvider>();
         }
