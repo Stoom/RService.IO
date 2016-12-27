@@ -17,13 +17,6 @@ namespace RService.IO.Abstractions
     public interface IAuthProvider
     {
         /// <summary>
-        /// Checks AuthN of the request.
-        /// </summary>
-        /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
-        /// <returns><b>True</b> if the request is authenticated, else <b>False</b>.</returns>
-        bool IsAuthenticated(HttpContext ctx);
-
-        /// <summary>
         /// Checks AuthZ on a given endpoint.
         /// </summary>
         /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
@@ -33,15 +26,5 @@ namespace RService.IO.Abstractions
         /// All attributes on an endpoint and class must evaluate to <b>True</b> for this to return <b>True</b>.
         /// </remarks>
         Task<bool> IsAuthorizedAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
-
-        /// <summary>
-        /// If AuthZ failed this will challenge the user for new AuthZ.
-        /// </summary>
-        /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
-        /// <param name="authorizationFilters">A collection of "authorized"/"allow anonymous" attributes.</param>
-        /// <returns>
-        /// A <see cref="Task"/> that on completion indicates the filter has executed.
-        /// </returns>
-        Task OnChallengeAuthorizationAsync(HttpContext ctx, IEnumerable<object> authorizationFilters);
     }
 }
