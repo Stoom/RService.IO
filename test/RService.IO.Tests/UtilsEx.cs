@@ -29,5 +29,17 @@ namespace RService.IO.Tests
                 return middleware;
             }).ToList();
         }
+
+        public static IEnumerable<TValue> Duplicates<TValue>(this IEnumerable<TValue> source)
+        {
+            return source.Duplicates(x => x.Key);
+        }
+
+        public static IEnumerable<TResults> Duplicates<TValue, TResults>(this IEnumerable<TValue> source, Func<IGrouping<TValue, TValue>, TResults> predicate)
+        {
+            return source.GroupBy(x => x)
+                .Where(g => g.Count() > 1)
+                .Select(predicate);
+        }
     }
 }

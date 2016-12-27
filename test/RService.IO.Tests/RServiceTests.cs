@@ -123,6 +123,16 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public void Ctor__AddsUniqueIdentForEachRoute()
+        {
+            var service = new RService(_options);
+
+            var idents = service.Routes.Values.Select(x => x.Ident).Where(y => y != null).ToList();
+            idents.Count.Should().Be(service.Routes.Count, "Service method(s) missing ident.");
+            idents.Duplicates().Should().BeEmpty();
+        }
+
+        [Fact]
         public void Ctor__ScansAssembliesForSerivceTypes()
         {
             var expectedServiceType = typeof(SvcWithMethodRoute);
