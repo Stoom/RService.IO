@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using RService.IO.Abstractions;
 using Delegate = RService.IO.Abstractions.Delegate;
 
@@ -33,5 +34,23 @@ namespace RService.IO
         /// The <see cref="Type"/> of the response dto.
         /// </summary>
         public Type ResponseDtoType;
+        /// <summary>
+        /// Metadata associated with the service and method.
+        /// </summary>
+        public Metadata Metadata;
+    }
+    /// <summary>
+    /// Metadata about a RService.IO web service.
+    /// </summary>
+    public struct Metadata
+    {
+        /// <summary>
+        /// Metadata on the service.
+        /// </summary>
+        public TypeInfo Service;
+        /// <summary>
+        /// Metadata on the method.
+        /// </summary>
+        public MethodInfo Method;
     }
 }

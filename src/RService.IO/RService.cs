@@ -74,6 +74,11 @@ namespace RService.IO
                         var def = new ServiceDef
                         {
                             Ident =  Guid.NewGuid().ToString(),
+                            Metadata = new Metadata
+                            {
+                                Service = methodType.GetTypeInfo(),
+                                Method = method
+                            },
                             Route = attr,
                             ServiceType = methodType,
                             ServiceMethod = DelegateFactory.GenerateMethodCall(method),
@@ -101,6 +106,11 @@ namespace RService.IO
                         var def = new ServiceDef
                         {
                             Ident = Guid.NewGuid().ToString(),
+                            Metadata = new Metadata
+                            {
+                                Service = methodType.GetTypeInfo(),
+                                Method = method
+                            },
                             Route = route,
                             ServiceType = methodType,
                             ServiceMethod = DelegateFactory.GenerateMethodCall(method),
