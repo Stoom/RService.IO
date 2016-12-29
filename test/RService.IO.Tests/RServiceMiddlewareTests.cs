@@ -54,6 +54,32 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public async void Invoke__SetsContextOfService()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var serviceMock = new Mock<IService>().SetupAllProperties();
+
+            var sink = new TestSink(
+               TestSink.EnableWithTypeName<RServiceMiddleware>,
+               TestSink.EnableWithTypeName<RServiceMiddleware>);
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                    .Returns(Task.FromResult(0));
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), service: serviceMock.Object);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, 
+                serviceProvider: provider.Object, service: serviceMock.Object);
+
+            await middleware.Invoke(context);
+
+            serviceMock.Object.Context.Should().Be(context);
+        }
+
+        [Fact]
         public async void Invoke__InvokesNextIfRouteHanlderNotSet()
         {
             var hasNextInvoked = false;
@@ -358,7 +384,7 @@ namespace RService.IO.Tests
         }
 
         private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET",
-            IExceptionFilter globalExceptionFilter = null)
+            IExceptionFilter globalExceptionFilter = null, IService service = null)
         {
             var context = new DefaultHttpContext();
             var ioc = new Mock<System.IServiceProvider>().SetupAllProperties();
@@ -372,6 +398,10 @@ namespace RService.IO.Tests
             ioc.Setup(x => x.GetService(It.IsAny<Type>())).Returns((IService)null);
             if (globalExceptionFilter != null)
                 ioc.Setup(x => x.GetService(typeof(IExceptionFilter))).Returns(globalExceptionFilter);
+            if (service != null)
+                ioc.Setup(x => x.GetService(service.GetType())).Returns(service);
+            else
+                ioc.Setup(x => x.GetService(typeof(IService))).Returns(new Mock<IService>().SetupAllProperties().Object);
 
             context.RequestServices = ioc.Object;
             context.Request.Method = method;
@@ -381,22 +411,27 @@ namespace RService.IO.Tests
         }
 
         private RServiceMiddleware BuildMiddleware(TestSink sink, string routePath = null, Delegate.Activator routeActivator = null,
-            RequestDelegate handler = null, IOptions<RServiceOptions> options = null, IServiceProvider serviceProvider = null)
+            RequestDelegate handler = null, IOptions<RServiceOptions> options = null, IServiceProvider serviceProvider = null,
+            IService service = null)
         {
             options = options ?? _options;
 
             var loggerFactory = new TestLoggerFactory(sink, true);
             var next = handler ?? (c => Task.FromResult<object>(null));
-            var service = new RService(options);
+            var rservice = new RService(options);
 
             serviceProvider = serviceProvider ?? new Mock<IServiceProvider>()
                 .SetupAllProperties()
                 .Object;
 
             if (!routePath.IsNullOrEmpty() && routeActivator != null)
-                service.Routes.Add(routePath, new ServiceDef { ServiceMethod = routeActivator });
+                rservice.Routes.Add(routePath, new ServiceDef
+                {
+                    ServiceMethod = routeActivator,
+                    ServiceType = service?.GetType() ?? typeof(IService)
+                });
 
-            return new RServiceMiddleware(next, loggerFactory, service, serviceProvider, options);
+            return new RServiceMiddleware(next, loggerFactory, rservice, serviceProvider, options);
         }
     }
 }

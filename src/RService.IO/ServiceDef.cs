@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using RService.IO.Abstractions;
 using Delegate = RService.IO.Abstractions.Delegate;
 

@@ -47,7 +47,7 @@ namespace RService.IO
             }
             else
             {
-                context.Features[typeof(IRServiceFeature)] = new RServiceFeature
+                var feature = new RServiceFeature
                 {
                     Metadata = serviceDef.Metadata,
                     MethodActivator = serviceDef.ServiceMethod,
@@ -55,6 +55,8 @@ namespace RService.IO
                     RequestDtoType = serviceDef.RequestDtoType,
                     ResponseDtoType = serviceDef.ResponseDtoType
                 };
+                feature.Service.Context = context;
+                context.Features[typeof(IRServiceFeature)] = feature;
 
                 try
                 {

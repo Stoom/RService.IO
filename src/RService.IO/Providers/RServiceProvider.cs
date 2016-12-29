@@ -31,9 +31,6 @@ namespace RService.IO.Providers
             var args = new List<object>();
 
 
-
-            service.Context = context;
-
             var dto = _serializationProvider.HydrateRequest(context, dtoReqType);
             if (dto != null)
                 args.Add(dto);
