@@ -1,6 +1,9 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +11,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Moq;
 using RService.IO;
 using RService.IO.Abstractions;
 using RService.IO.Tests;
@@ -23,6 +27,8 @@ namespace Rservice.IO.Tests.Integration
         private readonly HttpClient _routeClient;
         private readonly TestServer _rserviceServer;
         private readonly HttpClient _rserviceClient;
+        private readonly TestServer _rserviceAuthServer;
+        private readonly HttpClient _rserviceAuthClient;
         // ReSharper restore PrivateFieldCanBeConvertedToLocalVariable
 
         public MiddlewareTests()
@@ -33,6 +39,9 @@ namespace Rservice.IO.Tests.Integration
             _rserviceServer = new TestServer(new WebHostBuilder()
                 .UseStartup<RServiceStartup>());
             _rserviceClient = _rserviceServer.CreateClient();
+            _rserviceAuthServer = new TestServer(new WebHostBuilder()
+                .UseStartup<RServiceAuthStartup>());
+            _rserviceAuthClient = _rserviceAuthServer.CreateClient();
         }
 
         [Theory]
@@ -58,6 +67,20 @@ namespace Rservice.IO.Tests.Integration
         {
             var response = await _rserviceClient.GetAsync(SvcWithMethodRoute.RoutePath);
             response.EnsureSuccessStatusCode();
+        }
+
+        [Fact]
+        public async void E2E__HandlesAuthorizedRequest()
+        {
+            var response = await _rserviceAuthClient.GetAsync(SvcAuthRoutes.AuthorizedPath);
+            response.EnsureSuccessStatusCode();
+        }
+
+        [Fact]
+        public async void E2E__HandlesUnauthorizedRequest()
+        {
+            var response = await _rserviceAuthClient.GetAsync(SvcAuthRoutes.UnauthorizedPath);
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
         }
 
         #region Classes for testing
@@ -102,6 +125,46 @@ namespace Rservice.IO.Tests.Integration
 
             public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
             {
+                app.UseRServiceIo();
+            }
+        }
+
+        private class RServiceAuthStartup
+        {
+            public void ConfigureServices(IServiceCollection services)
+            {
+                services.AddRServiceIo(options =>
+                {
+                    options.AddServiceAssembly(typeof(SvcWithMethodRoute));
+                });
+
+                var authorizationPolicyProviderMock = new Mock<IAuthorizationPolicyProvider>().SetupAllProperties();
+
+
+                // ReSharper disable once RedundantTypeArgumentsOfMethod
+                services.AddTransient<IAuthorizationPolicyProvider>(_ => authorizationPolicyProviderMock.Object )
+                    .AddAuthorization()
+                    .AddRServiceIoAuthorization();
+            }
+
+            public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+            {
+                app.Use(async (ctx, next) =>
+                {
+                    var user = new ClaimsPrincipal(
+                        new ClaimsIdentity(new[]
+                            {
+                                new Claim("Permission", "CanViewPage"),
+                                new Claim(ClaimTypes.Role, "Administrator"),
+                                new Claim(ClaimTypes.Role, "User"),
+                                new Claim(ClaimTypes.NameIdentifier, "John")
+                            }));
+
+                    ctx.User = user;
+
+                    await next.Invoke();
+                });
+
                 app.UseRServiceIo();
             }
         }

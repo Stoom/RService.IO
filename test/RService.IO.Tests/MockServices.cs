@@ -1,4 +1,5 @@
-﻿using RService.IO.Abstractions;
+﻿using Microsoft.AspNetCore.Authorization;
+using RService.IO.Abstractions;
 
 namespace RService.IO.Tests
 {
@@ -34,6 +35,25 @@ namespace RService.IO.Tests
         public ResponseDto Put()
         {
             return new ResponseDto();
+        }
+    }
+
+    public class SvcAuthRoutes : ServiceBase
+    {
+        public const string AuthorizedPath = "/Auth";
+        public const string UnauthorizedPath = "/FailedAuth";
+
+        [Route(AuthorizedPath)]
+        [Authorize(Roles = "Administrator")]
+        public object Authorized()
+        {
+            return null;
+        }
+        [Route(UnauthorizedPath)]
+        [Authorize(Roles = "FakeRole")]
+        public object Unuthorized()
+        {
+            return null;
         }
     }
 
