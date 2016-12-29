@@ -128,7 +128,7 @@ namespace RService.IO.Tests
         {
             var service = new RService(_options);
 
-            var idents = service.Routes.Values.Select(x => x.Ident).Where(y => y != null).ToList();
+            var idents = service.Routes.Values.Select(x => x.Metadata.Ident).Where(y => y != null).ToList();
             idents.Count.Should().Be(service.Routes.Count, "Service method(s) missing ident.");
             idents.Duplicates().Should().BeEmpty();
         }
@@ -144,8 +144,8 @@ namespace RService.IO.Tests
 
             var service = new RService(_options);
 
-            service.Routes[expectedPath].Metadata.Service.Should().BeSameAs(typeof(SvcWithMethodRoute).GetTypeInfo());
-            service.Routes[expectedPath].Metadata.Method.Should().BeSameAs(expectedMethodMetadata);
+            service.Routes[expectedPath].Metadata?.Service.Should().BeSameAs(typeof(SvcWithMethodRoute).GetTypeInfo());
+            service.Routes[expectedPath].Metadata?.Method.Should().BeSameAs(expectedMethodMetadata);
         }
 
         [Fact]
@@ -159,8 +159,8 @@ namespace RService.IO.Tests
 
             var service = new RService(_options);
 
-            service.Routes[expectedPath].Metadata.Service.Should().BeSameAs(typeof(SvcWithParamRoute).GetTypeInfo());
-            service.Routes[expectedPath].Metadata.Method.Should().BeSameAs(expectedMethodMetadata);
+            service.Routes[expectedPath].Metadata?.Service.Should().BeSameAs(typeof(SvcWithParamRoute).GetTypeInfo());
+            service.Routes[expectedPath].Metadata?.Method.Should().BeSameAs(expectedMethodMetadata);
         }
 
         [Fact]

@@ -11,10 +11,6 @@ namespace RService.IO
     public struct ServiceDef
     {
         /// <summary>
-        /// The unique identifier for this <see cref="ServiceDef"/>.
-        /// </summary>
-        public string Ident;
-        /// <summary>
         /// The route.
         /// </summary>
         public RouteAttribute Route;
@@ -37,20 +33,6 @@ namespace RService.IO
         /// <summary>
         /// Metadata associated with the service and method.
         /// </summary>
-        public Metadata Metadata;
-    }
-    /// <summary>
-    /// Metadata about a RService.IO web service.
-    /// </summary>
-    public struct Metadata
-    {
-        /// <summary>
-        /// Metadata on the service.
-        /// </summary>
-        public TypeInfo Service;
-        /// <summary>
-        /// Metadata on the method.
-        /// </summary>
-        public MethodInfo Method;
+        public ServiceMetadata Metadata;
     }
 }

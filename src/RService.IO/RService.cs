@@ -71,19 +71,7 @@ namespace RService.IO
                 {
                     attr.Verbs.GetFlags().ForEach(x =>
                     {
-                        var def = new ServiceDef
-                        {
-                            Ident =  Guid.NewGuid().ToString(),
-                            Metadata = new Metadata
-                            {
-                                Service = methodType.GetTypeInfo(),
-                                Method = method
-                            },
-                            Route = attr,
-                            ServiceType = methodType,
-                            ServiceMethod = DelegateFactory.GenerateMethodCall(method),
-                            ResponseDtoType = responseType
-                        };
+                        var def = BuildServiceDef(method, methodType, attr, responseType);
                         Routes.Add(BuildCompositKey(attr.Path, x), def);
                     });
                 });
@@ -103,20 +91,7 @@ namespace RService.IO
                     var route = (RouteAttribute)a;
                     route.Verbs.GetFlags().ForEach(x =>
                     {
-                        var def = new ServiceDef
-                        {
-                            Ident = Guid.NewGuid().ToString(),
-                            Metadata = new Metadata
-                            {
-                                Service = methodType.GetTypeInfo(),
-                                Method = method
-                            },
-                            Route = route,
-                            ServiceType = methodType,
-                            ServiceMethod = DelegateFactory.GenerateMethodCall(method),
-                            RequestDtoType = paramType,
-                            ResponseDtoType = responseType
-                        };
+                        var def = BuildServiceDef(method, methodType, route, responseType, paramType);
                         Routes.Add(BuildCompositKey(route.Path, x), def);
                     });
                 });
@@ -131,6 +106,25 @@ namespace RService.IO
         protected static string CleanRoutePath(string value)
         {
             return RoutePathCleaner.Replace(value, string.Empty);
+        }
+
+        private static ServiceDef BuildServiceDef(MethodInfo method, Type service, RouteAttribute route, Type response,
+            Type request = null)
+        {
+            return new ServiceDef
+            {
+                Metadata = new ServiceMetadata
+                {
+                    Ident = Guid.NewGuid().ToString(),
+                    Service = service.GetTypeInfo(),
+                    Method = method
+                },
+                Route = route,
+                ServiceType = service,
+                ServiceMethod = DelegateFactory.GenerateMethodCall(method),
+                ResponseDtoType = response,
+                RequestDtoType = request
+            };
         }
     }
 }

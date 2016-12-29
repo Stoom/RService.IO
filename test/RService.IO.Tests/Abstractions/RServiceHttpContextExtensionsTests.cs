@@ -167,5 +167,44 @@ namespace RService.IO.Tests.Abstractions
 
             handle.Should().BeNull();
         }
+
+        [Fact]
+        public void GetMetadata__ThrowsArguementNullExceptionOnNullContext()
+        {
+            Action comparison = () => { RServiceHttpContextExtensions.GetMetadata(null); };
+
+            comparison.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void GetMetadata__GeMetadataFromRServiceFeature()
+        {
+            var expectedMetadata = new ServiceMetadata();
+
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var rserviceFeature = new RServiceFeature();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
+            rserviceFeature.Metadata = expectedMetadata;
+
+            var type = context.Object.GetMetadata();
+
+            type.Should().NotBeNull().And.Be(expectedMetadata);
+        }
+
+        [Fact]
+        public void GetMetadata__ReturnsNullIfNotRServiceFeature()
+        {
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var routingFeature = new Mock<IRoutingFeature>().SetupAllProperties();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
+
+            var handle = context.Object.GetMetadata();
+
+            handle.Should().BeNull();
+        }
     }
 }

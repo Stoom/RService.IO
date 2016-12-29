@@ -37,5 +37,14 @@ namespace RService.IO.Abstractions
             var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
             return feature?.Service;
         }
+
+        public static ServiceMetadata GetMetadata(this HttpContext context)
+        {
+
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
+            return feature?.Metadata;
+        }
     }
 }
