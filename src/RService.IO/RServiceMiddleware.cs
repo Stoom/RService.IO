@@ -71,9 +71,9 @@ namespace RService.IO
                     context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
                     // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
-                    if (exc is ApiExceptions)
+                    if (exc is ApiException)
                     {
-                        context.Response.StatusCode = (int) ((ApiExceptions) exc).StatusCode;
+                        context.Response.StatusCode = (int) ((ApiException) exc).StatusCode;
                         await context.Response.WriteAsync(exc.Message);
                     }
 

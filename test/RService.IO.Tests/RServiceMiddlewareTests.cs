@@ -182,7 +182,7 @@ namespace RService.IO.Tests
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
             provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
-                .Throws(new ApiExceptions(expectedBody, expectedStatusCode));
+                .Throws(new ApiException(expectedBody, expectedStatusCode));
 
             var routeData = BuildRouteData(routePath);
             var context = BuildContext(routeData, ctx => Task.FromResult(0));
@@ -214,7 +214,7 @@ namespace RService.IO.Tests
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
             provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
-                .Throws(new ApiExceptions(string.Empty, expectedStatusCode));
+                .Throws(new ApiException(string.Empty, expectedStatusCode));
 
             var routeData = BuildRouteData(routePath);
             var context = BuildContext(routeData, ctx => Task.FromResult(0));
@@ -347,7 +347,7 @@ namespace RService.IO.Tests
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
             provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
-                .Throws<ApiExceptions>();
+                .Throws<ApiException>();
 
             var routeData = BuildRouteData(routePath);
             var context = BuildContext(routeData, ctx => Task.FromResult(0));
@@ -361,7 +361,7 @@ namespace RService.IO.Tests
                 await middleware.Invoke(context);
             };
 
-            act.ShouldThrow<ApiExceptions>();
+            act.ShouldThrow<ApiException>();
         }
 
         private static RouteData BuildRouteData(string path)

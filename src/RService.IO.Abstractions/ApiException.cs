@@ -3,42 +3,42 @@ using System.Net;
 
 namespace RService.IO.Abstractions
 {
-    public class ApiExceptions : Exception
+    public class ApiException : Exception
     {
         public HttpStatusCode StatusCode { get; protected set; } = HttpStatusCode.InternalServerError;
 
-        public ApiExceptions()
+        public ApiException()
         {
         }
 
-        public ApiExceptions(string message)
+        public ApiException(string message)
             : base(message)
         {
         }
 
-        public ApiExceptions(HttpStatusCode statusCode)
+        public ApiException(HttpStatusCode statusCode)
         {
             StatusCode = statusCode;
         }
 
-        public ApiExceptions(string message, HttpStatusCode statusCode)
+        public ApiException(string message, HttpStatusCode statusCode)
             : base(message)
         {
             StatusCode = statusCode;
         }
 
-        public ApiExceptions(string message, Exception inner)
+        public ApiException(string message, Exception inner)
             : base(message, inner)
         {
         }
 
-        public ApiExceptions(HttpStatusCode statusCode, Exception inner)
+        public ApiException(HttpStatusCode statusCode, Exception inner)
             : base(string.Empty, inner)
         {
             StatusCode = statusCode;
         }
 
-        public ApiExceptions(string message, HttpStatusCode statusCode, Exception inner)
+        public ApiException(string message, HttpStatusCode statusCode, Exception inner)
             : base(message, inner)
         {
             StatusCode = statusCode;
