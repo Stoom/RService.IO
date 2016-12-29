@@ -171,7 +171,7 @@ namespace RService.IO.Tests.Abstractions
         [Fact]
         public void GetMetadata__ThrowsArguementNullExceptionOnNullContext()
         {
-            Action comparison = () => { RServiceHttpContextExtensions.GetMetadata(null); };
+            Action comparison = () => { RServiceHttpContextExtensions.GetServiceMetadata(null); };
 
             comparison.ShouldThrow<ArgumentNullException>();
         }
@@ -188,7 +188,7 @@ namespace RService.IO.Tests.Abstractions
             features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
             rserviceFeature.Metadata = expectedMetadata;
 
-            var type = context.Object.GetMetadata();
+            var type = context.Object.GetServiceMetadata();
 
             type.Should().NotBeNull().And.Be(expectedMetadata);
         }
@@ -202,7 +202,7 @@ namespace RService.IO.Tests.Abstractions
             context.SetupGet(x => x.Features).Returns(features.Object);
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
 
-            var handle = context.Object.GetMetadata();
+            var handle = context.Object.GetServiceMetadata();
 
             handle.Should().BeNull();
         }

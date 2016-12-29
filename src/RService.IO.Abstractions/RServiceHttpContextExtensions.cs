@@ -38,7 +38,7 @@ namespace RService.IO.Abstractions
             return feature?.Service;
         }
 
-        public static ServiceMetadata GetMetadata(this HttpContext context)
+        public static ServiceMetadata GetServiceMetadata(this HttpContext context)
         {
 
             if (context == null)

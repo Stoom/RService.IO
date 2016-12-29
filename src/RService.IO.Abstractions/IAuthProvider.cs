@@ -17,11 +17,26 @@ namespace RService.IO.Abstractions
     public interface IAuthProvider
     {
         /// <summary>
-        /// Checks AuthZ on a given endpoint.
+        /// Checks authorization on a given endpoint.
+        /// </summary>
+        /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
+        /// <param name="metadata">The endpoint <see cref="ServiceMetadata"/>.</param>
+        /// <returns>
+        /// <b>True</b> if the user is authorized for the given endpoint, else <b>False</b>.
+        /// </returns>
+        /// <remarks>
+        /// All attributes on an endpoint and class must evaluate to <b>True</b> for this to return <b>True</b>.
+        /// </remarks>
+        Task<bool> IsAuthorizedAsync(HttpContext ctx, ServiceMetadata metadata);
+
+        /// <summary>
+        /// Checks authorization on a given endpoint.
         /// </summary>
         /// <param name="ctx">The <see cref="HttpContext"/> of the request.</param>
         /// <param name="authorizationFilters">A collection of "authorized"/"allow anonymous" attributes.</param>
-        /// <returns><b>True</b> if the user is authorized for the given endpoint, else <b>False</b>.</returns>
+        /// <returns>
+        /// <b>True</b> if the user is authorized for the given endpoint, else <b>False</b>.
+        /// </returns>
         /// <remarks>
         /// All attributes on an endpoint and class must evaluate to <b>True</b> for this to return <b>True</b>.
         /// </remarks>

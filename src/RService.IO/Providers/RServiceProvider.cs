@@ -27,7 +27,10 @@ namespace RService.IO.Providers
             var service = context.GetServiceInstance();
             var activator = context.GetServiceMethodActivator();
             var dtoReqType = context.GetRequestDtoType();
+            var metadata = context.GetServiceMetadata();
             var args = new List<object>();
+
+
 
             service.Context = context;
 

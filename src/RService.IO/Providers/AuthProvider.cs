@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -30,6 +31,25 @@ namespace RService.IO.Providers
                 throw new ArgumentNullException(nameof(provider));
 
             _policyProvider = provider;
+        }
+
+        /// <inheritdoc/>
+        public Task<bool> IsAuthorizedAsync(HttpContext ctx, ServiceMetadata metadata)
+        {
+            if (ctx == null)
+                throw new ArgumentNullException(nameof(ctx));
+            if (metadata == null)
+                throw new ArgumentNullException(nameof(metadata));
+
+            var authenticationAttributes = new List<object>();
+
+            authenticationAttributes.AddRange(metadata.Service.GetCustomAttributes<AuthorizeAttribute>());
+            authenticationAttributes.AddRange(metadata.Service.GetCustomAttributes<AllowAnonymousAttribute>());
+
+            authenticationAttributes.AddRange(metadata.Method.GetCustomAttributes<AuthorizeAttribute>());
+            authenticationAttributes.AddRange(metadata.Method.GetCustomAttributes<AllowAnonymousAttribute>());
+
+            return IsAuthorizedAsync(ctx, authenticationAttributes);
         }
 
         /// <inheritdoc/>

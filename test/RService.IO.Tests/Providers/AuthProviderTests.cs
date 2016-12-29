@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -42,28 +44,46 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void IsAuthorizedAsync__ThrowsExceptionIfNullContext()
+        public void IsAuthorizedAsync_Filter__ThrowsExceptionIfNullContext()
         {
             var authProvider = GetAuthProvider(_anonymousContext);
-            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(null, null);
+            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(null, (IEnumerable<object>)null);
 
             act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("ctx");
         }
 
         [Fact]
-        public void IsAuthorizedAsync__ThrowsExceptionIfNullFilters()
+        public void IsAuthorizedAsync_Filter__ThrowsExceptionIfNullFilters()
         {
             var authProvider = GetAuthProvider(_anonymousContext);
-            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(_anonymousContext, null);
+            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(_anonymousContext, (IEnumerable<object>)null);
 
             act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("authorizationFilter");
+        }
+
+        [Fact]
+        public void IsAuthorizedAsync_Metadata__ThrowsExceptionIfNullContext()
+        {
+            var authProvider = GetAuthProvider(_anonymousContext);
+            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(null, (ServiceMetadata)null);
+
+            act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("ctx");
+        }
+
+        [Fact]
+        public void IsAuthorizedAsync_Metadata__ThrowsExceptionIfNullMetadata()
+        {
+            var authProvider = GetAuthProvider(_anonymousContext);
+            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(_anonymousContext, (ServiceMetadata)null);
+
+            act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("metadata");
         }
 
         [Fact]
         public async void IsAuthorizedAsync__AnonymousReturnsTrueForAnonymous()
         {
             var authProvider = GetAuthProvider(_anonymousContext);
-            var attributes = new[] {new AllowAnonymousAttribute()};
+            var attributes = new[] { new AllowAnonymousAttribute() };
 
             var results = await authProvider.IsAuthorizedAsync(_anonymousContext, attributes);
             results.Should().BeTrue();
@@ -73,7 +93,7 @@ namespace RService.IO.Tests.Providers
         public async void IsAuthorizedAsync__AnonymousReturnsFalseForAuthorized()
         {
             var authProvider = GetAuthProvider(_anonymousContext);
-            var attributes = new[] {new AuthorizeAttribute()};
+            var attributes = new[] { new AuthorizeAttribute() };
 
             var results = await authProvider.IsAuthorizedAsync(_anonymousContext, attributes);
             results.Should().BeFalse();
@@ -83,7 +103,7 @@ namespace RService.IO.Tests.Providers
         public async void IsAuthorizedAsync__AuthorizedRoleReturnsTrue()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
-            var attributes = new[] {new AuthorizeAttribute {Roles = "Administrator"}};
+            var attributes = new[] { new AuthorizeAttribute { Roles = "Administrator" } };
 
             var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeTrue();
@@ -93,7 +113,7 @@ namespace RService.IO.Tests.Providers
         public async void IsAuthorizedAsync__UnauthorizedRoleReturnsFalse()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
-            var attributes = new[] {new AuthorizeAttribute {Roles = "Poweruser"}};
+            var attributes = new[] { new AuthorizeAttribute { Roles = "Poweruser" } };
 
             var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeFalse();
@@ -103,7 +123,7 @@ namespace RService.IO.Tests.Providers
         public async void IsAuthorizedAsync__AuthoriedWithNoAttributes()
         {
             var authProvider = GetAuthProvider(_authorizedContext);
-            var attributes = new object[] {};
+            var attributes = new object[] { };
 
             var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeTrue();
@@ -185,6 +205,188 @@ namespace RService.IO.Tests.Providers
             results.Should().BeFalse();
         }
 
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesSingleSuccessfulMethod()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(ServiceMetadata).GetTypeInfo(),
+                Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "Single")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesSingleFailedMethod()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(ServiceMetadata).GetTypeInfo(),
+                Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "SingleFail")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesMultipleSuccessfulMethod()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(ServiceMetadata).GetTypeInfo(),
+                Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "Multiple")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesMultipleFailedMethod()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(ServiceMetadata).GetTypeInfo(),
+                Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "MultipleFail")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesSingleSuccessfulClass()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(SingleClassAuth).GetTypeInfo(),
+                Method = typeof(SingleClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesSingleFailedClass()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(SingleFailClassAuth).GetTypeInfo(),
+                Method = typeof(SingleFailClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesMultipleSuccessfulClass()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(MultipleClassAuth).GetTypeInfo(),
+                Method = typeof(MultipleClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesMultipleFailedClass()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(MultipleFailClassAuth).GetTypeInfo(),
+                Method = typeof(MultipleFailClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesSuccessfulHybrid()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(HybridAuth).GetTypeInfo(),
+                Method = typeof(HybridAuth).GetPublicMethods().Single(x => x.Name == "Any")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesMethodFailedHybrid()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(HybridAuth).GetTypeInfo(),
+                Method = typeof(HybridAuth).GetPublicMethods().Single(x => x.Name == "AnyFail")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesClassFailedHybrid()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(HybridFailAuth).GetTypeInfo(),
+                Method = typeof(HybridFailAuth).GetPublicMethods().Single(x => x.Name == "Fail")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeFalse();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesAnonymousMethodSuccessfulHybrid()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(HybridFailAuth).GetTypeInfo(),
+                Method = typeof(HybridFailAuth).GetPublicMethods().Single(x => x.Name == "Anonymous")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
+        [Fact]
+        public async void IsAuthorizedAsync_Metadata__HandlesAnonymousClassSuccessfulHybrid()
+        {
+            var authProvider = GetAuthProvider(_authorizedContext);
+            var metadata = new ServiceMetadata
+            {
+                Service = typeof(HybridAnonymousFailAuth).GetTypeInfo(),
+                Method = typeof(HybridAnonymousFailAuth).GetPublicMethods().Single(x => x.Name == "Anonymous")
+            };
+
+            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            results.Should().BeTrue();
+        }
+
         private static HttpContext GetContext(Action<ServiceCollection> registerServices, bool anonymous = false)
         {
             var basicPrincipal = new ClaimsPrincipal(
@@ -242,5 +444,116 @@ namespace RService.IO.Tests.Providers
         {
             return ctx.RequestServices.GetRequiredService<IAuthProvider>();
         }
+
+        #region  Test Classes
+        // ReSharper disable UnusedMember.Local
+        private class MethodAuth
+        {
+            [Authorize(Roles = "Administrator")]
+            public object Single()
+            {
+                return null;
+            }
+            [Authorize(Roles = "FakeRole")]
+            public object SingleFail()
+            {
+                return null;
+            }
+
+            [Authorize(Roles = "Administrator")]
+            [Authorize(Roles = "User")]
+            public object Multiple()
+            {
+                return null;
+            }
+            [Authorize(Roles = "Administrator")]
+            [Authorize(Roles = "FakeRole")]
+            public object MultipleFail()
+            {
+                return null;
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        private class SingleClassAuth
+        {
+            public object Any()
+            {
+                return null;
+            }
+        }
+
+        [Authorize(Roles = "FakeRole")]
+        private class SingleFailClassAuth
+        {
+            public object Any()
+            {
+                return null;
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "User")]
+        private class MultipleClassAuth
+        {
+            public object Any()
+            {
+                return null;
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "FakeRole")]
+        private class MultipleFailClassAuth
+        {
+            public object Any()
+            {
+                return null;
+            }
+        }
+
+        [Authorize(Roles = "Administrator")]
+        private class HybridAuth
+        {
+            [Authorize(Roles = "User")]
+            public object Any()
+            {
+                return null;
+            }
+
+            [Authorize(Roles = "FakeRole")]
+            public object AnyFail()
+            {
+                return null;
+            }
+        }
+
+        [Authorize(Roles = "FakeRole")]
+        private class HybridFailAuth
+        {
+            [AllowAnonymous]
+            public object Anonymous()
+            {
+                return null;
+            }
+
+            [Authorize(Roles = "Administrator")]
+            public object Fail()
+            {
+                return null;
+            }
+        }
+
+        [AllowAnonymous]
+        private class HybridAnonymousFailAuth
+        {
+            [Authorize(Roles = "FakeRole")]
+            public object Anonymous()
+            {
+                return null;
+            }
+        }
+        // ReSharper restore UnusedMember.Local
+        #endregion
     }
 }
