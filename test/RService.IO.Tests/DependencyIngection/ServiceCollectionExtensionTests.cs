@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
@@ -219,6 +220,35 @@ namespace RService.IO.Tests.DependencyIngection
             globalExceptionFilter.Should().BeNull();
         }
 
+        [Fact]
+        public void AddRServiceIoAuthorization__AddsRServiceProviderForIAuthProvider()
+        {
+            var services = new ServiceCollection();
+
+            services.AddAuthorization()
+                .AddRServiceIoAuthorization();
+
+            var app = BuildApplicationBuilder(services);
+            var provider = app.ApplicationServices.GetService<IAuthProvider>();
+
+            provider.Should().NotBeNull().And.BeOfType<AuthProvider>();
+        }
+
+        [Fact]
+        public void AddRServiceIoAuthorization__UserImplementationForIAuthProviderTakesPrecedence()
+        {
+            var services = new ServiceCollection();
+
+            services.AddTransient<IAuthProvider, AuthorizationProvider>()
+                .AddAuthorization()
+                .AddRServiceIoAuthorization();
+
+            var app = BuildApplicationBuilder(services);
+            var provider = app.ApplicationServices.GetService<IAuthProvider>();
+
+            provider.Should().NotBeNull().And.BeOfType<AuthorizationProvider>();
+        }
+
         private static IApplicationBuilder BuildApplicationBuilder(IServiceCollection services)
         {
             var builder = new Mock<IApplicationBuilder>();
@@ -249,5 +279,19 @@ namespace RService.IO.Tests.DependencyIngection
                 throw new NotImplementedException();
             }
         }
+
+        private class AuthorizationProvider : IAuthProvider
+        {
+            public Task<bool> IsAuthorizedAsync(HttpContext ctx, ServiceMetadata metadata)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<bool> IsAuthorizedAsync(HttpContext ctx, IEnumerable<object> authorizationFilters)
+            {
+                throw new NotImplementedException();
+            }
+        }
+        // ReSharper restore ClassNeverInstantiated.Local
     }
 }

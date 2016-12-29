@@ -49,5 +49,15 @@ namespace RService.IO.DependencyIngection
 
             return services;
         }
+
+        public static IServiceCollection AddRServiceIoAuthorization(
+            this IServiceCollection services)
+        {
+            services.AddOptions();
+
+            services.TryAddTransient<IAuthProvider, AuthProvider>();
+
+            return services;
+        }
     }
 }
