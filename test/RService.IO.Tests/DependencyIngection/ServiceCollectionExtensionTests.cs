@@ -258,7 +258,8 @@ namespace RService.IO.Tests.DependencyIngection
             return builder.Object;
         }
 
-        public class ServiceProvider : IServiceProvider
+        // ReSharper disable ClassNeverInstantiated.Local
+        private class ServiceProvider : IServiceProvider
         {
             public Task Invoke(HttpContext context)
             {
@@ -266,7 +267,7 @@ namespace RService.IO.Tests.DependencyIngection
             }
         }
 
-        public class SeralizerProvider : ISerializationProvider
+        private class SeralizerProvider : ISerializationProvider
         {
             public string ContentType { get; } = string.Empty;
             public object HydrateRequest(HttpContext ctx, Type dtoType)
