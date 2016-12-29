@@ -1,28 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using RService.IO.Abstractions;
+using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
 
 namespace RService.IO.Providers
 {
     /// <summary>
-    /// Default implementation of the <see cref="IServiceProvider"/>
+    /// Default implementation of the <see cref="Abstractions.IServiceProvider"/>
     /// </summary>
     public class RServiceProvider : IServiceProvider
     {
         private readonly ISerializationProvider _serializationProvider;
+        private readonly IAuthProvider _authProvider;
 
         /// <summary>
         /// Constructs a <see cref="RServiceProvider"/>.
         /// </summary>
         /// <param name="serializationProvider">The serialization provider.</param>
-        public RServiceProvider(ISerializationProvider serializationProvider)
+        /// <param name="authProvider">The auth provider. (Optional)</param>
+        public RServiceProvider(ISerializationProvider serializationProvider, IAuthProvider authProvider = null)
         {
             _serializationProvider = serializationProvider;
+            _authProvider = authProvider;
         }
 
         /// <inheritdoc/>
-        public Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context)
         {
             var service = context.GetServiceInstance();
             var activator = context.GetServiceMethodActivator();
@@ -30,6 +36,10 @@ namespace RService.IO.Providers
             var metadata = context.GetServiceMetadata();
             var args = new List<object>();
 
+            if (_authProvider != null && !await _authProvider.IsAuthorizedAsync(context, metadata))
+            {
+                throw new ApiException(HttpStatusCode.Forbidden);
+            }
 
             var dto = _serializationProvider.HydrateRequest(context, dtoReqType);
             if (dto != null)
@@ -38,13 +48,19 @@ namespace RService.IO.Providers
             var res = activator.Invoke(service, args.ToArray());
 
             if (ReferenceEquals(null, res))
-                return context.Response.WriteAsync(string.Empty);
+            { 
+                await context.Response.WriteAsync(string.Empty);
+                return;
+            }
             if (res.IsSimple())
-                return context.Response.WriteAsync(res.ToString());
+            {
+                await context.Response.WriteAsync(res.ToString());
+                return;
+            }
 
             var serializedRes = _serializationProvider.DehydrateResponse(res);
             context.Request.ContentType = _serializationProvider.ContentType;
-            return context.Response.WriteAsync(serializedRes);
+            await context.Response.WriteAsync(serializedRes);
         }
     }
 }

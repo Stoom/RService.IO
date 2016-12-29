@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -39,7 +41,7 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void Invoke__CallsServiceMethod()
+        public async void Invoke__CallsServiceMethod()
         {
             Init();
 
@@ -48,7 +50,7 @@ namespace RService.IO.Tests.Providers
 
             var context = BuildContext(routePath, service);
 
-            _provider.Invoke(context.Object);
+            await _provider.Invoke(context.Object);
 
             service.HasAnyBeenCalled.Should().BeTrue();
         }
@@ -132,18 +134,69 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
-        public void Invoke__SetsContextOfService()
+        public void Invoke__DoesNotThrowsExceptionIfNullAuthProvider()
         {
             Init();
 
-            var service = new SvcBase();
-            var routePath = SvcBase.Path.Substring(1);
+            var service = new SvcWithMethodRoute();
+            var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
 
-            var context = BuildContext(routePath, service, method: "PATCH");
+            // ReSharper disable once RedundantArgumentDefaultValue
+            var provider = new RServiceProvider(_serializationProvider.Object, null);
 
-            _provider.Invoke(context.Object).Wait(5000);
+            _serializationProvider.Setup(x => x.DehydrateResponse(It.IsAny<object>())).Returns(String.Empty);
+                
+            var context = BuildContext(routePath, service,
+                typeof(RequestDto), responseDto: typeof(ResponseDto),
+                method: "PUT");
 
-            service.Context.Should().Be(context.Object);
+            Action act = async () => await provider.Invoke(context.Object);
+
+            act.ShouldNotThrow<ApiException>();
+        }
+
+        [Fact]
+        public void Invoke__ThrowsExceptionIfNotAuthorized()
+        {
+            Init();
+
+            var service = new SvcWithMethodRoute();
+            var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
+
+            var authMock = new Mock<IAuthProvider>();
+            authMock.Setup(x => x.IsAuthorizedAsync(It.IsAny<HttpContext>(), It.IsAny<ServiceMetadata>()))
+                .Returns(Task.FromResult(false));
+            var provider = new RServiceProvider(_serializationProvider.Object, authMock.Object);
+
+            var context = BuildContext(routePath, service,
+                typeof(RequestDto), responseDto: typeof(ResponseDto),
+                method: "PUT");
+
+            Action act = () => provider.Invoke(context.Object).Wait(5000);
+
+            act.ShouldThrow<ApiException>().And.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        }
+
+        [Fact]
+        public void Invoke__DoesNotThrowsExceptionIfAuthorized()
+        {
+            Init();
+
+            var service = new SvcWithMethodRoute();
+            var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
+
+            var authMock = new Mock<IAuthProvider>();
+            authMock.Setup(x => x.IsAuthorizedAsync(It.IsAny<HttpContext>(), It.IsAny<ServiceMetadata>()))
+                .Returns(Task.FromResult(true));
+            var provider = new RServiceProvider(_serializationProvider.Object, authMock.Object);
+
+            var context = BuildContext(routePath, service,
+                typeof(RequestDto), responseDto: typeof(ResponseDto),
+                method: "PUT");
+
+            Action act = () => provider.Invoke(context.Object).Wait(5000);
+
+            act.ShouldNotThrow<ApiException>();
         }
 
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
