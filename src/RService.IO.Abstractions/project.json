@@ -10,6 +10,8 @@
       "microservice",
       "webservice",
       "dotnet core",
+      "api",
+      "RESTful",
       "RService.IO"
     ],
     "licenseUrl": "https://github.com/Stoom/RService.IO/blob/master/LICENSE",
