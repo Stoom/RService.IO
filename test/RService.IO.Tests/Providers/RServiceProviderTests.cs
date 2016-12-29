@@ -32,10 +32,7 @@ namespace RService.IO.Tests.Providers
                 })
             });
             _rservice = new RService(options);
-        }
 
-        private void Init()
-        {
             _serializationProvider = new Mock<ISerializationProvider>();
             _provider = new RServiceProvider(_serializationProvider.Object);
         }
@@ -43,8 +40,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public async void Invoke__CallsServiceMethod()
         {
-            Init();
-
             var service = new SvcWithMethodRoute();
             var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
 
@@ -58,8 +53,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__WritesStringResponseToContextResponse()
         {
-            Init();
-
             var service = new SvcWithMethodRoute { GetResponse = "Foobar" };
             var routePath = SvcWithMethodRoute.GetPath.Substring(1);
 
@@ -76,8 +69,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__WritesPrimitiveResponseToContextResponse()
         {
-            Init();
-
             var service = new SvcWithMethodRoute { PostResponse = 100 };
             var routePath = SvcWithMethodRoute.PostPath.Substring(1);
 
@@ -94,8 +85,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__WritesEmptyStringIfServiceMethodReturnsNull()
         {
-            Init();
-
             var service = new SvcWithMethodRoute { GetResponse = null };
             var routePath = SvcWithMethodRoute.GetPath.Substring(1);
 
@@ -112,8 +101,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__SerializesResponseDto()
         {
-            Init();
-
             const string expectedValue = "FizzBuzz";
             var service = new SvcWithMethodRoute();
             var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
@@ -136,8 +123,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__DoesNotThrowsExceptionIfNullAuthProvider()
         {
-            Init();
-
             var service = new SvcWithMethodRoute();
             var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
 
@@ -158,8 +143,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__ThrowsExceptionIfNotAuthorized()
         {
-            Init();
-
             var service = new SvcWithMethodRoute();
             var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
 
@@ -180,8 +163,6 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void Invoke__DoesNotThrowsExceptionIfAuthorized()
         {
-            Init();
-
             var service = new SvcWithMethodRoute();
             var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
 
