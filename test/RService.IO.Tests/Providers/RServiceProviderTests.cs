@@ -99,6 +99,22 @@ namespace RService.IO.Tests.Providers
         }
 
         [Fact]
+        public void Invoke__WritesEmptyStringIfServiceMethodTypeIsVoid()
+        {
+            var service = new SvcWithMethodRoute();
+            var routePath = SvcWithMethodRoute.VoidPath.Substring(1);
+
+            var context = BuildContext(routePath, service);
+            var body = context.Object.Response.Body;
+
+            _provider.Invoke(context.Object).Wait(5000);
+            body.Position = 0;
+
+            using (var reader = new StreamReader(body))
+                reader.ReadToEnd().Should().Be(string.Empty);
+        }
+
+        [Fact]
         public void Invoke__SerializesResponseDto()
         {
             const string expectedValue = "FizzBuzz";
