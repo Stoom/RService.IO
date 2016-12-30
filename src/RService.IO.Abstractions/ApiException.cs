@@ -7,7 +7,8 @@ namespace RService.IO.Abstractions
     {
         public HttpStatusCode StatusCode { get; protected set; } = HttpStatusCode.InternalServerError;
 
-        public ApiException()
+        public ApiException() :
+            base(string.Empty)
         {
         }
 
@@ -17,6 +18,7 @@ namespace RService.IO.Abstractions
         }
 
         public ApiException(HttpStatusCode statusCode)
+            : base(string.Empty)
         {
             StatusCode = statusCode;
         }
