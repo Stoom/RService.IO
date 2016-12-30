@@ -1,0 +1,39 @@
+﻿{
+  "title": "RService.IO.Abstractions",
+  "version": "0.3.0",
+
+  "packOptions": {
+    "summary": "The abstractions required for implementing a RService.IO service and routes.",
+    "releaseNotes": "Initial alpha release",
+    "owners": [ "James Stumme" ],
+    "tags": [
+      "microservice",
+      "webservice",
+      "dotnet core",
+      "api",
+      "RESTful",
+      "RService.IO"
+    ],
+    "licenseUrl": "https://github.com/Stoom/RService.IO/blob/master/LICENSE",
+    "projectUrl": "https://rservice.io",
+    "requireLicenseAcceptance": false,
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/Stoom/RService.IO"
+    }
+  },
+
+  "dependencies": {
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "Microsoft.AspNetCore.Routing.Abstractions": "1.0.0"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": [
+        "dotnet5.6",
+        "portable-net45+win8"
+      ]
+    }
+  }
+}

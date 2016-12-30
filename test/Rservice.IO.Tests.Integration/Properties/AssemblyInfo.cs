@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("RService.IO")]
+[assembly: AssemblyProduct("Rservice.IO.Tests.Integration")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -15,4 +15,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("80003da0-a02b-487a-8e22-973b5a4bf0cd")]
+[assembly: Guid("ce9393a2-ed69-4748-913b-3c11143957f5")]

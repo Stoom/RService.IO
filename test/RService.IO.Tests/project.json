@@ -9,9 +9,10 @@
     "Microsoft.AspNetCore.Http": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection": "1.0.0-*",
     "Microsoft.Extensions.Logging": "1.0.0-*",
-    "moq.netcore": "4.4.0-beta8",
+    "Microsoft.Extensions.Logging.Testing": "1.0.0-*",
     "OpenCover": "4.6.519",
-    "RService.IO": "1.0.0-*",
+    "RService.IO": "0.3.*",
+    "RService.IO.Abstractions": "0.3.*",
     "xunit": "2.2.0-*"
   },
 
@@ -26,7 +27,10 @@
         "Microsoft.NETCore.App": {
           "version": "1.0.0-*",
           "type": "platform"
-        }
+        },
+        "moq.netcore": "4.4.0-*",
+        "System.Diagnostics.TraceSource": "4.0.0-*",
+        "FluentAssertions": "4.13.0"
       }
     }
   }
