@@ -8,15 +8,15 @@ namespace RService.IO.Tests
         public const string RoutePath = "/Foobar";
         public const string GetPath = "/Foobar/Method";
         public const string PostPath = "/Foobar/Method";
+        public const string VoidPath = "/Foobar/Void";
         public bool HasAnyBeenCalled { get; set; }
         public string GetResponse { get; set; }
         public int PostResponse { get; set; }
 
         [Route(RoutePath, RestVerbs.Get)]
-        public object Any()
+        public void Any()
         {
             HasAnyBeenCalled = true;
-            return null;
         }
 
         [Route(GetPath, RestVerbs.Get)]
@@ -36,6 +36,11 @@ namespace RService.IO.Tests
         {
             return new ResponseDto();
         }
+
+        [Route(VoidPath, RestVerbs.Get)]
+        public void VoidEndpoint()
+        {
+        }
     }
 
     public class SvcAuthRoutes : ServiceBase
@@ -45,15 +50,13 @@ namespace RService.IO.Tests
 
         [Route(AuthorizedPath)]
         [Authorize(Roles = "Administrator")]
-        public object Authorized()
+        public void Authorized()
         {
-            return null;
         }
         [Route(UnauthorizedPath)]
         [Authorize(Roles = "FakeRole")]
-        public object Unuthorized()
+        public void Unuthorized()
         {
-            return null;
         }
     }
 
@@ -62,9 +65,8 @@ namespace RService.IO.Tests
         public const string Path = "/SvcBase";
 
         [Route(Path)]
-        public object Any()
+        public void Any()
         {
-            return null;
         }
     }
 
@@ -75,9 +77,8 @@ namespace RService.IO.Tests
 
         [Route(RoutePath1, RestVerbs.Get)]
         [Route(RoutePath2, RestVerbs.Get)]
-        public object Any()
+        public void Any()
         {
-            return null;
         }
     }
 
@@ -114,9 +115,8 @@ namespace RService.IO.Tests
         public const string RoutePath1 = "/Llamas/Eats";
         public const string RoutePath2 = "/Llamas/Hands";
 
-        public object Any(DtoForMultParamRoutes dto)
+        public void Any(DtoForMultParamRoutes dto)
         {
-            return null;
         }
     }
 
@@ -129,15 +129,13 @@ namespace RService.IO.Tests
         public const RestVerbs MultiMethod = RestVerbs.Get | RestVerbs.Post;
 
         [Route(PostPath, PostMethod)]
-        public object Post()
+        public void Post()
         {
-            return null;
         }
 
         [Route(MultiPath, MultiMethod)]
-        public object GetPost()
+        public void GetPost()
         {
-            return null;
         }
     }
 

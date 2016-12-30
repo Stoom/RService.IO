@@ -22,11 +22,32 @@ namespace RService.IO
 
             var instance = Expression.Parameter(typeof(object), "target");
             var arguments = Expression.Parameter(typeof(object[]), "arguments");
-            var call = Expression.Call(
-                Expression.Convert(instance, methodType),
-                method,
-                CreateParameterExpressions(method, arguments)
+
+            Expression call;
+            if (method.ReturnType != typeof(void))
+            {
+                call = Expression.Call(
+                    Expression.Convert(instance, methodType),
+                    method,
+                    CreateParameterExpressions(method, arguments)
                 );
+            }
+            else
+            {
+                // Constants
+                var nullConst = Expression.Constant(null, typeof(object));
+
+                // Return
+                var returnTarget = Expression.Label(typeof(object), "Void return target");
+                var returnLable = Expression.Label(returnTarget, nullConst);
+
+                call = Expression.Block(
+                    Expression.Call(
+                        Expression.Convert(instance, methodType),
+                        method,
+                        CreateParameterExpressions(method, arguments)),
+                    returnLable);
+            }
             var lambda = Expression.Lambda<Delegate.Activator>(
                 Expression.Convert(call, typeof(object)),
                 instance,
