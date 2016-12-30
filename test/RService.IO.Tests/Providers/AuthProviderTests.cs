@@ -211,6 +211,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(ServiceMetadata).GetTypeInfo(),
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "Single")
             };
@@ -225,6 +226,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(ServiceMetadata).GetTypeInfo(),
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "SingleFail")
             };
@@ -239,6 +241,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(ServiceMetadata).GetTypeInfo(),
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "Multiple")
             };
@@ -253,6 +256,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(ServiceMetadata).GetTypeInfo(),
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "MultipleFail")
             };
@@ -267,6 +271,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(SingleClassAuth).GetTypeInfo(),
                 Method = typeof(SingleClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
@@ -281,6 +286,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(SingleFailClassAuth).GetTypeInfo(),
                 Method = typeof(SingleFailClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
@@ -295,6 +301,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(MultipleClassAuth).GetTypeInfo(),
                 Method = typeof(MultipleClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
@@ -309,6 +316,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(MultipleFailClassAuth).GetTypeInfo(),
                 Method = typeof(MultipleFailClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
@@ -323,6 +331,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(HybridAuth).GetTypeInfo(),
                 Method = typeof(HybridAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
@@ -337,6 +346,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(HybridAuth).GetTypeInfo(),
                 Method = typeof(HybridAuth).GetPublicMethods().Single(x => x.Name == "AnyFail")
             };
@@ -351,6 +361,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(HybridFailAuth).GetTypeInfo(),
                 Method = typeof(HybridFailAuth).GetPublicMethods().Single(x => x.Name == "Fail")
             };
@@ -365,6 +376,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(HybridFailAuth).GetTypeInfo(),
                 Method = typeof(HybridFailAuth).GetPublicMethods().Single(x => x.Name == "Anonymous")
             };
@@ -379,6 +391,7 @@ namespace RService.IO.Tests.Providers
             var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
+                Ident = Guid.NewGuid().ToString(),
                 Service = typeof(HybridAnonymousFailAuth).GetTypeInfo(),
                 Method = typeof(HybridAnonymousFailAuth).GetPublicMethods().Single(x => x.Name == "Anonymous")
             };
