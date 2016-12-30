@@ -20,11 +20,15 @@ namespace RService.IO.Tests.Providers
     {
         private readonly HttpContext _anonymousContext;
         private readonly HttpContext _authorizedContext;
+        private readonly IAuthProvider _anonymousAuthProvider;
+        private readonly IAuthProvider _authorizedAuthProvider;
 
         public AuthProviderTests()
         {
             _anonymousContext = GetContext(s => s.AddTransient<IAuthProvider, AuthProvider>(), true);
             _authorizedContext = GetContext(s => s.AddTransient<IAuthProvider, AuthProvider>());
+            _anonymousAuthProvider = GetAuthProvider(_anonymousContext);
+            _authorizedAuthProvider = GetAuthProvider(_authorizedContext);
         }
 
         [Fact]
@@ -46,8 +50,7 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void IsAuthorizedAsync_Filter__ThrowsExceptionIfNullContext()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
-            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(null, (IEnumerable<object>)null);
+            Func<Task> act = async () => await _authorizedAuthProvider.IsAuthorizedAsync(null, (IEnumerable<object>)null);
 
             act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("ctx");
         }
@@ -55,8 +58,7 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void IsAuthorizedAsync_Filter__ThrowsExceptionIfNullFilters()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
-            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(_anonymousContext, (IEnumerable<object>)null);
+            Func<Task> act = async () => await _anonymousAuthProvider.IsAuthorizedAsync(_anonymousContext, (IEnumerable<object>)null);
 
             act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("authorizationFilter");
         }
@@ -64,8 +66,7 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void IsAuthorizedAsync_Metadata__ThrowsExceptionIfNullContext()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
-            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(null, (ServiceMetadata)null);
+            Func<Task> act = async () => await _anonymousAuthProvider.IsAuthorizedAsync(null, (ServiceMetadata)null);
 
             act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("ctx");
         }
@@ -73,8 +74,7 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public void IsAuthorizedAsync_Metadata__ThrowsExceptionIfNullMetadata()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
-            Func<Task> act = async () => await authProvider.IsAuthorizedAsync(_anonymousContext, (ServiceMetadata)null);
+            Func<Task> act = async () => await _anonymousAuthProvider.IsAuthorizedAsync(_anonymousContext, (ServiceMetadata)null);
 
             act.ShouldThrow<ArgumentNullException>().And.Message.Should().Contain("metadata");
         }
@@ -82,30 +82,27 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public async void IsAuthorizedAsync__AnonymousReturnsTrueForAnonymous()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
             var attributes = new[] { new AllowAnonymousAttribute() };
 
-            var results = await authProvider.IsAuthorizedAsync(_anonymousContext, attributes);
+            var results = await _anonymousAuthProvider.IsAuthorizedAsync(_anonymousContext, attributes);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__AnonymousReturnsFalseForAuthorized()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
             var attributes = new[] { new AuthorizeAttribute() };
 
-            var results = await authProvider.IsAuthorizedAsync(_anonymousContext, attributes);
+            var results = await _anonymousAuthProvider.IsAuthorizedAsync(_anonymousContext, attributes);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__AuthorizedRoleReturnsTrue()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[] { new AuthorizeAttribute { Roles = "Administrator" } };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeTrue();
         }
 
@@ -122,17 +119,15 @@ namespace RService.IO.Tests.Providers
         [Fact]
         public async void IsAuthorizedAsync__AuthoriedWithNoAttributes()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new object[] { };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__AuthorizedWithSpecifiedScheme()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[]
             {
                 new AuthorizeAttribute
@@ -142,14 +137,13 @@ namespace RService.IO.Tests.Providers
                 }
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__NotAuthorizedWithSpecifiedMissingScheme()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[]
             {
                 new AuthorizeAttribute
@@ -159,14 +153,13 @@ namespace RService.IO.Tests.Providers
                 }
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__ProvideDefaultIdentityIfClaimsFails()
         {
-            var authProvider = GetAuthProvider(_anonymousContext);
             var attributes = new[]
             {
                 new AuthorizeAttribute
@@ -177,38 +170,35 @@ namespace RService.IO.Tests.Providers
             };
 
             _anonymousContext.User.Should().BeNull();
-            await authProvider.IsAuthorizedAsync(_anonymousContext, attributes);
+            await _anonymousAuthProvider.IsAuthorizedAsync(_anonymousContext, attributes);
             _anonymousContext.User.Should().NotBeNull();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__AuthorizedWhenSpecifingMultipleRolesInSingleAttr()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[] { new AuthorizeAttribute { Roles = "Administrator, PowerUser" } };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync__AuthorizedRequireAllAttrToBeAuthorized()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var attributes = new[]
             {
                 new AuthorizeAttribute { Roles = "Administrator" },
                 new AuthorizeAttribute { Roles = "PowerUser" }
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, attributes);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, attributes);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesSingleSuccessfulMethod()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -216,14 +206,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "Single")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesSingleFailedMethod()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -231,14 +220,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "SingleFail")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesMultipleSuccessfulMethod()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -246,14 +234,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "Multiple")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesMultipleFailedMethod()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -261,14 +248,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(MethodAuth).GetPublicMethods().Single(x => x.Name == "MultipleFail")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesSingleSuccessfulClass()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -276,14 +262,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(SingleClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesSingleFailedClass()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -291,14 +276,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(SingleFailClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesMultipleSuccessfulClass()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -306,14 +290,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(MultipleClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesMultipleFailedClass()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -321,14 +304,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(MultipleFailClassAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesSuccessfulHybrid()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -336,14 +318,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(HybridAuth).GetPublicMethods().Single(x => x.Name == "Any")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesMethodFailedHybrid()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -351,14 +332,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(HybridAuth).GetPublicMethods().Single(x => x.Name == "AnyFail")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesClassFailedHybrid()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -366,14 +346,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(HybridFailAuth).GetPublicMethods().Single(x => x.Name == "Fail")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeFalse();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesAnonymousMethodSuccessfulHybrid()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -381,14 +360,13 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(HybridFailAuth).GetPublicMethods().Single(x => x.Name == "Anonymous")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
         [Fact]
         public async void IsAuthorizedAsync_Metadata__HandlesAnonymousClassSuccessfulHybrid()
         {
-            var authProvider = GetAuthProvider(_authorizedContext);
             var metadata = new ServiceMetadata
             {
                 Ident = Guid.NewGuid().ToString(),
@@ -396,7 +374,7 @@ namespace RService.IO.Tests.Providers
                 Method = typeof(HybridAnonymousFailAuth).GetPublicMethods().Single(x => x.Name == "Anonymous")
             };
 
-            var results = await authProvider.IsAuthorizedAsync(_authorizedContext, metadata);
+            var results = await _authorizedAuthProvider.IsAuthorizedAsync(_authorizedContext, metadata);
             results.Should().BeTrue();
         }
 
