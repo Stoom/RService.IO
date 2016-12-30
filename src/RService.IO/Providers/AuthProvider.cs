@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +19,7 @@ namespace RService.IO.Providers
     public class AuthProvider : IAuthProvider
     {
         private readonly IAuthorizationPolicyProvider _policyProvider;
+        private readonly ConcurrentDictionary<string, IEnumerable<object>> _cachedAuthAttributes;
 
         /// <summary>
         /// Constructs the default auth provider.
@@ -31,6 +33,7 @@ namespace RService.IO.Providers
                 throw new ArgumentNullException(nameof(provider));
 
             _policyProvider = provider;
+            _cachedAuthAttributes = new ConcurrentDictionary<string, IEnumerable<object>>();
         }
 
         /// <inheritdoc/>
@@ -41,13 +44,20 @@ namespace RService.IO.Providers
             if (metadata == null)
                 throw new ArgumentNullException(nameof(metadata));
 
-            var authenticationAttributes = new List<object>();
+            IEnumerable<object> authenticationAttributes;
 
-            authenticationAttributes.AddRange(metadata.Service.GetCustomAttributes<AuthorizeAttribute>());
-            authenticationAttributes.AddRange(metadata.Service.GetCustomAttributes<AllowAnonymousAttribute>());
+            if (!_cachedAuthAttributes.TryGetValue(metadata.Ident, out authenticationAttributes))
+            {
+                var serviceAuthAttributes = new List<object>();
+                serviceAuthAttributes.AddRange(metadata.Service.GetCustomAttributes<AuthorizeAttribute>());
+                serviceAuthAttributes.AddRange(metadata.Service.GetCustomAttributes<AllowAnonymousAttribute>());
 
-            authenticationAttributes.AddRange(metadata.Method.GetCustomAttributes<AuthorizeAttribute>());
-            authenticationAttributes.AddRange(metadata.Method.GetCustomAttributes<AllowAnonymousAttribute>());
+                serviceAuthAttributes.AddRange(metadata.Method.GetCustomAttributes<AuthorizeAttribute>());
+                serviceAuthAttributes.AddRange(metadata.Method.GetCustomAttributes<AllowAnonymousAttribute>());
+
+                _cachedAuthAttributes.TryAdd(metadata.Ident, serviceAuthAttributes);
+                authenticationAttributes = serviceAuthAttributes;
+            }
 
             return IsAuthorizedAsync(ctx, authenticationAttributes);
         }
