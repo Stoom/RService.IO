@@ -44,7 +44,7 @@
         <h3>
 <a id="welcome" class="anchor" href="#welcome" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome!</h3>
 
-<p><code>RService.IO</code> is one of the first web service frameworks for ASP.Net Core!  It was based on concepts from <code>NService</code>, better known as <code>ServiceStackv3</code>, but with a bit of a twist.  The goal is to provide a fast minimal web service framework that is best for anything from micro-services to full on APIs.</p>
+<p><code style="padding:0">RService.IO</code> is one of the first web service frameworks for ASP.Net Core!  It was based on concepts from <code style="padding:0">ASP.Net Core</code> and <code style="padding:0">NService</code>, better known as <code style="padding:0">ServiceStackv3</code>, but with a bit of a twist.  The goal is to provide a fast minimal web service framework that is best for anything from micro-services to full on APIs.</p>
 
 <h3>
 <a id="using-rserviceio" class="anchor" href="#using-rserviceio" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using RService.IO</h3>
@@ -56,7 +56,9 @@
   services.AddRServiceIo(opts =&gt; 
   {
     opts.AddServiceAssembly(<span class="pl-k">typeof</span>(FancyNewService));
-    opts.EnableDebugging = <span class="pl-c1">true</span>; <span class="pl-c">// This is optional but will display the developer exception page</span>
+
+    <span class="pl-c">// This is optional but re-throws the exceptions to be used with the developer exception page</span>
+    opts.EnableDebugging = <span class="pl-c1">true</span>;
   });
 }</pre></div>
 
@@ -66,6 +68,18 @@
 }</pre></div>
 
 <p>Then just create a service that implements <code>ServiceBase</code>.</p>
+
+<h3>
+<a id="using-rserviceio-authorization" class="anchor" href="#using-rserviceio-authorization" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorization with RService.IO</h3>
+
+<p>To use the ASP.Net Core Authorization with <code>RService.IO</code> add the following cod in the <code>Startup.cs</code>:  </p>
+
+<div class="highlight highlight-source-cs"><pre><span class="pl-k">public</span> <span class="pl-k">void</span> ConfigureService(IServiceCollection service)
+{
+  ...
+  services.AddAuthorization()
+      .AddRServiceIoAuthorization();
+}</pre></div>
 
 <h3>
 <a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h3>
