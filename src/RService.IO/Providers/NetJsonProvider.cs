@@ -19,7 +19,7 @@ namespace RService.IO.Providers
     {
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> CachedDtoProps = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
         private static readonly Dictionary<Type, Delegate.DtoCtor> CachedDtoCtors = new Dictionary<Type, Delegate.DtoCtor>();
-        private static readonly Regex JsonNoQuotes = new Regex(@"(^[\d.]+)|(^[Tt][Rr][Uu][Ee])|(^[Ff][Aa][Ll][Ss][Ee])|(^[Nn][Uu][Ll]{2})", RegexOptions.Compiled);
+        private static readonly Regex JsonNoQuotes = new Regex(@"(^-?\d+[.\d]*)|(^true)|(^false)|(^null)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <inheritdoc/>
         public string ContentType { get; } = HttpContentTypes.ApplicationJson;
