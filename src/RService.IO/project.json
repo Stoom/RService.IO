@@ -25,13 +25,11 @@
     }
   },
   "dependencies": {
-    "Microsoft.AspNetCore.Authorization": "1.0.0",
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Http": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Routing": "1.0.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "Microsoft.Extensions.SecurityHelper.Sources": "1.0.0-rtm-21431",
     "NetJSON": "1.2.1.4",
     "RService.IO.Abstractions": "0.3.*",
     "RService.IO.Authorization": "0.3.*",
