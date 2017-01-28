@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using RService.IO;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using RService.IO.Tests;
 using Xunit;
 using RService.IO.DependencyIngection;

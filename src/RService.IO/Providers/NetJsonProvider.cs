@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using Delegate = RService.IO.Abstractions.Delegate;
 
 namespace RService.IO.Providers
