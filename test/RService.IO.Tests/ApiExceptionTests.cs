@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using RService.IO.Abstractions;
 using Xunit;
