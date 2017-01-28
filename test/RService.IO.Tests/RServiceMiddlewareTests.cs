@@ -139,7 +139,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public async void Invoke_CallsProviderIfActivatorFound()
+        public async void Invoke__CallsProviderIfActivatorFound()
         {
             var routePath = "/Foobar".Substring(1);
             Delegate.Activator routeActivator = (target, args) => null;
