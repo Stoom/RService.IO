@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace RService.IO.Abstractions
 {
-    public sealed class DelegateFactory
+    public static class DelegateFactory
     {
         /// <summary>
         /// Generates a dynamic method call.
