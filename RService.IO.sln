@@ -24,6 +24,10 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Rservice.IO.Tests.Integrati
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Abstractions", "src\RService.IO.Abstractions\RService.IO.Abstractions.xproj", "{4474DEEE-06F5-4706-97A2-A437E258F485}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Authorization", "src\RService.IO.Authorization\RService.IO.Authorization.xproj", "{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Authorization.Tests", "test\RService.IO.Authorization.Tests\RService.IO.Authorization.Tests.xproj", "{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +50,14 @@ Global
 		{4474DEEE-06F5-4706-97A2-A437E258F485}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4474DEEE-06F5-4706-97A2-A437E258F485}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4474DEEE-06F5-4706-97A2-A437E258F485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,5 +67,7 @@ Global
 		{80003DA0-A02B-487A-8E22-973B5A4BF0CD} = {B748CB97-7861-4FC7-828D-11C44E540630}
 		{CE9393A2-ED69-4748-913B-3C11143957F5} = {1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}
 		{4474DEEE-06F5-4706-97A2-A437E258F485} = {B748CB97-7861-4FC7-828D-11C44E540630}
+		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B} = {B748CB97-7861-4FC7-828D-11C44E540630}
+		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7} = {1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}
 	EndGlobalSection
 EndGlobal

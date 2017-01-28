@@ -7,6 +7,7 @@
     "xunit": "2.2.0-*",
     "dotnet-test-xunit": "2.2.0-*",
     "RService.IO": "0.3.*",
+    "RService.IO.Authorization": "0.3.*",
     "RService.IO.Tests": "1.0.0-*",
     "Microsoft.AspNetCore.TestHost": "1.0.0",
     "FluentAssertions": "4.13.0"

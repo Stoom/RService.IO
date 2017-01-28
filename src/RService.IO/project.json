@@ -34,6 +34,7 @@
     "Microsoft.Extensions.SecurityHelper.Sources": "1.0.0-rtm-21431",
     "NetJSON": "1.2.1.4",
     "RService.IO.Abstractions": "0.3.*",
+    "RService.IO.Authorization": "0.3.*",
     "System.ComponentModel.Primitives": "4.1.0",
     "System.Reflection.Emit.Lightweight": "4.0.1"
   },
