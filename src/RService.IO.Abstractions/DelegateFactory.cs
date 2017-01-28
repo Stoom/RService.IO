@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Delegate = RService.IO.Abstractions.Delegate;
 
-namespace RService.IO
+namespace RService.IO.Abstractions
 {
     public sealed class DelegateFactory
     {
