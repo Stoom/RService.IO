@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace RService.IO.Abstractions
+namespace RService.IO.Abstractions.Providers
 {
     /// <summary>
     /// Supports reading request and calling user service endpoints.

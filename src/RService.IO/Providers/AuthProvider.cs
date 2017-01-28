@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO.Providers
 {

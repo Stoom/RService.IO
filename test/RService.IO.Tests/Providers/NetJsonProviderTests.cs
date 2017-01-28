@@ -12,6 +12,7 @@ using RService.IO.Abstractions;
 using RService.IO.Providers;
 using Xunit;
 using FluentAssertions;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO.Tests.Providers
 {

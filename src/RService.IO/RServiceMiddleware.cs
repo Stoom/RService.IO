@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 
 namespace RService.IO
 {

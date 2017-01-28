@@ -3,12 +3,12 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using RService.IO.Abstractions;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO.Providers
 {
     /// <summary>
-    /// Default implementation of the <see cref="Abstractions.IServiceProvider"/>
+    /// Default implementation of the <see cref="IServiceProvider"/>
     /// </summary>
     public class RServiceProvider : IServiceProvider
     {
