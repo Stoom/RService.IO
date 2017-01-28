@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace RService.IO.Abstractions
+namespace RService.IO.Abstractions.Providers
 {
     /// <summary>
     /// Determines if a service endpoint is authenticated and authorized to be executed.

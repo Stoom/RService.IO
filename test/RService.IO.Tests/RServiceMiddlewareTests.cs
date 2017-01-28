@@ -14,7 +14,7 @@ using NuGet.Packaging;
 using RService.IO.Abstractions;
 using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 using IRoutingFeature = Microsoft.AspNetCore.Routing.IRoutingFeature;
 
 namespace RService.IO.Tests

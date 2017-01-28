@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using Delegate = RService.IO.Abstractions.Delegate;
 
 namespace RService.IO.Providers
@@ -20,6 +21,7 @@ namespace RService.IO.Providers
         private static readonly Dictionary<Type, Dictionary<string, PropertyInfo>> CachedDtoProps = new Dictionary<Type, Dictionary<string, PropertyInfo>>();
         private static readonly Dictionary<Type, Delegate.DtoCtor> CachedDtoCtors = new Dictionary<Type, Delegate.DtoCtor>();
         private static readonly Regex JsonNoQuotes = new Regex(@"(^-?\d+[.\d]*)|(^true)|(^false)|(^null)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly MethodInfo JsonDeserializer = typeof(NetJSON.NetJSON).GetMethod("Deserialize", new[] { typeof(string) });
 
         /// <inheritdoc/>
         public string ContentType { get; } = HttpContentTypes.ApplicationJson;
@@ -118,7 +120,7 @@ namespace RService.IO.Providers
         private static Delegate.DtoCtor GetDtoCtorDelegate(Type dtoType)
         {
             if (!CachedDtoCtors.ContainsKey(dtoType))
-                CachedDtoCtors.Add(dtoType, DelegateFactory.GenerateDtoCtor(dtoType));
+                CachedDtoCtors.Add(dtoType, DelegateFactory.GenerateDtoCtor(dtoType, JsonDeserializer));
 
             return CachedDtoCtors[dtoType];
         }

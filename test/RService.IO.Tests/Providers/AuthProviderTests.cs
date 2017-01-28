@@ -11,6 +11,7 @@ using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authorization;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using RService.IO.Providers;
 using Xunit;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
 
-namespace RService.IO.Abstractions
+namespace RService.IO.Abstractions.Providers
 {
     /// <summary>
     /// Describes how to hydrate (deserialize), and dehydrate (serialize)

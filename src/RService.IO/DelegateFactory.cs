@@ -60,18 +60,17 @@ namespace RService.IO
         /// Generates a dynamic DTO.
         /// </summary>
         /// <param name="dtoType">The <see cref="Type"/> of the DTO to create.</param>
+        /// <param name="deserializerMethod">The <see cref="MethodInfo"/> of the generic deserializer.</param>
         /// <returns>A <see cref="Delegate.DtoCtor"/> delegate.</returns>
         /// <remarks>The results from this function should be cached.</remarks>
-        public static Delegate.DtoCtor GenerateDtoCtor(Type dtoType)
+        public static Delegate.DtoCtor GenerateDtoCtor(Type dtoType, MethodInfo deserializerMethod)
         {
             // Methods
-            var deserializeMethod = typeof(NetJSON.NetJSON)
-                .GetMethod("Deserialize", new[] { typeof(string) })
-                .MakeGenericMethod(dtoType);
+            var deserializeMethod = deserializerMethod.MakeGenericMethod(dtoType);
             var dtoCtor = dtoType.GetConstructors().First();
 
             // Properties and fields
-            var jsonParam = Expression.Parameter(typeof(string), "Json Body");
+            var bodyParam = Expression.Parameter(typeof(string), "Body");
             var reqDtoVar = Expression.Variable(dtoType, "Request Dto");
 
             // Return
@@ -86,7 +85,7 @@ namespace RService.IO
             var callExpressions = new List<Expression>
             {
                 // Deserialize or ctor
-                Expression.Assign(reqDtoVar, Expression.Call(deserializeMethod, jsonParam)),
+                Expression.Assign(reqDtoVar, Expression.Call(deserializeMethod, bodyParam)),
                 Expression.IfThen(
                     Expression.Equal(reqDtoVar, nullConst),
                     Expression.Assign(reqDtoVar, Expression.New(dtoCtor))
@@ -100,7 +99,7 @@ namespace RService.IO
 
             var lambda = Expression.Lambda<Delegate.DtoCtor>(
                 Expression.Convert(call, typeof(object)),
-                jsonParam);
+                bodyParam);
 
             return lambda.Compile();
         }

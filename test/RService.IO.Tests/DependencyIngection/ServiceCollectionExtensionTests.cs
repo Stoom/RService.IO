@@ -11,10 +11,11 @@ using Moq;
 using RService.IO.Abstractions;
 using RService.IO.DependencyIngection;
 using RService.IO.Providers;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 using Xunit;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO.Tests.DependencyIngection
 {
