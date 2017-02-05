@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
-using RService.IO.Abstractions;
+using RoutingFeature = RService.IO.Abstractions.RoutingFeature;
 
 namespace RService.IO.Router
 {

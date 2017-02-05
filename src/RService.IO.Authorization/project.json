@@ -24,7 +24,7 @@
     },
 
     "dependencies": {
-        "Microsoft.AspNetCore.Authorization": "1.0.0",
+        "Microsoft.AspNetCore.Authorization": "1.1.0",
         "Microsoft.Extensions.SecurityHelper.Sources": "1.0.0-rtm-21431",
         "RService.IO.Abstractions": "0.3.*"
     },

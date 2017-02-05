@@ -16,6 +16,7 @@ using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
 using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 using IRoutingFeature = Microsoft.AspNetCore.Routing.IRoutingFeature;
+using RoutingFeature = RService.IO.Abstractions.RoutingFeature;
 
 namespace RService.IO.Tests
 {

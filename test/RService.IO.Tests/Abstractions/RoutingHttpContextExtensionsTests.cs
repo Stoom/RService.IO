@@ -7,6 +7,7 @@ using Moq;
 using RService.IO.Abstractions;
 using Xunit;
 using RoutingHttpContextExtensions = RService.IO.Abstractions.RoutingHttpContextExtensions;
+using RoutingFeature = RService.IO.Abstractions.RoutingFeature;
 
 namespace RService.IO.Tests.Abstractions
 {

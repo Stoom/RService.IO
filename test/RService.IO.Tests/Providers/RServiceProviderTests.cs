@@ -14,6 +14,7 @@ using RService.IO.Abstractions;
 using RService.IO.Abstractions.Providers;
 using RService.IO.Providers;
 using Xunit;
+using RoutingFeature = RService.IO.Abstractions.RoutingFeature;
 
 namespace RService.IO.Tests.Providers
 {
