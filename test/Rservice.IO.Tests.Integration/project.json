@@ -9,7 +9,7 @@
     "RService.IO": "0.3.*",
     "RService.IO.Authorization": "0.3.*",
     "RService.IO.Tests": "1.0.0-*",
-    "Microsoft.AspNetCore.TestHost": "1.0.0",
+    "Microsoft.AspNetCore.TestHost": "1.1.0",
     "FluentAssertions": "4.13.0"
   },
 
@@ -22,7 +22,7 @@
 
       "dependencies": {
         "Microsoft.NETCore.App": {
-          "version": "1.0.0-*",
+          "version": "1.1.0-*",
           "type": "platform"
         }
       }
