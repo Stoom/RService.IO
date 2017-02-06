@@ -1,6 +1,6 @@
 ﻿{
   "title": "RService.IO",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "packOptions": {
     "summary": "A web service framework for dotnet core loosely based on ServiceStack v3",
     "releaseNotes": "Initial alpha release",
@@ -25,17 +25,16 @@
     }
   },
   "dependencies": {
-    "Microsoft.AspNetCore.Authorization": "1.0.0",
-    "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
-    "Microsoft.AspNetCore.Http": "1.0.0",
-    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
-    "Microsoft.AspNetCore.Routing": "1.0.0",
-    "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "Microsoft.Extensions.SecurityHelper.Sources": "1.0.0-rtm-21431",
+    "Microsoft.AspNetCore.Hosting.Abstractions": "1.1.0",
+    "Microsoft.AspNetCore.Http": "1.1.0",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.1.0",
+    "Microsoft.AspNetCore.Routing": "1.1.0",
+    "Microsoft.Extensions.DependencyInjection": "1.1.0",
     "NetJSON": "1.2.1.4",
-    "RService.IO.Abstractions": "0.3.*",
+    "RService.IO.Abstractions": "0.4.*",
+    "RService.IO.Authorization": "0.4.*",
     "System.ComponentModel.Primitives": "4.1.0",
-    "System.Reflection.Emit.Lightweight": "4.0.1"
+    "System.Reflection.Emit.Lightweight": "4.3.0"
   },
   "frameworks": {
     "netstandard1.6": {

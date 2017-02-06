@@ -12,10 +12,10 @@
         /// <returns>The service's response.</returns>
         public delegate object Activator(object target, params object[] args);
         /// <summary>
-        /// Creates a DTO based on JSON.
+        /// Creates a DTO based on a request body.
         /// </summary>
-        /// <param name="json">JSON to create DTO from.</param>
+        /// <param name="body">The request body to create DTO from.</param>
         /// <returns>The DTO.</returns>
-        public delegate object DtoCtor(string json);
+        public delegate object DtoCtor(string body);
     }
 }

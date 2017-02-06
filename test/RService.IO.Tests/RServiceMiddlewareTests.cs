@@ -14,8 +14,9 @@ using NuGet.Packaging;
 using RService.IO.Abstractions;
 using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 using IRoutingFeature = Microsoft.AspNetCore.Routing.IRoutingFeature;
+using RoutingFeature = RService.IO.Abstractions.RoutingFeature;
 
 namespace RService.IO.Tests
 {
@@ -139,7 +140,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public async void Invoke_CallsProviderIfActivatorFound()
+        public async void Invoke__CallsProviderIfActivatorFound()
         {
             var routePath = "/Foobar".Substring(1);
             Delegate.Activator routeActivator = (target, args) => null;

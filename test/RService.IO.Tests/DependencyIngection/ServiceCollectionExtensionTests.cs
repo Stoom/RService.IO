@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
@@ -11,10 +10,11 @@ using Moq;
 using RService.IO.Abstractions;
 using RService.IO.DependencyIngection;
 using RService.IO.Providers;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 using Xunit;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO.Tests.DependencyIngection
 {
@@ -220,35 +220,6 @@ namespace RService.IO.Tests.DependencyIngection
             globalExceptionFilter.Should().BeNull();
         }
 
-        [Fact]
-        public void AddRServiceIoAuthorization__AddsRServiceProviderForIAuthProvider()
-        {
-            var services = new ServiceCollection();
-
-            services.AddAuthorization()
-                .AddRServiceIoAuthorization();
-
-            var app = BuildApplicationBuilder(services);
-            var provider = app.ApplicationServices.GetService<IAuthProvider>();
-
-            provider.Should().NotBeNull().And.BeOfType<AuthProvider>();
-        }
-
-        [Fact]
-        public void AddRServiceIoAuthorization__UserImplementationForIAuthProviderTakesPrecedence()
-        {
-            var services = new ServiceCollection();
-
-            services.AddTransient<IAuthProvider, AuthorizationProvider>()
-                .AddAuthorization()
-                .AddRServiceIoAuthorization();
-
-            var app = BuildApplicationBuilder(services);
-            var provider = app.ApplicationServices.GetService<IAuthProvider>();
-
-            provider.Should().NotBeNull().And.BeOfType<AuthorizationProvider>();
-        }
-
         private static IApplicationBuilder BuildApplicationBuilder(IServiceCollection services)
         {
             var builder = new Mock<IApplicationBuilder>();
@@ -276,19 +247,6 @@ namespace RService.IO.Tests.DependencyIngection
             }
 
             public string DehydrateResponse(object resDto)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        private class AuthorizationProvider : IAuthProvider
-        {
-            public Task<bool> IsAuthorizedAsync(HttpContext ctx, ServiceMetadata metadata)
-            {
-                throw new NotImplementedException();
-            }
-
-            public Task<bool> IsAuthorizedAsync(HttpContext ctx, IEnumerable<object> authorizationFilters)
             {
                 throw new NotImplementedException();
             }

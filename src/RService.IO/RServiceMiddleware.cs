@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 
 namespace RService.IO
 {
@@ -19,19 +19,18 @@ namespace RService.IO
         private readonly IServiceProvider _serviceProvider;
         private readonly RServiceOptions _options;
 
-        public RServiceMiddleware(RequestDelegate next, ILoggerFactory logFactory, RService service, IServiceProvider serviceProvider, IOptions<RServiceOptions> options)
+        public RServiceMiddleware(RequestDelegate next, ILoggerFactory logFactory, RService service,
+            IServiceProvider serviceProvider, IOptions<RServiceOptions> options)
         {
             _next = next;
             _logger = logFactory.CreateLogger<RServiceMiddleware>();
             _service = service;
             _serviceProvider = serviceProvider;
-            _options = options?.Value;
+            _options = options.Value;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            var exceptionFilter = context.RequestServices.GetService<IExceptionFilter>();
-            
             var routeData = (context.GetRouteData()?.Routers.Count >= 3)
                 ? (context.GetRouteData()?.Routers[1] as Route)
                 : null;
@@ -77,7 +76,7 @@ namespace RService.IO
                         await context.Response.WriteAsync(exc.Message);
                     }
 
-                    exceptionFilter?.OnException(context, exc);
+                    context.RequestServices.GetService<IExceptionFilter>()?.OnException(context, exc);
                 }
             }
         }

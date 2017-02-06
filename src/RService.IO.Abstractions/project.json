@@ -1,6 +1,6 @@
 ﻿{
   "title": "RService.IO.Abstractions",
-  "version": "0.3.0",
+  "version": "0.4.0",
 
   "packOptions": {
     "summary": "The abstractions required for implementing a RService.IO service and routes.",
@@ -24,8 +24,9 @@
   },
 
   "dependencies": {
-    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
-    "Microsoft.AspNetCore.Routing.Abstractions": "1.0.0"
+    "Microsoft.AspNetCore.Http.Abstractions": "1.1.0",
+    "Microsoft.AspNetCore.Routing.Abstractions": "1.1.0",
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.1.0"
   },
 
   "frameworks": {

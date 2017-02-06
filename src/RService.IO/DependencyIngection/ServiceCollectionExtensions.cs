@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using RService.IO.Providers;
-using IServiceProvider = RService.IO.Abstractions.IServiceProvider;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 
 namespace RService.IO.DependencyIngection
 {
@@ -45,17 +46,6 @@ namespace RService.IO.DependencyIngection
             {
                 services.AddTransient(serviceType);
             }
-
-
-            return services;
-        }
-
-        public static IServiceCollection AddRServiceIoAuthorization(
-            this IServiceCollection services)
-        {
-            services.AddOptions();
-
-            services.TryAddTransient<IAuthProvider, AuthProvider>();
 
             return services;
         }

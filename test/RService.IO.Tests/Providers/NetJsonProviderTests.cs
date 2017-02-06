@@ -8,10 +8,11 @@ using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using RService.IO.Abstractions;
 using RService.IO.Providers;
 using Xunit;
 using FluentAssertions;
+using RService.IO.Abstractions.Providers;
+using RoutingFeature = RService.IO.Abstractions.RoutingFeature;
 
 namespace RService.IO.Tests.Providers
 {
