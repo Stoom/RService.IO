@@ -11,8 +11,8 @@
     "Microsoft.Extensions.Logging": "1.1.0-*",
     "Microsoft.Extensions.Logging.Testing": "1.1.0-*",
     "OpenCover": "4.6.519",
-    "RService.IO": "0.3.*",
-    "RService.IO.Abstractions": "0.3.*",
+    "RService.IO": "0.4.*",
+    "RService.IO.Abstractions": "0.4.*",
     "xunit": "2.2.0-*"
   },
 
