@@ -7,41 +7,39 @@ namespace RService.IO.Tests
 {
     public class RServiceOptionsTests
     {
+        private readonly RServiceOptions _options = new RServiceOptions();
+
         [Fact]
         public void AddServiceAsssembly__AddsAssemblyFromType()
         {
             var type = typeof(SvcWithMethodRoute);
             var asm = type.GetTypeInfo().Assembly;
-            var options = new RServiceOptions();
-            
-            options.AddServiceAssembly(type);
 
-            options.ServiceAssemblies.Should().Contain(asm);
+            _options.AddServiceAssembly(type);
+
+            _options.ServiceAssemblies.Should().Contain(asm);
         }
 
         [Fact]
         public void ServiceAssemblies__DefaultsToEmptyList()
         {
-            var options = new RServiceOptions();
 
-            options.ServiceAssemblies.Should().NotBeNull();
-            options.ServiceAssemblies.Count.Should().Be(0);
+            _options.ServiceAssemblies.Should().NotBeNull();
+            _options.ServiceAssemblies.Count.Should().Be(0);
         }
 
         [Fact]
         public void AddServiceAssembly__ThrowsExceptionOnNullType()
         {
-            var options = new RServiceOptions();
-            Action comparison = () => options.AddServiceAssembly(null);
+            Action comparison = () => _options.AddServiceAssembly(null);
             comparison.ShouldThrow<ArgumentNullException>();
         }
 
         [Fact]
         public void EnableDebugging__DefaultsToFalse()
         {
-            var options = new RServiceOptions();
+            _options.EnableDebugging.Should().BeFalse();
 
-            options.EnableDebugging.Should().BeFalse();
         }
     }
 }
