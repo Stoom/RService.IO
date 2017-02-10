@@ -28,7 +28,6 @@ namespace RService.IO.DependencyIngection
             services.AddOptions();
             services.AddRouting(routeOptions);
 
-            services.TryAddTransient<ISerializationProvider, NetJsonProvider>();
             services.TryAddTransient<IServiceProvider, RServiceProvider>();
 
             services.AddSingleton<RService>();

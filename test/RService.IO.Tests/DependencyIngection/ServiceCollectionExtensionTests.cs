@@ -104,30 +104,31 @@ namespace RService.IO.Tests.DependencyIngection
         }
 
         [Fact]
-        public void AddRServiceIo__AddsNetJsonProviderForISerializationProvider()
+        public void UseRserviceIo__DefaultSerializationProviderIsNetJsonProvider()
         {
             var services = new ServiceCollection();
-
             services.AddRServiceIo(EmptyRServiceOptions);
 
             var app = BuildApplicationBuilder(services);
-            var provider = app.ApplicationServices.GetService<ISerializationProvider>();
+            var options = app.ApplicationServices.GetService<IOptions<RServiceOptions>>();
 
-            provider.Should().NotBeNull().And.BeOfType<NetJsonProvider>();
+            options.Should().NotBeNull();
+            options.Value.Should().NotBeNull();
+            options.Value.DefaultSerializationProvider.Should().BeOfType<NetJsonProvider>();
         }
 
         [Fact]
-        public void AddRServiceIo__UserImplementationForISerializationProviderTakesPrecedence()
+        public void UseRserviceIo__DefaultSerializationProviderAddedToSerializationProviders()
         {
             var services = new ServiceCollection();
-
-            services.AddTransient<ISerializationProvider, SeralizerProvider>();
             services.AddRServiceIo(EmptyRServiceOptions);
 
             var app = BuildApplicationBuilder(services);
-            var provider = app.ApplicationServices.GetService<ISerializationProvider>();
+            var options = app.ApplicationServices.GetService<IOptions<RServiceOptions>>();
 
-            provider.Should().NotBeNull().And.BeOfType<SeralizerProvider>();
+            options.Should().NotBeNull();
+            options.Value.Should().NotBeNull();
+            options.Value.SerializationProviders.Should().ContainKey(new NetJsonProvider().ContentType);
         }
 
         [Fact]
@@ -229,6 +230,7 @@ namespace RService.IO.Tests.DependencyIngection
             return builder.Object;
         }
 
+        // ReSharper disable UnusedMember.Local
         // ReSharper disable ClassNeverInstantiated.Local
         private class ServiceProvider : IServiceProvider
         {
@@ -252,5 +254,6 @@ namespace RService.IO.Tests.DependencyIngection
             }
         }
         // ReSharper restore ClassNeverInstantiated.Local
+        // ReSharper restore UnusedMember.Local
     }
 }
