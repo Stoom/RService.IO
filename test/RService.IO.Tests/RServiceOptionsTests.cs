@@ -39,7 +39,19 @@ namespace RService.IO.Tests
         public void EnableDebugging__DefaultsToFalse()
         {
             _options.EnableDebugging.Should().BeFalse();
+        }
 
+        [Fact]
+        public void SerializationProviders__DefaultsToEmptyDictionary()
+        {
+            _options.SerializationProviders.Should().NotBeNull()
+                .And.Subject.Count.ShouldBeEquivalentTo(0);
+        }
+
+        [Fact]
+        public void DefaultSerializationProvider__DefaultsToNull()
+        {
+            _options.DefaultSerializationProvider.Should().BeNull();
         }
     }
 }
