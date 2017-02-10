@@ -24,7 +24,7 @@ namespace RService.IO.Tests
         private static readonly Action<RServiceOptions> EmptyRServieOptions = opt => { };
 
         [Fact]
-        public void UserRServiceIo__AddsRoutesToRouting()
+        public void UseRServiceIo__AddsRoutesToRouting()
         {
             IRouteBuilder routeBuilder = null;
             var route = new RouteAttribute("/Foobar");
@@ -49,7 +49,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void UserRServiceIo__AddsCustomeRoutesToRouting()
+        public void UseRServiceIo__AddsCustomeRoutesToRouting()
         {
             IRouteBuilder routeBuilder = null;
             const string expectedPath = "Llamas/Eat/Hands";
@@ -73,7 +73,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void UserRServiceIo__DefaultsEmptyRouteConfig()
+        public void UseRServiceIo__DefaultsEmptyRouteConfig()
         {
             IRouteBuilder routeBuilder = null;
 
@@ -95,7 +95,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void UserRServiceIo__EnablesRouting()
+        public void UseRServiceIo__EnablesRouting()
         {
             var services = new ServiceCollection();
             services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);
@@ -110,7 +110,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public void UserRServiceIo__EnablesRService()
+        public void UseRServiceIo__EnablesRService()
         {
             var services = new ServiceCollection();
             services.AddRServiceIo(EmptyRServieOptions, EmptyRouteOptions);

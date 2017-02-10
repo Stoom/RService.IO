@@ -4,25 +4,23 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using RService.IO.Abstractions;
 using RService.IO.Abstractions.Providers;
+using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 
 namespace RService.IO.Providers
 {
     /// <summary>
-    /// Default implementation of the <see cref="IServiceProvider"/>
+    /// Default implementation of the <see cref="Abstractions.Providers.IServiceProvider"/>
     /// </summary>
     public class RServiceProvider : IServiceProvider
     {
-        private readonly ISerializationProvider _serializationProvider;
         private readonly IAuthProvider _authProvider;
 
         /// <summary>
         /// Constructs a <see cref="RServiceProvider"/>.
         /// </summary>
-        /// <param name="serializationProvider">The serialization provider.</param>
         /// <param name="authProvider">The auth provider. (Optional)</param>
-        public RServiceProvider(ISerializationProvider serializationProvider, IAuthProvider authProvider = null)
+        public RServiceProvider(IAuthProvider authProvider = null)
         {
-            _serializationProvider = serializationProvider;
             _authProvider = authProvider;
         }
 
@@ -33,6 +31,8 @@ namespace RService.IO.Providers
             var activator = context.GetServiceMethodActivator();
             var dtoReqType = context.GetRequestDtoType();
             var metadata = context.GetServiceMetadata();
+            var reqSerializer = context.GetRequestSerializationProvider();
+            var resSerializer = context.GetResponseSerializationProvider();
             var args = new List<object>();
 
             if (_authProvider != null && !await _authProvider.IsAuthorizedAsync(context, metadata))
@@ -40,7 +40,7 @@ namespace RService.IO.Providers
                 throw new ApiException(HttpStatusCode.Forbidden);
             }
 
-            var dto = _serializationProvider.HydrateRequest(context, dtoReqType);
+            var dto = reqSerializer?.HydrateRequest(context, dtoReqType);
             if (dto != null)
                 args.Add(dto);
 
@@ -57,8 +57,8 @@ namespace RService.IO.Providers
                 return;
             }
 
-            var serializedRes = _serializationProvider.DehydrateResponse(res);
-            context.Request.ContentType = _serializationProvider.ContentType;
+            var serializedRes = resSerializer.DehydrateResponse(res);
+            context.Request.ContentType = resSerializer.ContentType;
             await context.Response.WriteAsync(serializedRes);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 
 namespace RService.IO
@@ -46,19 +48,40 @@ namespace RService.IO
             }
             else
             {
-                var feature = new RServiceFeature
-                {
-                    Metadata = serviceDef.Metadata,
-                    MethodActivator = serviceDef.ServiceMethod,
-                    Service = context.RequestServices.GetService(serviceDef.ServiceType) as IService,
-                    RequestDtoType = serviceDef.RequestDtoType,
-                    ResponseDtoType = serviceDef.ResponseDtoType
-                };
-                feature.Service.Context = context;
-                context.Features[typeof(IRServiceFeature)] = feature;
-
                 try
                 {
+                    var req = context.Request;
+
+                    if (req.ContentLength > 0 && (string.IsNullOrWhiteSpace(req.ContentType)
+                                                  || !_options.SerializationProviders.ContainsKey(req.ContentType)))
+                        throw new ApiException(HttpStatusCode.UnsupportedMediaType);
+
+                    ISerializationProvider responseSerializer = null;
+                    var acceptHeader = req.Headers["Accept"];
+                    
+                    if (acceptHeader.Count > 0 && acceptHeader.TakeWhile(header => !_options.SerializationProviders
+                            .TryGetValue(header, out responseSerializer))
+                            .Any(header => header == HttpContentTypes.Any))
+                        responseSerializer = _options.DefaultSerializationProvider;
+
+                    if (responseSerializer == null)
+                        throw new ApiException(HttpStatusCode.NotAcceptable);
+
+                    var feature = new RServiceFeature
+                    {
+                        Metadata = serviceDef.Metadata,
+                        MethodActivator = serviceDef.ServiceMethod,
+                        Service = context.RequestServices.GetService(serviceDef.ServiceType) as IService,
+                        RequestDtoType = serviceDef.RequestDtoType,
+                        ResponseDtoType = serviceDef.ResponseDtoType,
+                        RequestSerializer = req.ContentType != null
+                            ? _options.SerializationProviders[req.ContentType]
+                            : null,
+                        ResponseSerializer = responseSerializer
+                    };
+                    feature.Service.Context = context;
+                    context.Features[typeof(IRServiceFeature)] = feature;
+
                     await _serviceProvider.Invoke(context);
                 }
                 catch (Exception exc)
@@ -67,7 +90,7 @@ namespace RService.IO
                         throw;
 
                     context.Response.Clear();
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
 
                     // ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
                     if (exc is ApiException)

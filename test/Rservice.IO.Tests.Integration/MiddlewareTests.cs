@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using RService.IO;
 using RService.IO.Abstractions.Providers;
@@ -43,6 +45,10 @@ namespace Rservice.IO.Tests.Integration
             _rserviceAuthServer = new TestServer(new WebHostBuilder()
                 .UseStartup<RServiceAuthStartup>());
             _rserviceAuthClient = _rserviceAuthServer.CreateClient();
+
+            _routeClient.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
+            _rserviceClient.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
+            _rserviceAuthClient.DefaultRequestHeaders.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
         }
 
         [Theory]

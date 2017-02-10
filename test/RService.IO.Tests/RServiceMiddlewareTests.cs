@@ -9,9 +9,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Moq;
 using NuGet.Packaging;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
+using RService.IO.Providers;
 using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
 using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
@@ -26,7 +29,10 @@ namespace RService.IO.Tests
 
         public RServiceMiddlewareTests()
         {
-            _options = BuildRServiceOptions(opt => { });
+            _options = BuildRServiceOptions(opt =>
+            {
+                opt.DefaultSerializationProvider = new NetJsonProvider();
+            });
         }
 
         [Fact]
@@ -37,9 +43,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var routeData = BuildRouteData(routePath);
             var context = BuildContext(routeData);
@@ -61,9 +65,7 @@ namespace RService.IO.Tests
             Delegate.Activator routeActivator = (target, args) => null;
             var serviceMock = new Mock<IService>().SetupAllProperties();
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -84,9 +86,7 @@ namespace RService.IO.Tests
         public async void Invoke__InvokesNextIfRouteHanlderNotSet()
         {
             var hasNextInvoked = false;
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var context = BuildContext(new RouteData());
             var middleware = BuildMiddleware(sink, handler: ctx =>
@@ -105,9 +105,7 @@ namespace RService.IO.Tests
         {
             var hasNextInvoked = false;
             var routePath = "/Foobar".Substring(1);
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var context = BuildContext(new RouteData());
             var middleware = BuildMiddleware(sink, routePath, handler: ctx =>
@@ -125,9 +123,7 @@ namespace RService.IO.Tests
         public async void Invoke__LogsWhenFeatureNotAdded()
         {
             const string expectedMessage = "Request did not match any services.";
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var context = BuildContext(new RouteData());
             var middleware = BuildMiddleware(sink, handler: ctx => Task.FromResult(0));
@@ -147,9 +143,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -176,9 +170,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -208,9 +200,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -240,9 +230,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -272,9 +260,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-               TestSink.EnableWithTypeName<RServiceMiddleware>,
-               TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -309,9 +295,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-                TestSink.EnableWithTypeName<RServiceMiddleware>,
-                TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -341,9 +325,7 @@ namespace RService.IO.Tests
             var expectedFeature = new Mock<IRServiceFeature>();
             expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
 
-            var sink = new TestSink(
-                TestSink.EnableWithTypeName<RServiceMiddleware>,
-                TestSink.EnableWithTypeName<RServiceMiddleware>);
+            var sink = GetTestSink();
 
             var provider = new Mock<IServiceProvider>()
                 .SetupAllProperties();
@@ -363,6 +345,200 @@ namespace RService.IO.Tests
             };
 
             act.ShouldThrow<ApiException>();
+        }
+
+        [Fact]
+        public async void Invoke__AcceptHeaderBlankReturnsNotAcceptable()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Returns(Task.FromResult(0));
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), accept: string.Empty);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotAcceptable);
+        }
+
+        [Fact]
+        public async void Invoke__AcceptHeaderNotMachingSerialzaitonProviderReturnsNotAcceptable()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Returns(Task.FromResult(0));
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), accept: "text/foobar");
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotAcceptable);
+        }
+
+        [Fact]
+        public async void Invoke__AcceptHeaderAnyUsesDefaultProvider()
+        {
+            var routePath = "/Foobar".Substring(1);
+            const string expectedResponse = "FizzBuzz";
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var mockProvider = new Mock<ISerializationProvider>().SetupAllProperties();
+            _options.Value.DefaultSerializationProvider = mockProvider.Object;
+            mockProvider.Setup(x => x.DehydrateResponse(It.IsAny<object>())).Returns(expectedResponse);
+
+            var sink = GetTestSink();
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            var responseMessage = string.Empty;
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Callback<HttpContext>(ctx =>
+                {
+                    var serializer = ctx.GetResponseSerializationProvider();
+                    responseMessage = serializer.DehydrateResponse(null);
+                })
+                .Returns(Task.FromResult(0));
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), accept: HttpContentTypes.Any);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
+            responseMessage.ShouldAllBeEquivalentTo(expectedResponse);
+        }
+
+        [Fact]
+        public async void Invoke__AcceptHeaderSecondaryUsesSecondaryProvider()
+        {
+            var routePath = "/Foobar".Substring(1);
+            const string expectedResponse = "FizzBuzz";
+            const string mimeType = "application/foobar";
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var mockProvider = new Mock<ISerializationProvider>().SetupAllProperties();
+            _options.Value.DefaultSerializationProvider = mockProvider.Object;
+            mockProvider.Setup(x => x.DehydrateResponse(It.IsAny<object>())).Returns(expectedResponse);
+
+            var sink = GetTestSink();
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            var responseMessage = string.Empty;
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Callback<HttpContext>(ctx =>
+                {
+                    var serializer = ctx.GetResponseSerializationProvider();
+                    responseMessage = serializer.DehydrateResponse(null);
+                })
+                .Returns(Task.FromResult(0));
+
+            var foobarProvider = new Mock<ISerializationProvider>().SetupAllProperties();
+            foobarProvider.SetupGet(x => x.ContentType).Returns(mimeType);
+            foobarProvider.Setup(x => x.DehydrateResponse(It.IsAny<object>())).Returns(expectedResponse);
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), accept: mimeType);
+            var options = BuildRServiceOptions(opt =>
+            {
+                opt.DefaultSerializationProvider = new NetJsonProvider();
+                opt.SerializationProviders.Add(mimeType, foobarProvider.Object);
+            });
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator,
+                serviceProvider: provider.Object, options: options);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
+            responseMessage.ShouldAllBeEquivalentTo(expectedResponse);
+        }
+
+        [Fact]
+        public async void Invoke__MissingContenTypeReturnsUnsupportedMediaTypeWhenBodyHasContent()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), contentType: string.Empty);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+
+            using (context.Request.Body = new MemoryStream())
+            using (var sw = new StreamWriter(context.Request.Body))
+            {
+                sw.Write("Foobar");
+                sw.Flush();
+                context.Request.Body.Position = 0L;
+                context.Request.ContentLength = context.Request.Body.Length;
+
+                await middleware.Invoke(context);
+
+                context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.UnsupportedMediaType);
+            }
+        }
+
+        [Fact]
+        public async void Invoke__UnknownContenTypeReturnsUnsupportedMediaTypeWhenBodyHasContent()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), contentType: "text/foobar");
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+
+            using (context.Request.Body = new MemoryStream())
+            using (var sw = new StreamWriter(context.Request.Body))
+            {
+                sw.Write("Foobar");
+                sw.Flush();
+                context.Request.Body.Position = 0L;
+                context.Request.ContentLength = context.Request.Body.Length;
+
+                await middleware.Invoke(context);
+
+                context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.UnsupportedMediaType);
+            }
+        }
+
+        private static TestSink GetTestSink()
+        {
+            return new TestSink(
+                TestSink.EnableWithTypeName<RServiceMiddleware>,
+                TestSink.EnableWithTypeName<RServiceMiddleware>);
         }
 
         private static RouteData BuildRouteData(string path)
@@ -385,7 +561,7 @@ namespace RService.IO.Tests
         }
 
         private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET",
-            IExceptionFilter globalExceptionFilter = null, IService service = null)
+            IExceptionFilter globalExceptionFilter = null, IService service = null, string accept = null, string contentType = null)
         {
             var context = new DefaultHttpContext();
             var ioc = new Mock<System.IServiceProvider>().SetupAllProperties();
@@ -406,6 +582,8 @@ namespace RService.IO.Tests
 
             context.RequestServices = ioc.Object;
             context.Request.Method = method;
+            context.Request.Headers.Add("Accept", new StringValues(accept ?? "*/*"));
+            context.Request.ContentType = contentType ?? context.Request.ContentType;
             context.Response.Body = new MemoryStream();
 
             return context;
