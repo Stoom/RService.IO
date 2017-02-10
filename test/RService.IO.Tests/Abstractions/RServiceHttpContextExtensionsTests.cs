@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Routing;
 using Moq;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using Xunit;
 using Delegate = RService.IO.Abstractions.Delegate;
 
@@ -203,6 +204,84 @@ namespace RService.IO.Tests.Abstractions
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
 
             var handle = context.Object.GetServiceMetadata();
+
+            handle.Should().BeNull();
+        }
+
+        [Fact]
+        public void GetRequestSerializationProvider__ThrowsArguementNullExceptionOnNullContext()
+        {
+            Action comparison = () => { RServiceHttpContextExtensions.GetRequestSerializationProvider(null); };
+
+            comparison.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void GetRequestSerializationProvider__GetRequestSerializationProviderFromRServiceFeature()
+        {
+            var expectedProvider = new Mock<ISerializationProvider>();
+
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var rserviceFeature = new RServiceFeature();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
+            rserviceFeature.RequestSerializer = expectedProvider.Object;
+
+            var requestSerializationProvider = context.Object.GetRequestSerializationProvider();
+
+            requestSerializationProvider.Should().NotBeNull().And.Be(expectedProvider.Object);
+        }
+
+        [Fact]
+        public void GetRequestSerializationProvider__ReturnsNullIfNotRServiceFeature()
+        {
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var routingFeature = new Mock<IRoutingFeature>().SetupAllProperties();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
+
+            var handle = context.Object.GetRequestSerializationProvider();
+
+            handle.Should().BeNull();
+        }
+
+        [Fact]
+        public void GetResponseSerializationProvider__ThrowsArguementNullExceptionOnNullContext()
+        {
+            Action comparison = () => { RServiceHttpContextExtensions.GetResponseSerializationProvider(null); };
+
+            comparison.ShouldThrow<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void GetResponseSerializationProvider__GetResponseSerializationProviderFromRServiceFeature()
+        {
+            var expectedProvider = new Mock<ISerializationProvider>();
+
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var rserviceFeature = new RServiceFeature();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
+            rserviceFeature.ResponseSerializer = expectedProvider.Object;
+
+            var requestSerializationProvider = context.Object.GetResponseSerializationProvider();
+
+            requestSerializationProvider.Should().NotBeNull().And.Be(expectedProvider.Object);
+        }
+
+        [Fact]
+        public void GetResponseSerializationProvider__ReturnsNullIfNotRServiceFeature()
+        {
+            var context = new Mock<HttpContext>().SetupAllProperties();
+            var features = new Mock<IFeatureCollection>().SetupAllProperties();
+            var routingFeature = new Mock<IRoutingFeature>().SetupAllProperties();
+            context.SetupGet(x => x.Features).Returns(features.Object);
+            features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature.Object);
+
+            var handle = context.Object.GetResponseSerializationProvider();
 
             handle.Should().BeNull();
         }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO
 {
@@ -28,6 +29,11 @@ namespace RService.IO
         /// Assemblies containing RServiceIO services.
         /// </summary>
         public List<Assembly> ServiceAssemblies { get; set; } = new List<Assembly>();
+
+        public IDictionary<string, ISerializationProvider> SerializationProviders { get; set; } =
+            new Dictionary<string, ISerializationProvider>();
+
+        public ISerializationProvider DefaultSerializationProvider { get; set; }
 
         /// <summary>
         /// Adds an <see cref="Assembly"/> based on a service <see cref="Type"/>.

@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.AspNetCore.Http;
+using RService.IO.Abstractions.Providers;
 
 namespace RService.IO.Abstractions
 {
@@ -45,6 +46,24 @@ namespace RService.IO.Abstractions
                 throw new ArgumentNullException(nameof(context));
             var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
             return feature?.Metadata;
+        }
+
+        public static ISerializationProvider GetRequestSerializationProvider(this HttpContext context)
+        {
+
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
+            return feature?.RequestSerializer;
+        }
+
+        public static ISerializationProvider GetResponseSerializationProvider(this HttpContext context)
+        {
+
+            if (context == null)
+                throw new ArgumentNullException(nameof(context));
+            var feature = context.Features[typeof(IRServiceFeature)] as IRServiceFeature;
+            return feature?.ResponseSerializer;
         }
     }
 }

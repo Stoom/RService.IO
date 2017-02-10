@@ -32,10 +32,18 @@ namespace RService.IO.DependencyIngection
             services.TryAddTransient<IServiceProvider, RServiceProvider>();
 
             services.AddSingleton<RService>();
-            services.Configure(rserviceOptions);
+            Action<RServiceOptions> defaultOptions = opts =>
+            {
+                rserviceOptions(opts);
+
+                opts.DefaultSerializationProvider = opts.DefaultSerializationProvider ?? new NetJsonProvider();
+                if (!opts.SerializationProviders.ContainsKey(opts.DefaultSerializationProvider.ContentType))
+                    opts.SerializationProviders.Add(opts.DefaultSerializationProvider.ContentType, opts.DefaultSerializationProvider);
+            };
+            services.Configure(defaultOptions);
 
             var options = new RServiceOptions();
-            rserviceOptions(options);
+            defaultOptions(options);
 
             if (options.ExceptionFilter != null)
                 services.AddScoped(typeof(IExceptionFilter), options.ExceptionFilter.GetType());
