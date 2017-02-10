@@ -52,7 +52,7 @@ namespace RService.IO
                 {
                     var req = context.Request;
 
-                    if (req.ContentLength > 0 && (req.ContentType == null
+                    if (req.ContentLength > 0 && (string.IsNullOrWhiteSpace(req.ContentType)
                                                   || !_options.SerializationProviders.ContainsKey(req.ContentType)))
                         throw new ApiException(HttpStatusCode.UnsupportedMediaType);
 

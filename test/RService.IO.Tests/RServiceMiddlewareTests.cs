@@ -478,6 +478,62 @@ namespace RService.IO.Tests
             responseMessage.ShouldAllBeEquivalentTo(expectedResponse);
         }
 
+        [Fact]
+        public async void Invoke__MissingContenTypeReturnsUnsupportedMediaTypeWhenBodyHasContent()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), contentType: string.Empty);
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+
+            using (context.Request.Body = new MemoryStream())
+            using (var sw = new StreamWriter(context.Request.Body))
+            {
+                sw.Write("Foobar");
+                sw.Flush();
+                context.Request.Body.Position = 0L;
+                context.Request.ContentLength = context.Request.Body.Length;
+
+                await middleware.Invoke(context);
+
+                context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.UnsupportedMediaType);
+            }
+        }
+
+        [Fact]
+        public async void Invoke__UnknownContenTypeReturnsUnsupportedMediaTypeWhenBodyHasContent()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), contentType: "text/foobar");
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator);
+
+            using (context.Request.Body = new MemoryStream())
+            using (var sw = new StreamWriter(context.Request.Body))
+            {
+                sw.Write("Foobar");
+                sw.Flush();
+                context.Request.Body.Position = 0L;
+                context.Request.ContentLength = context.Request.Body.Length;
+
+                await middleware.Invoke(context);
+
+                context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.UnsupportedMediaType);
+            }
+        }
+
         private static TestSink GetTestSink()
         {
             return new TestSink(
@@ -505,7 +561,7 @@ namespace RService.IO.Tests
         }
 
         private static HttpContext BuildContext(RouteData routeData, RequestDelegate handler = null, string method = "GET",
-            IExceptionFilter globalExceptionFilter = null, IService service = null, string accept = null)
+            IExceptionFilter globalExceptionFilter = null, IService service = null, string accept = null, string contentType = null)
         {
             var context = new DefaultHttpContext();
             var ioc = new Mock<System.IServiceProvider>().SetupAllProperties();
@@ -527,6 +583,7 @@ namespace RService.IO.Tests
             context.RequestServices = ioc.Object;
             context.Request.Method = method;
             context.Request.Headers.Add("Accept", new StringValues(accept ?? "*/*"));
+            context.Request.ContentType = contentType ?? context.Request.ContentType;
             context.Response.Body = new MemoryStream();
 
             return context;
