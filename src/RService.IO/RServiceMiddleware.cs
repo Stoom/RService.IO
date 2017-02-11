@@ -58,10 +58,10 @@ namespace RService.IO
                         throw new ApiException(HttpStatusCode.UnsupportedMediaType);
 
                     ISerializationProvider responseSerializer = null;
-                    var acceptHeader = req.Headers["Accept"];
+                    var acceptHeader = req.Headers["Accept"].ToString().Split(',');
 
-                    if (acceptHeader.Count == 1 && acceptHeader.First() == string.Empty)
-                        acceptHeader = new StringValues(HttpContentTypes.Any);
+                    if (acceptHeader.Length == 1 && acceptHeader.First() == string.Empty)
+                        acceptHeader[0] = HttpContentTypes.Any;
 
                     if (acceptHeader.TakeWhile(header => !_options.SerializationProviders
                             .TryGetValue(header.Split(';')[0], out responseSerializer))
