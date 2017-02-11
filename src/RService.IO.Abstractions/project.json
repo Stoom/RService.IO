@@ -1,6 +1,6 @@
 ﻿{
   "title": "RService.IO.Abstractions",
-  "version": "0.4.4",
+  "version": "0.4.5",
 
   "packOptions": {
     "summary": "The abstractions required for implementing a RService.IO service and routes.",
