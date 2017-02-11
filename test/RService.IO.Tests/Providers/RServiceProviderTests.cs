@@ -21,8 +21,8 @@ namespace RService.IO.Tests.Providers
     public class RServiceProviderTests
     {
         private readonly RService _rservice;
-        private RServiceProvider _provider;
-        private Mock<ISerializationProvider> _serializationProvider;
+        private readonly RServiceProvider _provider;
+        private readonly Mock<ISerializationProvider> _serializationProvider;
 
         public RServiceProviderTests()
         {
@@ -36,7 +36,7 @@ namespace RService.IO.Tests.Providers
             _rservice = new RService(options);
 
             _serializationProvider = new Mock<ISerializationProvider>();
-            _provider = new RServiceProvider(_serializationProvider.Object);
+            _provider = new RServiceProvider();
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace RService.IO.Tests.Providers
 
             var context = BuildContext(routePath, service, 
                 typeof(RequestDto), responseDto: typeof(ResponseDto),
-                method: "PUT");
+                method: "PUT", provider: _serializationProvider.Object);
             var body = context.Object.Response.Body;
 
             _serializationProvider.Setup(x => x.DehydrateResponse(It.IsAny<object>()))
@@ -145,13 +145,13 @@ namespace RService.IO.Tests.Providers
             var routePath = SvcWithMethodRoute.RoutePath.Substring(1);
 
             // ReSharper disable once RedundantArgumentDefaultValue
-            var provider = new RServiceProvider(_serializationProvider.Object, null);
+            var provider = new RServiceProvider(null);
 
             _serializationProvider.Setup(x => x.DehydrateResponse(It.IsAny<object>())).Returns(String.Empty);
                 
             var context = BuildContext(routePath, service,
                 typeof(RequestDto), responseDto: typeof(ResponseDto),
-                method: "PUT");
+                method: "PUT", provider: _serializationProvider.Object);
 
             Action act = async () => await provider.Invoke(context.Object);
 
@@ -167,7 +167,7 @@ namespace RService.IO.Tests.Providers
             var authMock = new Mock<IAuthProvider>();
             authMock.Setup(x => x.IsAuthorizedAsync(It.IsAny<HttpContext>(), It.IsAny<ServiceMetadata>()))
                 .Returns(Task.FromResult(false));
-            var provider = new RServiceProvider(_serializationProvider.Object, authMock.Object);
+            var provider = new RServiceProvider(authMock.Object);
 
             var context = BuildContext(routePath, service,
                 typeof(RequestDto), responseDto: typeof(ResponseDto),
@@ -187,7 +187,7 @@ namespace RService.IO.Tests.Providers
             var authMock = new Mock<IAuthProvider>();
             authMock.Setup(x => x.IsAuthorizedAsync(It.IsAny<HttpContext>(), It.IsAny<ServiceMetadata>()))
                 .Returns(Task.FromResult(true));
-            var provider = new RServiceProvider(_serializationProvider.Object, authMock.Object);
+            var provider = new RServiceProvider(authMock.Object);
 
             var context = BuildContext(routePath, service,
                 typeof(RequestDto), responseDto: typeof(ResponseDto),
@@ -201,7 +201,8 @@ namespace RService.IO.Tests.Providers
         private Mock<HttpContext> BuildContext(string routePath, IService serviceInstance, Type requestDto = null,
             string requestBody = "", Type responseDto = null, string routeTemplate = "", 
             string contentType = "application/json", string method = "GET", 
-            Dictionary<string, object> routeValues = null, IQueryCollection query = null)
+            Dictionary<string, object> routeValues = null, IQueryCollection query = null,
+            ISerializationProvider provider = null)
         {
             RestVerbs restMethods;
             Enum.TryParse(method, true, out restMethods);
@@ -215,6 +216,7 @@ namespace RService.IO.Tests.Providers
             var features = new Mock<IFeatureCollection>().SetupAllProperties();
             var rserviceFeature = new RServiceFeature();
             var routingFeature = new RoutingFeature();
+            var serializationProvider = provider ?? new NetJsonProvider();
 
             features.Setup(x => x[typeof(IRServiceFeature)]).Returns(rserviceFeature);
             features.Setup(x => x[typeof(IRoutingFeature)]).Returns(routingFeature);
@@ -223,6 +225,8 @@ namespace RService.IO.Tests.Providers
             rserviceFeature.ResponseDtoType = responseDto;
             rserviceFeature.MethodActivator = _rservice.Routes[Utils.GetRouteKey(route, 0)].ServiceMethod;
             rserviceFeature.Service = serviceInstance;
+            rserviceFeature.RequestSerializer = serializationProvider;
+            rserviceFeature.ResponseSerializer = serializationProvider;
 
             if (!string.IsNullOrWhiteSpace(routeTemplate))
             {

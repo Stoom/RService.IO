@@ -1,5 +1,6 @@
 ﻿using System;
 using RService.IO.Abstractions;
+using RService.IO.Abstractions.Providers;
 using Delegate = RService.IO.Abstractions.Delegate;
 
 namespace RService.IO
@@ -11,5 +12,7 @@ namespace RService.IO
         public IService Service { get; set; }
         public Type RequestDtoType { get; set; }
         public Type ResponseDtoType { get; set; }
+        public ISerializationProvider RequestSerializer { get; set; }
+        public ISerializationProvider ResponseSerializer { get; set; }
     }
 }
