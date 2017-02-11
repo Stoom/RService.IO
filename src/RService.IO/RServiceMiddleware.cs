@@ -64,8 +64,8 @@ namespace RService.IO
                         acceptHeader = new StringValues(HttpContentTypes.Any);
 
                     if (acceptHeader.TakeWhile(header => !_options.SerializationProviders
-                            .TryGetValue(header, out responseSerializer))
-                            .Any(header => header == HttpContentTypes.Any))
+                            .TryGetValue(header.Split(';')[0], out responseSerializer))
+                            .Any(header => header.StartsWith( HttpContentTypes.Any)))
                         responseSerializer = _options.DefaultSerializationProvider;
 
                     if (responseSerializer == null)
