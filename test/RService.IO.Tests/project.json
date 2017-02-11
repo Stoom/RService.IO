@@ -13,6 +13,7 @@
     "OpenCover": "4.6.519",
     "RService.IO": "0.4.*",
     "RService.IO.Abstractions": "0.4.*",
+    "RService.IO.Authorization": "0.4.*",
     "xunit": "2.2.0-*"
   },
 

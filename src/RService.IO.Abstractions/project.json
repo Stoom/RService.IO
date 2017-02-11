@@ -1,6 +1,6 @@
 ﻿{
   "title": "RService.IO.Abstractions",
-  "version": "0.4.4",
+  "version": "0.4.5",
 
   "packOptions": {
     "summary": "The abstractions required for implementing a RService.IO service and routes.",
@@ -16,6 +16,7 @@
     ],
     "licenseUrl": "https://github.com/Stoom/RService.IO/blob/master/LICENSE",
     "projectUrl": "https://rservice.io",
+    "iconUrl": "https://raw.githubusercontent.com/Stoom/RService.IO/master/logos/RServiceIO%20Logo.png",
     "requireLicenseAcceptance": false,
     "repository": {
       "type": "git",
