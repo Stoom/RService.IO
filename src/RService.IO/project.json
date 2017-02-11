@@ -18,6 +18,7 @@
     ],
     "licenseUrl": "https://github.com/Stoom/RService.IO/blob/master/LICENSE",
     "projectUrl": "https://rservice.io",
+    "iconUrl": "https://raw.githubusercontent.com/Stoom/RService.IO/master/logos/RServiceIO%20Logo.png",
     "requireLicenseAcceptance": false,
     "repository": {
       "type": "git",
