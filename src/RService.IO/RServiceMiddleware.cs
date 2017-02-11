@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using RService.IO.Abstractions;
 using RService.IO.Abstractions.Providers;
 using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
@@ -58,8 +59,11 @@ namespace RService.IO
 
                     ISerializationProvider responseSerializer = null;
                     var acceptHeader = req.Headers["Accept"];
-                    
-                    if (acceptHeader.Count > 0 && acceptHeader.TakeWhile(header => !_options.SerializationProviders
+
+                    if (acceptHeader.Count == 1 && acceptHeader.First() == string.Empty)
+                        acceptHeader = new StringValues(HttpContentTypes.Any);
+
+                    if (acceptHeader.TakeWhile(header => !_options.SerializationProviders
                             .TryGetValue(header, out responseSerializer))
                             .Any(header => header == HttpContentTypes.Any))
                         responseSerializer = _options.DefaultSerializationProvider;
