@@ -372,6 +372,62 @@ namespace RService.IO.Tests
         }
 
         [Fact]
+        public async void Invoke__AcceptHeaderAnyWithQualityReturnsOk()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Returns(Task.FromResult(0));
+
+            var routeData = BuildRouteData(routePath);
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), accept: "*/*;q=0.8");
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async void Invoke__AcceptHeaderWithQualityReturnsOk()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedFeature = new Mock<IRServiceFeature>();
+            expectedFeature.SetupGet(x => x.MethodActivator).Returns(routeActivator);
+
+            var sink = GetTestSink();
+
+            var provider = new Mock<IServiceProvider>()
+                .SetupAllProperties();
+            provider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                .Returns(Task.FromResult(0));
+
+            var routeData = BuildRouteData(routePath);
+            var options = BuildRServiceOptions(opt =>
+            {
+                var json = new NetJsonProvider();
+                opt.DefaultSerializationProvider = json;
+                opt.SerializationProviders.Add(json.ContentType, json);
+            });
+            var context = BuildContext(routeData, ctx => Task.FromResult(0),
+                accept: $"{new NetJsonProvider().ContentType};q=0.8");
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, serviceProvider: provider.Object,
+                options: options);
+
+            await middleware.Invoke(context);
+
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
+        }
+
+        [Fact]
         public async void Invoke__AcceptHeaderNotMachingSerialzaitonProviderReturnsNotAcceptable()
         {
             var routePath = "/Foobar".Substring(1);

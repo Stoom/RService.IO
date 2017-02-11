@@ -1,6 +1,6 @@
 ﻿{
   "title": "RService.IO",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "packOptions": {
     "summary": "A web service framework for dotnet core loosely based on ServiceStack v3",
     "releaseNotes": "Initial alpha release",

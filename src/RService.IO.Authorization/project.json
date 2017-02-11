@@ -1,6 +1,6 @@
 ﻿{
     "title": "RService.IO.Authorization",
-    "version": "0.4.2",
+    "version": "0.4.3",
 
     "packOptions": {
         "summary": "RService.IO authorization provider.",
