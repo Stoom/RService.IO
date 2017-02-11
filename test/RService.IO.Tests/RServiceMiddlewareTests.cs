@@ -348,7 +348,7 @@ namespace RService.IO.Tests
         }
 
         [Fact]
-        public async void Invoke__AcceptHeaderBlankReturnsNotAcceptable()
+        public async void Invoke__AcceptHeaderBlankReturnsOk()
         {
             var routePath = "/Foobar".Substring(1);
             Delegate.Activator routeActivator = (target, args) => null;
@@ -368,7 +368,7 @@ namespace RService.IO.Tests
 
             await middleware.Invoke(context);
 
-            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.NotAcceptable);
+            context.Response.StatusCode.ShouldBeEquivalentTo(HttpStatusCode.OK);
         }
 
         [Fact]
