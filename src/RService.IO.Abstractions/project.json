@@ -1,6 +1,6 @@
 ﻿{
   "title": "RService.IO.Abstractions",
-  "version": "0.4.5",
+  "version": "0.4.6",
 
   "packOptions": {
     "summary": "The abstractions required for implementing a RService.IO service and routes.",
@@ -31,7 +31,7 @@
   },
 
   "frameworks": {
-    "netstandard1.6": {
+    "netstandard1.3": {
       "imports": [
         "dotnet5.6",
         "portable-net45+win8"
