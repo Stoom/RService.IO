@@ -1,14 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B748CB97-7861-4FC7-828D-11C44E540630}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{64F366F9-AA78-455D-B3C7-94B9F14814AA}"
 	ProjectSection(SolutionItems) = preProject
 		appveyor.yml = appveyor.yml
-		global.json = global.json
 		LICENSE = LICENSE
 		NuGet.config = NuGet.config
 		README.md = README.md
@@ -16,17 +15,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Tests", "test\RService.IO.Tests\RService.IO.Tests.xproj", "{29E250BF-7D21-4B2D-81DD-F527C0CC3286}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RService.IO.Tests", "test\RService.IO.Tests\RService.IO.Tests.csproj", "{29E250BF-7D21-4B2D-81DD-F527C0CC3286}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO", "src\RService.IO\RService.IO.xproj", "{80003DA0-A02B-487A-8E22-973B5A4BF0CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RService.IO", "src\RService.IO\RService.IO.csproj", "{80003DA0-A02B-487A-8E22-973B5A4BF0CD}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Rservice.IO.Tests.Integration", "test\Rservice.IO.Tests.Integration\Rservice.IO.Tests.Integration.xproj", "{CE9393A2-ED69-4748-913B-3C11143957F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rservice.IO.Tests.Integration", "test\Rservice.IO.Tests.Integration\Rservice.IO.Tests.Integration.csproj", "{CE9393A2-ED69-4748-913B-3C11143957F5}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Abstractions", "src\RService.IO.Abstractions\RService.IO.Abstractions.xproj", "{4474DEEE-06F5-4706-97A2-A437E258F485}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RService.IO.Abstractions", "src\RService.IO.Abstractions\RService.IO.Abstractions.csproj", "{4474DEEE-06F5-4706-97A2-A437E258F485}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Authorization", "src\RService.IO.Authorization\RService.IO.Authorization.xproj", "{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RService.IO.Authorization", "src\RService.IO.Authorization\RService.IO.Authorization.csproj", "{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "RService.IO.Authorization.Tests", "test\RService.IO.Authorization.Tests\RService.IO.Authorization.Tests.xproj", "{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RService.IO.Authorization.Tests", "test\RService.IO.Authorization.Tests\RService.IO.Authorization.Tests.csproj", "{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8183F92D-35F0-4362-896B-9BEEFE2EC1D0}"
+	ProjectSection(SolutionItems) = preProject
+		build\common.props = build\common.props
+		build\dependencies.props = build\dependencies.props
+		build\version.props = build\version.props
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,5 +75,6 @@ Global
 		{4474DEEE-06F5-4706-97A2-A437E258F485} = {B748CB97-7861-4FC7-828D-11C44E540630}
 		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B} = {B748CB97-7861-4FC7-828D-11C44E540630}
 		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7} = {1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}
+		{8183F92D-35F0-4362-896B-9BEEFE2EC1D0} = {64F366F9-AA78-455D-B3C7-94B9F14814AA}
 	EndGlobalSection
 EndGlobal

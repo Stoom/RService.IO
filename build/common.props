@@ -1,0 +1,22 @@
+﻿<Project>
+  <Import Project="dependencies.props" />
+  <Import Project="version.props" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageTags>microservice;webservice;dotnet core;api;RESTful;RService.IO</PackageTags>
+    <PackageReleaseNotes>Initial alpha release</PackageReleaseNotes>
+    <PackageIconUrl>https://raw.githubusercontent.com/Stoom/RService.IO/master/logos/RServiceIO%20Logo.png</PackageIconUrl>
+    <PackageProjectUrl>https://rservice.io</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/Stoom/RService.IO/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Stoom/RService.IO</RepositoryUrl>
+  </PropertyGroup>
+</Project>
