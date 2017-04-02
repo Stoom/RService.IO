@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\common.props" />
+
+  <PropertyGroup>
+    <AssemblyTitle>RService.IO.Authorization</AssemblyTitle>
+    <AssemblyName>RService.IO.Authorization</AssemblyName>
+    <PackageId>RService.IO.Authorization</PackageId>
+    
+    <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;portable-net45+win8</PackageTargetFallback>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RService.IO.Abstractions\RService.IO.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>

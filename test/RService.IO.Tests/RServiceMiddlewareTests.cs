@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using NuGet.Packaging;
 using RService.IO.Abstractions;
 using RService.IO.Abstractions.Providers;
 using RService.IO.Providers;
@@ -628,7 +627,9 @@ namespace RService.IO.Tests
             var resolver = new Mock<IInlineConstraintResolver>();
             var route = new Route(routeTarget.Object, path, resolver.Object);
             var routeData = new RouteData();
-            routeData.Routers.AddRange(new[] { null, route, null });
+            routeData.Routers.Add(null);
+            routeData.Routers.Add(route);
+            routeData.Routers.Add(null);
 
             return routeData;
         }

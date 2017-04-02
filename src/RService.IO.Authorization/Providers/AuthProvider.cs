@@ -93,7 +93,7 @@ namespace RService.IO.Authorization.Providers
                     var result = await ctx.Authentication.AuthenticateAsync(scheme);
                     if (result != null)
                     {
-                        newPrincipal = SecurityHelper.MergeUserPrincipal(newPrincipal, result);
+                        newPrincipal = MergeUserPrincipal(newPrincipal, result);
                     }
                 }
                 // If all schemes failed authentication, provide a default identity anyways
@@ -105,5 +105,19 @@ namespace RService.IO.Authorization.Providers
             // Note: Default Anonymous User is new ClaimsPrincipal(new ClaimsIdentity())
             return await authService.AuthorizeAsync(ctx.User, effectivePolicy);
         }
+
+        public static ClaimsPrincipal MergeUserPrincipal(ClaimsPrincipal existingPrincipal, ClaimsPrincipal additionalPrincipal)
+         {
+             var newPrincipal = new ClaimsPrincipal();
+             // New principal identities go first
+             newPrincipal.AddIdentities(additionalPrincipal.Identities);
+ 
+             // Then add any existing non empty or authenticated identities
+             if (existingPrincipal != null)
+             {
+                 newPrincipal.AddIdentities(existingPrincipal.Identities.Where(i => i.IsAuthenticated || i.Claims.Any()));
+             }
+             return newPrincipal;
+         }
     }
 }

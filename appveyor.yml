@@ -1,4 +1,4 @@
-version: '0.1.1-{build}'
+version: '1.0.0-{build}'
 configuration:
 - Release
 platform: Any CPU
@@ -12,23 +12,35 @@ environment:
 pull_requests:
   do_not_increment_build_number: true
 init:
-- ps: $Env:LABEL = $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+- ps: $Env:LABEL = "pre-${Env:APPVEYOR_BUILD_NUMBER}"
 before_build:
 - appveyor-retry dotnet restore -v Minimal
 build_script:
-- dotnet build "src\RService.IO" -c %CONFIGURATION% --version-suffix %LABEL%
-- dotnet build "src\RService.IO.Abstractions" -c %CONFIGURATION% --version-suffix %LABEL%
-- dotnet build "src\RService.IO.Authorization" -c %CONFIGURATION% --version-suffix %LABEL%
+- dotnet build "src\RService.IO" -c %CONFIGURATION%
+- dotnet build "src\RService.IO.Abstractions" -c %CONFIGURATION%
+- dotnet build "src\RService.IO.Authorization" -c %CONFIGURATION%
 test_script:
-  - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Tests" -register:user -filter:"+[RService.IO*]* -[RService.IO.Tests*]*" -output:coverage.xml -oldStyle'
-  - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Authorization.Tests" -register:user -filter:"+[RService.IO*]* -[RService.IO.Authorization.Tests*]*" -mergeoutput -output:coverage.xml -oldStyle'
-  - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Tests.Integration" -register:user -filter:"+[RService.IO*]* -[RService.IO.Tests*]*" -mergeoutput -output:coverage.xml -oldStyle'
+  - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Tests\RService.IO.Tests.csproj" -register:user -filter:"+[RService.IO*]* -[RService.IO.Tests*]*" -output:coverage.xml -oldStyle'
+  - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Authorization.Tests\RService.IO.Authorization.Tests.csproj" -register:user -filter:"+[RService.IO*]* -[RService.IO.Authorization.Tests*]*" -mergeoutput -output:coverage.xml -oldStyle'
+  - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\OpenCover\4.6.519\tools\OpenCover.Console.exe "-target:C:\Program Files\dotnet\dotnet.exe" -targetargs:"test .\test\RService.IO.Tests.Integration\RService.IO.Tests.Integration.csproj" -register:user -filter:"+[RService.IO*]* -[RService.IO.Tests*]*" -mergeoutput -output:coverage.xml -oldStyle'
   - ps: '& ${env:homedrive}${env:homepath}\.nuget\packages\coveralls.io\1.3.4\tools\coveralls.net.exe --opencover coverage.xml'
   - ps: pip install codecov;  codecov -f coverage.xml -X gcov
 after_test:
-  - ps: dotnet pack "src\RService.IO" -c ${env:CONFIGUREATION} --no-build --version-suffix ${env:LABEL} -o artifacts
-  - ps: dotnet pack "src\RService.IO.Abstractions" -c ${env:CONFIGUREATION} --no-build --version-suffix ${env:LABEL} -o artifacts
-  - ps: dotnet pack "src\RService.IO.Authorization" -c ${env:CONFIGUREATION} --no-build --version-suffix ${env:LABEL} -o artifacts
+  - ps: |
+      if ($env:APPVEYOR_REPO_BRANCH -eq "master")
+      {
+        echo building master release
+        dotnet pack .\src\RService.IO\RService.IO.csproj -c ${env:CONFIGUREATION} -o artifacts
+        dotnet pack .\src\RService.IO.Abstractions\RService.IO.Abstractions.csproj -c ${env:CONFIGUREATION} -o artifacts
+        dotnet pack .\src\RService.IO.Authorization\RService.IO.Authorization.csproj -c ${env:CONFIGUREATION} -o artifacts
+      }
+      else
+      {
+        echo "build ${env:LABEL}"
+        dotnet pack .\src\RService.IO.Abstractions\RService.IO.Abstractions.csproj -c ${env:CONFIGURATION} -o artifacts --version-suffix "pre-${env:APPVEYOR_BUILD_NUMBER}"
+        dotnet pack .\src\RService.IO\RService.IO.csproj -c ${env:CONFIGURATION} -o artifacts --version-suffix "pre-${env:APPVEYOR_BUILD_NUMBER}"
+        dotnet pack .\src\RService.IO.Authorization\RService.IO.Authorization.csproj -c ${env:CONFIGURATION} -o artifacts --version-suffix "pre-${env:APPVEYOR_BUILD_NUMBER}"
+      }
 artifacts:
   - path: '**/RService.IO.*.nupkg'
     name: NuGet Package
