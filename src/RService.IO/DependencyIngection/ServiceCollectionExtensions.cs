@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using RService.IO.Abstractions;
-using RService.IO.Abstractions.Providers;
 using RService.IO.Providers;
 using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
 

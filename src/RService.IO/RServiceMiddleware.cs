@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using RService.IO.Abstractions;
 using RService.IO.Abstractions.Providers;
 using IServiceProvider = RService.IO.Abstractions.Providers.IServiceProvider;
@@ -80,7 +79,7 @@ namespace RService.IO
                         ResponseDtoType = serviceDef.ResponseDtoType,
                         RequestSerializer = req.ContentType != null
                             ? _options.SerializationProviders[req.ContentType]
-                            : null,
+                            : _options.DefaultSerializationProvider,
                         ResponseSerializer = responseSerializer
                     };
                     feature.Service.Context = context;

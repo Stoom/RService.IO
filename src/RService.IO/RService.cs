@@ -69,10 +69,10 @@ namespace RService.IO
                 var responseType = method.ReturnType;
                 attrs.ForEach(attr =>
                 {
-                    attr.Verbs.GetFlags().ForEach(x =>
+                    attr.Verbs.GetFlags().ForEach(verb =>
                     {
                         var def = BuildServiceDef(method, methodType, attr, responseType);
-                        Routes.Add(BuildCompositKey(attr.Path, x), def);
+                        Routes.Add(BuildCompositKey(attr.Path, verb), def);
                     });
                 });
             });
@@ -86,13 +86,13 @@ namespace RService.IO
                 var paramType = method.GetParamWithAttribute<RouteAttribute>();
                 var responseType = method.ReturnType;
                 var attrs = paramType?.GetAttributes<RouteAttribute>().ToList();
-                attrs?.ForEach(a =>
+                attrs?.ForEach(attr =>
                 {
-                    var route = (RouteAttribute)a;
-                    route.Verbs.GetFlags().ForEach(x =>
+                    var route = (RouteAttribute)attr;
+                    route.Verbs.GetFlags().ForEach(verb =>
                     {
                         var def = BuildServiceDef(method, methodType, route, responseType, paramType);
-                        Routes.Add(BuildCompositKey(route.Path, x), def);
+                        Routes.Add(BuildCompositKey(route.Path, verb), def);
                     });
                 });
             });
