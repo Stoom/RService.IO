@@ -29,7 +29,7 @@ after_test:
   - ps: |
       if ($env:APPVEYOR_REPO_BRANCH -eq "master")
       {
-        echo "building master release""
+        echo "building master release"
         dotnet pack .\src\RService.IO.Abstractions\RService.IO.Abstractions.csproj -c ${env:CONFIGURATION} -o artifacts
         dotnet pack .\src\RService.IO\RService.IO.csproj -c ${env:CONFIGURATION} -o artifacts
         dotnet pack .\src\RService.IO.Authorization\RService.IO.Authorization.csproj -c ${env:CONFIGURATION} -o artifacts
