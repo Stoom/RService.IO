@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using NuGet.Packaging;
 using RService.IO.Abstractions;
 using RService.IO.Abstractions.Providers;
 using RService.IO.Providers;
@@ -74,7 +73,7 @@ namespace RService.IO.Tests
 
             var routeData = BuildRouteData(routePath);
             var context = BuildContext(routeData, ctx => Task.FromResult(0), service: serviceMock.Object);
-            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, 
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator,
                 serviceProvider: provider.Object, service: serviceMock.Object);
 
             await middleware.Invoke(context);
@@ -615,6 +614,31 @@ namespace RService.IO.Tests
             }
         }
 
+        [Fact]
+        public async Task Invoke__EmptyBodyContentSetsContentTypeToDefaultProvider()
+        {
+            var routePath = "/Foobar".Substring(1);
+            Delegate.Activator routeActivator = (target, args) => null;
+            var expectedSerializationProvider = new Mock<ISerializationProvider>().SetupAllProperties();
+            expectedSerializationProvider.SetupGet(x => x.ContentType).Returns("text/foobar");
+
+            var sink = GetTestSink();
+
+            var routeData = BuildRouteData(routePath);
+            var options = BuildRServiceOptions(opts =>
+            {
+                opts.DefaultSerializationProvider = expectedSerializationProvider.Object;
+                opts.SerializationProviders.Add(opts.DefaultSerializationProvider.ContentType, opts.DefaultSerializationProvider);
+            });
+            var context = BuildContext(routeData, ctx => Task.FromResult(0), contentType: "text/foobar");
+            var middleware = BuildMiddleware(sink, $"{routePath}:GET", routeActivator, options: options);
+
+            await middleware.Invoke(context);
+
+            context.Features[typeof(IRServiceFeature)].As<IRServiceFeature>().RequestSerializer.ContentType
+                .ShouldAllBeEquivalentTo(expectedSerializationProvider.Object.ContentType);
+        }
+
         private static TestSink GetTestSink()
         {
             return new TestSink(
@@ -628,7 +652,9 @@ namespace RService.IO.Tests
             var resolver = new Mock<IInlineConstraintResolver>();
             var route = new Route(routeTarget.Object, path, resolver.Object);
             var routeData = new RouteData();
-            routeData.Routers.AddRange(new[] { null, route, null });
+            routeData.Routers.Add(null);
+            routeData.Routers.Add(route);
+            routeData.Routers.Add(null);
 
             return routeData;
         }
@@ -680,9 +706,14 @@ namespace RService.IO.Tests
             var next = handler ?? (c => Task.FromResult<object>(null));
             var rservice = new RService(options);
 
-            serviceProvider = serviceProvider ?? new Mock<IServiceProvider>()
-                .SetupAllProperties()
-                .Object;
+            if (serviceProvider == null)
+            {
+                var mockServiceProvider = new Mock<IServiceProvider>().SetupAllProperties();
+                mockServiceProvider.Setup(x => x.Invoke(It.IsAny<HttpContext>()))
+                    .Returns(Task.FromResult(0));
+
+                serviceProvider = mockServiceProvider.Object;
+            }
 
             if (!routePath.IsNullOrEmpty() && routeActivator != null)
                 rservice.Routes.Add(routePath, new ServiceDef

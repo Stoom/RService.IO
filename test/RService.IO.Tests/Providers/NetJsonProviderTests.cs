@@ -159,7 +159,7 @@ namespace RService.IO.Tests.Providers
                         { nameof(DtoForParamRoute.Foobar), expectedValue }
                     });
 
-            var context = BuildContext(routePath, query: query);
+            var context = BuildContext(routeTemplate: routePath, query: query);
 
             var dto = (DtoForParamRoute)_provider.HydrateRequest(context.Object, typeof(DtoForParamRoute));
 
@@ -177,7 +177,7 @@ namespace RService.IO.Tests.Providers
                         { nameof(DtoForParamRoute.Llama), expectedValue }
                     });
 
-            var context = BuildContext(routePath, query: query);
+            var context = BuildContext(routeTemplate: routePath, query: query);
 
             var dto = (DtoForParamRoute)_provider.HydrateRequest(context.Object, typeof(DtoForParamRoute));
 
