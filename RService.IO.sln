@@ -34,6 +34,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8183F92D
 		build\version.props = build\version.props
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{9BBD4CCC-ECA9-49A3-BDC6-EBECAE6C562A}"
+	ProjectSection(SolutionItems) = preProject
+		samples\README.md = samples\README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApiSample", "samples\WebApiSample\WebApiSample.csproj", "{0630EC05-F984-4683-A974-F3B67F20EF51}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RServiceSample", "samples\RServiceSample\RServiceSample.csproj", "{69CE6A1F-1815-4D5F-8844-F401A318C9B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +73,14 @@ Global
 		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0630EC05-F984-4683-A974-F3B67F20EF51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0630EC05-F984-4683-A974-F3B67F20EF51}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0630EC05-F984-4683-A974-F3B67F20EF51}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0630EC05-F984-4683-A974-F3B67F20EF51}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69CE6A1F-1815-4D5F-8844-F401A318C9B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69CE6A1F-1815-4D5F-8844-F401A318C9B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69CE6A1F-1815-4D5F-8844-F401A318C9B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69CE6A1F-1815-4D5F-8844-F401A318C9B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +92,7 @@ Global
 		{4474DEEE-06F5-4706-97A2-A437E258F485} = {B748CB97-7861-4FC7-828D-11C44E540630}
 		{4FA0A7F5-B8AC-4BE0-BD20-7E2CDB16AE8B} = {B748CB97-7861-4FC7-828D-11C44E540630}
 		{44B66719-E3DC-4F39-A67D-196BCB9A0FA7} = {1F1CF499-A7DD-4BEE-B9B5-E5A87E0ADDA4}
-		{8183F92D-35F0-4362-896B-9BEEFE2EC1D0} = {64F366F9-AA78-455D-B3C7-94B9F14814AA}
+		{0630EC05-F984-4683-A974-F3B67F20EF51} = {9BBD4CCC-ECA9-49A3-BDC6-EBECAE6C562A}
+		{69CE6A1F-1815-4D5F-8844-F401A318C9B5} = {9BBD4CCC-ECA9-49A3-BDC6-EBECAE6C562A}
 	EndGlobalSection
 EndGlobal
