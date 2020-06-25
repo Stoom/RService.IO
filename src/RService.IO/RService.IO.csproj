@@ -6,7 +6,15 @@
     <AssemblyName>RService.IO</AssemblyName>
     <PackageId>RService.IO</PackageId>
     <PackageTags>microservice;webservice;dotnet core;ASP.NET;api;RESTful;RService.IO</PackageTags>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <ProjectReference Include="..\RService.IO.Abstractions\RService.IO.Abstractions.csproj" />
